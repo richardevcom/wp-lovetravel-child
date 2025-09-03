@@ -1,0 +1,68 @@
+/*
+Theme Name: LoveTravel Child
+Description: Child theme of LoveTravel - A professional travel theme with custom enhancements for tribetravel.eu
+Author: richardevcom
+Author URI: https://github.com/richardevcom
+Template: lovetravel
+Version: 1.0.0
+License: GPL v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Tags: travel, tourism, business, one-column, two-columns, right-sidebar, custom-header, custom-menu, editor-style, featured-images, microformats, post-formats, rtl-language-support, sticky-post, translation-ready, accessibility-ready
+Text Domain: lovetravel-child
+*/
+
+/**
+ * ========================================
+ * LoveTravel Child Theme Styles
+ * ========================================
+ * 
+ * This stylesheet contains customizations for the LoveTravel child theme.
+ * 
+ * Table of Contents:
+ * 1. Theme Variables
+ * 2. Base Styles
+ * 3. Typography
+ * 4. Layout & Structure
+ * 5. Components
+ * 6. Responsive Design
+ * 7. Custom Additions
+ * 
+ * @package LoveTravel_Child
+ * @version 1.0.0
+ */
+
+/* ===== 1. THEME VARIABLES ===== */
+:root {
+    /* New Brand Colors (Primary) */
+    --accent-color: #ea5b10;           /* Primary accent (links, buttons, highlights) */
+    --background-color: #ffffff;       /* Main background */
+    --text-primary: #000000;           /* Headings, primary text */
+    --text-secondary: #363635;         /* Secondary text, subtitles */
+    --border-light: #e8e6e1;          /* Light borders (adjusted from #f8f9fa to complement #363635) */
+    
+    /* Legacy Color Variables (for compatibility) */
+    --primary-color: #000000;
+    --secondary-color: #    ;
+    --text-color: #000000;
+    --light-gray: #e8e6e1;
+    --border-color: #e8e6e1;
+
+}
+
+/* ===== 2. BASE STYLES ===== */
+/* Custom base styles will be added here as needed */
+
+/* ===== 3. TYPOGRAPHY ===== */
+/* Custom typography modifications will be added here */
+
+/* ===== 4. LAYOUT & STRUCTURE ===== */
+/* Custom layout modifications will be added here */
+
+/* ===== 5. COMPONENTS ===== */
+/* Custom component styles will be added here */
+
+/* ===== 6. RESPONSIVE DESIGN ===== */
+/* Custom responsive modifications will be added here */
+
+/* ===== 7. CUSTOM ADDITIONS ===== */
+/* Add your custom styles below this line */
