@@ -725,6 +725,11 @@ class PayloadMediaImporter
             wp_die('Security check failed');
         }
 
+        if (!current_user_can('upload_files')) {
+            wp_send_json_error(['message' => 'Insufficient permissions']);
+            return;
+        }
+
         $this->state_manager->request_stop();
         $this->logger->log('INFO', 'IMPORT', 'Stop requested by user');
 
@@ -735,6 +740,11 @@ class PayloadMediaImporter
     {
         if (!wp_verify_nonce($_POST['nonce'], 'payload_import_v4')) {
             wp_die('Security check failed');
+        }
+
+        if (!current_user_can('upload_files')) {
+            wp_send_json_error(['message' => 'Insufficient permissions']);
+            return;
         }
 
         $this->state_manager->clear_state();
@@ -750,6 +760,11 @@ class PayloadMediaImporter
             wp_die('Security check failed');
         }
 
+        if (!current_user_can('upload_files')) {
+            wp_send_json_error(['message' => 'Insufficient permissions']);
+            return;
+        }
+
         $state = $this->state_manager->get_state();
         $recent_logs = $this->logger->get_recent_logs(20);
 
@@ -763,6 +778,11 @@ class PayloadMediaImporter
     {
         if (!wp_verify_nonce($_POST['nonce'], 'payload_import_v4')) {
             wp_die('Security check failed');
+        }
+
+        if (!current_user_can('upload_files')) {
+            wp_send_json_error(['message' => 'Insufficient permissions']);
+            return;
         }
 
         $stats = $this->get_statistics();
