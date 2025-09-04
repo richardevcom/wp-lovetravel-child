@@ -19,3 +19,21 @@ Edge Cases:
 
 Success Criteria: PR diff limited, no unrelated whitespace, translation textdomains unchanged.
 
+---
+Enhancements (dev + content scope):
+- i18n: Use `__()`, `_e()`, `esc_html__()` with correct textdomain `lovetravel-child` [Inference].
+- Accessibility: Ensure new templates contain proper landmark roles (`<main>`, `<nav>` labels) [Inference].
+- SEO: Maintain `<title>` via core; add meta only via hooks (e.g., `wp_head`) NOT hard-coded duplicates [Inference].
+- Performance: Prefer `wp_enqueue_script` with `in_footer` true and version param.
+
+Pre-Commit Checklist:
+1. `git diff --name-only` minimal.
+2. Search stray debug: `grep -R "var_dump\|console.log" -n . || true` (should be empty).
+3. i18n check: `grep -R "__(" -n . | head -n3` for usage spot-check.
+4. Hooks validated with Theme Dev Handbook citation.
+
+Rollback Strategy:
+`git checkout main -- <file>` then recommit with `revert(theme):` prefix if feature abandoned.
+
+Reflection Step: After merge, log lessons/risk in edit log.
+
