@@ -112,140 +112,35 @@ class LoveTravel_Mailchimp_Subscriber_Export
 
         wp_enqueue_script('jquery');
 
-        // Add inline script with AJAX configuration
-        add_action('admin_footer', function () {
-?>
-            <script type="text/javascript">
-                window.mc4wp_export_ajax = {
-                    ajax_url: '<?php echo admin_url() . 'admin-ajax.php'; ?>',
-                    nonce: '<?php echo wp_create_nonce('mc4wp_export_nonce'); ?>'
-                };
-                console.log('MC4WP Export AJAX configured:', window.mc4wp_export_ajax);
-            </script>
-        <?php
-        });
+        // Enqueue shared admin styles
+        if (file_exists(LOVETRAVEL_CHILD_DIR . '/assets/css/admin-tools.css')) {
+            wp_enqueue_style(
+                'lovetravel-child-admin-tools',
+                LOVETRAVEL_CHILD_URI . '/assets/css/admin-tools.css',
+                [],
+                LOVETRAVEL_CHILD_VERSION
+            );
+        }
 
-        // Add styling to match payload import tool
-        wp_add_inline_style('wp-admin', '
-            .mc4wp-export-card { 
-                background: #fff; 
-                border: 1px solid #c3c4c7; 
-                border-radius: 4px; 
-                padding: 20px; 
-                margin: 20px 0; 
-                box-shadow: 0 1px 1px rgba(0,0,0,.04);
-            }
-            .mc4wp-progress-bar { 
-                background: #f1f1f1; 
-                border-radius: 4px; 
-                height: 20px; 
-                width: 100%; 
-                margin: 10px 0; 
-                overflow: hidden;
-            }
-            .mc4wp-progress-fill {
-                background: linear-gradient(90deg, #0073aa 0%, #005a87 100%);
-                height: 100%;
-                border-radius: 4px;
-                transition: width 0.3s ease;
-                width: 0%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-size: 12px;
-                font-weight: 600;
-            }
-            .mc4wp-export-results {
-                margin-top: 20px;
-                padding: 15px;
-                border-radius: 4px;
-                display: none;
-            }
-            .mc4wp-export-results.success {
-                background: #d1e7dd;
-                border: 1px solid #badbcc;
-                color: #0f5132;
-            }
-            .mc4wp-export-results.error {
-                background: #f8d7da;
-                border: 1px solid #f5c2c7;
-                color: #842029;
-            }
-            .mc4wp-stats {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 20px;
-                margin: 20px 0;
-            }
-            .mc4wp-stat-box {
-                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                padding: 20px;
-                border-radius: 8px;
-                text-align: center;
-                border: 1px solid #dee2e6;
-                transition: transform 0.2s ease;
-            }
-            .mc4wp-stat-box:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            }
-            .mc4wp-stat-number {
-                font-size: 32px;
-                font-weight: 700;
-                color: #0073aa;
-                margin-bottom: 8px;
-                display: block;
-            }
-            .mc4wp-stat-label {
-                font-size: 14px;
-                color: #666;
-                font-weight: 500;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-            .mc4wp-download-link {
-                display: inline-block;
-                background: linear-gradient(90deg, #0073aa 0%, #005a87 100%);
-                color: white !important;
-                padding: 12px 24px;
-                text-decoration: none;
-                border-radius: 6px;
-                margin: 15px 0;
-                font-weight: 600;
-                transition: all 0.3s ease;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            .mc4wp-download-link:hover {
-                background: linear-gradient(90deg, #005a87 0%, #004a73 100%);
-                color: white !important;
-                transform: translateY(-1px);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            }
-            .mc4wp-export-card h2 {
-                margin-top: 0;
-                color: #23282d;
-                border-bottom: 2px solid #0073aa;
-                padding-bottom: 10px;
-                margin-bottom: 20px;
-            }
-            #export-progress {
-                background: #f8f9fa;
-                border: 1px solid #dee2e6;
-                border-radius: 8px;
-                padding: 20px;
-                margin: 20px 0;
-            }
-            #progress-text {
-                font-weight: 600;
-                color: #495057;
-                margin: 10px 0 5px 0;
-            }
-            #progress-details {
-                color: #6c757d;
-                font-size: 14px;
-            }
-        ');
+        // Enqueue mailchimp export JS
+        if (file_exists(LOVETRAVEL_CHILD_DIR . '/assets/js/admin-mailchimp-export.js')) {
+            wp_enqueue_script(
+                'lovetravel-child-admin-mailchimp-export',
+                LOVETRAVEL_CHILD_URI . '/assets/js/admin-mailchimp-export.js',
+                ['jquery'],
+                LOVETRAVEL_CHILD_VERSION,
+                true
+            );
+
+            wp_localize_script(
+                'lovetravel-child-admin-mailchimp-export',
+                'mc4wp_export_ajax',
+                [
+                    'ajax_url' => admin_url('admin-ajax.php'),
+                    'nonce' => wp_create_nonce('mc4wp_export_nonce')
+                ]
+            );
+        }
     }
 
     /**
@@ -345,126 +240,7 @@ class LoveTravel_Mailchimp_Subscriber_Export
             <div id="export-results" class="mc4wp-export-results"></div>
         </div>
 
-        <script type="text/javascript">
-            jQuery(document).ready(function($) {
-                let exportInProgress = false;
-
-                // Check if our AJAX object is available
-                if (typeof mc4wp_export_ajax === 'undefined') {
-                    console.error('mc4wp_export_ajax is not defined');
-                    showResult('error', 'JavaScript configuration error. Please refresh the page.');
-                    return;
-                }
-
-                // Load initial statistics
-                loadStatistics();
-
-                // Refresh statistics
-                $('#refresh-stats').on('click', function() {
-                    $(this).prop('disabled', true).text('Loading...');
-                    loadStatistics().always(function() {
-                        $('#refresh-stats').prop('disabled', false).text('Refresh Statistics');
-                    });
-                });
-
-                // Toggle date range options
-                $('#use-date-range').on('change', function() {
-                    $('#date-range-options').toggle(this.checked);
-                });
-
-                // Export subscribers
-                $('#export-subscribers').on('click', function() {
-                    if (exportInProgress) {
-                        alert('Export already in progress!');
-                        return;
-                    }
-
-                    exportInProgress = true;
-                    $(this).prop('disabled', true).text('Exporting...');
-
-                    exportSubscribers();
-                });
-
-                function loadStatistics() {
-                    $('#total-subscribers, #active-subscribers, #recent-subscribers').text('...');
-
-                    return $.post(mc4wp_export_ajax.ajax_url, {
-                        action: 'get_subscriber_stats',
-                        nonce: mc4wp_export_ajax.nonce
-                    }).done(function(response) {
-                        if (response.success) {
-                            $('#total-subscribers').text(response.data.total_count.toLocaleString());
-                            $('#active-subscribers').text(response.data.active_count.toLocaleString());
-                            $('#recent-subscribers').text(response.data.recent_count.toLocaleString());
-                            console.log('Statistics loaded successfully');
-                        } else {
-                            showResult('error', 'Failed to load statistics: ' + (response.data ? response.data.message : 'Unknown error'));
-                        }
-                    }).fail(function(xhr, status, error) {
-                        console.error('AJAX Error:', status, error);
-                        showResult('error', 'Failed to load statistics: Network error');
-                        $('#total-subscribers, #active-subscribers, #recent-subscribers').text('Error');
-                    });
-                }
-
-                function exportSubscribers() {
-                    $('#export-progress').show();
-                    $('#export-results').hide().removeClass('success error');
-
-                    var exportData = {
-                        action: 'export_mailchimp_subscribers',
-                        nonce: mc4wp_export_ajax.nonce,
-                        format: $('#export-format').val(),
-                        include_unsubscribed: $('#include-unsubscribed').is(':checked') ? '1' : '0',
-                        use_date_range: $('#use-date-range').is(':checked') ? '1' : '0',
-                        start_date: $('#start-date').val(),
-                        end_date: $('#end-date').val()
-                    };
-
-                    updateProgress(10, 'Connecting to Payload CMS...', 'Initializing export process');
-
-                    $.post(mc4wp_export_ajax.ajax_url, exportData)
-                        .done(function(response) {
-                            if (response.success) {
-                                updateProgress(100, 'Export completed successfully!',
-                                    'Exported ' + response.data.exported_count + ' subscribers');
-                                showResult('success',
-                                    '<strong>Export Complete!</strong><br>' +
-                                    'Successfully exported ' + response.data.exported_count + ' subscribers.<br>' +
-                                    '<a href="' + response.data.download_url + '" class="mc4wp-download-link" target="_blank">' +
-                                    '📥 Download Export File (' + response.data.filename + ')</a>'
-                                );
-                            } else {
-                                updateProgress(0, 'Export failed', '');
-                                showResult('error', 'Export failed: ' + (response.data ? response.data.message : 'Unknown error'));
-                            }
-                        })
-                        .fail(function(xhr, status, error) {
-                            console.error('Export AJAX Error:', status, error, xhr.responseText);
-                            updateProgress(0, 'Export failed', '');
-                            showResult('error', 'Export failed due to network error: ' + status);
-                        })
-                        .always(function() {
-                            exportInProgress = false;
-                            $('#export-subscribers').prop('disabled', false).text('Export Subscribers');
-                        });
-                }
-
-                function updateProgress(percent, text, details) {
-                    $('#progress-fill').css('width', percent + '%').text(percent + '%');
-                    $('#progress-text').text(text);
-                    $('#progress-details').text(details);
-                }
-
-                function showResult(type, message) {
-                    $('#export-results')
-                        .removeClass('success error')
-                        .addClass(type)
-                        .html(message)
-                        .show();
-                }
-            });
-        </script>
+        <!-- JS moved to assets/js/admin-mailchimp-export.js -->
 <?php
     }
 
