@@ -605,11 +605,37 @@ class PayloadMediaImporter
             return;
         }
 
+        // Ensure jQuery for our script dependency
         wp_enqueue_script('jquery');
-        wp_localize_script('jquery', 'payloadImport', [
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('payload_import_v4')
-        ]);
+
+        // Enqueue shared admin styles (created during refactor)
+        if (file_exists(LOVETRAVEL_CHILD_DIR . '/assets/css/admin-tools.css')) {
+            wp_enqueue_style(
+                'lovetravel-child-admin-tools',
+                LOVETRAVEL_CHILD_URI . '/assets/css/admin-tools.css',
+                [],
+                LOVETRAVEL_CHILD_VERSION
+            );
+        }
+
+        // Enqueue payload import admin script
+        if (file_exists(LOVETRAVEL_CHILD_DIR . '/assets/js/admin-payload-import.js')) {
+            wp_enqueue_script(
+                'lovetravel-child-admin-payload-import',
+                LOVETRAVEL_CHILD_URI . '/assets/js/admin-payload-import.js',
+                ['jquery'],
+                LOVETRAVEL_CHILD_VERSION,
+                true
+            );
+
+            // Localize config object (previously bound to jquery)
+            $state = $this->state_manager->get_state();
+            wp_localize_script('lovetravel-child-admin-payload-import', 'payloadImport', [
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('payload_import_v4'),
+                'currentStatus' => $state['status'] ?? 'idle'
+            ]);
+        }
     }
 
     public function admin_page()
