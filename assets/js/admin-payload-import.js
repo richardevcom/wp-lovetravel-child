@@ -1,124 +1,168 @@
-(function($){
-    'use strict';
+/* Payload Media Import Admin JS (extracted from template) */
+jQuery(function ($) {
+  let statusCheckInterval = null;
+  let currentStatus = payloadImport.state || 'idle';
 
-    const payloadImportConfig = window.payloadImport || {};
-    let currentStatus = payloadImportConfig.currentStatus || 'idle';
-    let statusCheckInterval = null;
+  const selectors = {
+    form: '#import-form',
+    stop: '#stop-import',
+    reset: '#reset-import',
+    refreshLog: '#refresh-log',
+    log: '#import-log',
+    status: '#import-status',
+    jobId: '#job-id',
+    progress: '#import-progress',
+    currentFile: '#current-file',
+    progressFill: '#progress-fill',
+    payloadCount: '#payload-count',
+    wpCount: '#wp-count',
+    importedCount: '#imported-count',
+    remainingCount: '#remaining-count'
+  };
 
-    function qs(id){ return $(id); }
-    function logContainer(){ return $('#import-log'); }
+  function updateLog(message) {
+    const timestamp = new Date().toLocaleTimeString();
+    const logEntry = '[' + timestamp + '] ' + message;
+    const $log = $(selectors.log);
+    $log.append('<div>' + $('<div>').text(logEntry).html() + '</div>');
+    $log.scrollTop($log[0].scrollHeight);
+  }
 
-    function updateLog(message){
-        const timestamp = new Date().toLocaleTimeString();
-        const entry = '[' + timestamp + '] ' + message;
-        const c = logContainer();
-        c.append('<div>' + $('<div>').text(entry).html() + '</div>');
-        c.scrollTop(c[0].scrollHeight);
-    }
+  function ajax(action, data = {}) {
+    return $.post(payloadImport.ajax_url, Object.assign({
+      action: action,
+      nonce: payloadImport.nonce
+    }, data));
+  }
 
-    function updateLogFromResponse(logs){
-        if(!logs || !logs.length) return;
-        const c = logContainer();
-        c.empty();
-        logs.forEach(line => { if(line.trim()){ c.append('<div>' + $('<div>').text(line).html() + '</div>'); }});
-        c.scrollTop(c[0].scrollHeight);
-    }
-
-    function refreshStats(){
-        $.post(payloadImportConfig.ajax_url, {
-            action: 'payload_import_stats',
-            nonce: payloadImportConfig.nonce
-        }).done(res => {
-            if(res.success && res.data.stats){
-                const s = res.data.stats;
-                $('#payload-count').text(s.payload_count || 0);
-                $('#wp-count').text(s.wp_count || 0);
-                $('#imported-count').text(s.imported_count || 0);
-                $('#remaining-count').text(s.remaining_count || 0);
-            }
-        });
-    }
-
-    function updateImportStatus(state){
-        if(!state) return;
-        $('#import-status').text(state.status.charAt(0).toUpperCase() + state.status.slice(1))
-            .removeClass().addClass('status-' + state.status);
-        $('#job-id').text(state.job_id || 'N/A');
-        $('#import-progress').text((state.current_index || 0) + '/' + (state.total || 0));
-        $('#current-file').text(state.current_file || '-');
-        if(state.total > 0){
-            const pct = ((state.current_index || 0) / state.total) * 100;
-            $('#progress-fill').css('width', pct + '%');
+  function startImport() {
+    const data = {
+      batch_size: $('#batch-size').val(),
+      skip_existing: $('#skip-existing').is(':checked') ? '1' : '0',
+      generate_thumbnails: $('#generate-thumbnails').is(':checked') ? '1' : '0'
+    };
+    updateLog('🚀 Starting import...');
+    ajax('payload_import_start', data)
+      .done(function (response) {
+        if (response.success) {
+          updateLog('✅ Import started — Job ID: ' + response.data.job_id);
+          currentStatus = 'running';
+          setTimeout(function () { location.reload(); }, 800);
+        } else {
+          updateLog('❌ Failed to start: ' + (response.data.message || 'Unknown error'));
         }
-        if(state.status !== currentStatus){
-            currentStatus = state.status;
-            if(['stopped','completed','error'].includes(state.status)){
-                clearInterval(statusCheckInterval); statusCheckInterval = null;
-                setTimeout(()=>{ window.location.reload(); }, 3000);
-            }
+      })
+      .fail(function () { updateLog('❌ AJAX start failed'); });
+  }
+
+  function stopImport() {
+    ajax('payload_import_stop')
+      .done(function (response) {
+        if (response.success) {
+          updateLog('🛑 Stop requested — will halt after current batch');
+          $(selectors.status).text('Stopping').attr('class', 'status-stopping');
+          $(selectors.stop).prop('disabled', true).text('Stopping...');
+        } else {
+          updateLog('❌ Failed to stop: ' + (response.data.message || 'Unknown error'));
         }
-    }
+      })
+      .fail(function () { updateLog('❌ Stop request failed'); });
+  }
 
-    function startStatusCheck(){
-        if(statusCheckInterval) clearInterval(statusCheckInterval);
-        statusCheckInterval = setInterval(()=>{
-            $.post(payloadImportConfig.ajax_url, { action:'payload_import_status', nonce: payloadImportConfig.nonce })
-                .done(res => { if(res.success){ updateImportStatus(res.data.state); updateLogFromResponse(res.data.logs); refreshStats(); }});
-        }, 3000);
-    }
-
-    function startImport(){
-        const data = {
-            action: 'payload_import_start',
-            nonce: payloadImportConfig.nonce,
-            batch_size: $('#batch-size').val(),
-            skip_existing: $('#skip-existing').is(':checked') ? '1':'0',
-            generate_thumbnails: $('#generate-thumbnails').is(':checked') ? '1':'0'
-        };
-        updateLog('🚀 Starting import...');
-        $.post(payloadImportConfig.ajax_url, data)
-            .done(res => {
-                if(res.success){
-                    updateLog('✅ Import started successfully - Job ID: ' + res.data.job_id);
-                    currentStatus = 'running';
-                    setTimeout(()=> window.location.reload(), 800);
-                } else {
-                    updateLog('❌ Failed to start import: ' + (res.data.message || 'Unknown error'));
-                }
-            })
-            .fail(()=> updateLog('❌ AJAX request failed'));
-    }
-
-    function stopImport(){
-        $.post(payloadImportConfig.ajax_url, { action:'payload_import_stop', nonce: payloadImportConfig.nonce })
-            .done(res => { if(res.success){ updateLog('🛑 Stop requested - import will stop after current batch'); $('#import-status').text('Stopping').removeClass().addClass('status-stopping'); $('#stop-import').prop('disabled', true).text('Stopping...'); } else { updateLog('❌ Failed to stop import: ' + (res.data.message||'Unknown error')); } })
-            .fail(()=> updateLog('❌ Stop request failed'));
-    }
-
-    function resetImport(){
-        if(!confirm('Are you sure you want to reset the import state? This will clear all progress.')) return;
-        $.post(payloadImportConfig.ajax_url, { action:'payload_import_reset', nonce: payloadImportConfig.nonce })
-            .done(res => { if(res.success){ updateLog('♻️ Import state reset'); setTimeout(()=> window.location.reload(), 800); } else { updateLog('❌ Failed to reset import: ' + (res.data.message||'Unknown error')); } })
-            .fail(()=> updateLog('❌ Reset request failed'));
-    }
-
-    function refreshLog(){
-        $.post(payloadImportConfig.ajax_url, { action:'payload_import_status', nonce: payloadImportConfig.nonce })
-            .done(res => { if(res.success && res.data.logs){ updateLogFromResponse(res.data.logs); }});
-    }
-
-    function bindEvents(){
-        $('#import-form').on('submit', e => { e.preventDefault(); startImport(); });
-        $('#stop-import').on('click', stopImport);
-        $('#reset-import').on('click', resetImport);
-        $('#refresh-log').on('click', refreshLog);
-    }
-
-    $(document).ready(function(){
-        bindEvents();
-        if(['running','stopping'].includes(currentStatus)){
-            startStatusCheck();
-            refreshLog();
+  function resetImport() {
+    if (!confirm('Reset import state? This clears all progress.')) return;
+    ajax('payload_import_reset')
+      .done(function (response) {
+        if (response.success) {
+          updateLog('🧹 Import state reset');
+          setTimeout(function () { location.reload(); }, 800);
+        } else {
+          updateLog('❌ Failed to reset: ' + (response.data.message || 'Unknown error'));
         }
+      })
+      .fail(function () { updateLog('❌ Reset request failed'); });
+  }
+
+  function refreshLog() {
+    ajax('payload_import_status')
+      .done(function (response) {
+        if (response.success && response.data.logs) {
+          updateLogFromResponse(response.data.logs);
+        }
+      });
+  }
+
+  function refreshStats() {
+    ajax('payload_import_stats')
+      .done(function (response) {
+        if (response.success && response.data.stats) {
+          const stats = response.data.stats;
+          $(selectors.payloadCount).text(stats.payload_count || 0);
+          $(selectors.wpCount).text(stats.wp_count || 0);
+          $(selectors.importedCount).text(stats.imported_count || 0);
+          $(selectors.remainingCount).text(stats.remaining_count || 0);
+        }
+      });
+  }
+
+  function updateImportStatus(state) {
+    if (!state) return;
+    $(selectors.status).text(state.status.charAt(0).toUpperCase() + state.status.slice(1))
+      .attr('class', 'status-' + state.status);
+    $(selectors.jobId).text(state.job_id || 'N/A');
+    $(selectors.progress).text((state.current_index || 0) + '/' + (state.total || 0));
+    $(selectors.currentFile).text(state.current_file || '-');
+    if (state.total > 0) {
+      const percent = ((state.current_index || 0) / state.total) * 100;
+      $(selectors.progressFill).css('width', percent + '%');
+    }
+    if (state.status !== currentStatus) {
+      currentStatus = state.status;
+      if (['stopped', 'completed', 'error'].includes(state.status)) {
+        clearInterval(statusCheckInterval);
+        statusCheckInterval = null;
+        setTimeout(function () { location.reload(); }, 2200);
+      }
+    }
+  }
+
+  function updateLogFromResponse(logs) {
+    if (!logs || !logs.length) return;
+    const $log = $(selectors.log).empty();
+    logs.forEach(function (line) {
+      if (line.trim()) $log.append('<div>' + $('<div>').text(line).html() + '</div>');
     });
-})(jQuery);
+    $log.scrollTop($log[0].scrollHeight);
+  }
+
+  function startStatusCheck() {
+    if (statusCheckInterval) clearInterval(statusCheckInterval);
+    statusCheckInterval = setInterval(function () {
+      ajax('payload_import_status')
+        .done(function (response) {
+          if (response.success) {
+            updateImportStatus(response.data.state);
+            updateLogFromResponse(response.data.logs);
+            refreshStats();
+          }
+        });
+    }, 3000);
+  }
+
+  // Event bindings
+  $(selectors.form).on('submit', function (e) { e.preventDefault(); startImport(); });
+  $(selectors.stop).on('click', stopImport);
+  $(selectors.reset).on('click', resetImport);
+  $(selectors.refreshLog).on('click', refreshLog);
+
+  // Start polling if active
+  if (['running', 'stopping'].includes(currentStatus)) {
+    startStatusCheck();
+    refreshLog();
+  }
+
+  // Accessible legend
+  if (!document.querySelector('#import-log-legend')) {
+    $(selectors.log).before('<p id="import-log-legend" class="description">Legend: 🚀 start · ✅ imported · ♻️ skipped · ⚠️ warning · ❌ error · 🧹 reset · 🛑 stop</p>');
+  }
+});
