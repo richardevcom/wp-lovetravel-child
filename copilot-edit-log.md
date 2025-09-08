@@ -12,6 +12,21 @@
 - [Inference] No package/composer tooling; prompts use WP-CLI placeholders
 - Reflection: Next step could add automated test harness (PHPUnit) before complex refactors
 
+### 2025-09-08 Admin tools asset externalization
+- [Verified] Branch `refactor/wp-lovetravel-child/cleanup`
+- [Verified] Externalized Mailchimp exporter JS to `assets/js/admin-mailchimp-export.js`
+- [Verified] Moved inline styles to shared `assets/css/admin-tools.css`
+- [Verified] Enqueued assets conditionally and localized AJAX config
+- [Verified] Kept nonce and capability checks intact
+- Commit: ac9e3aa feat(admin): externalize Mailchimp exporter assets
+- Verification commands:
+	- `git status --porcelain` → clean after commit
+	- `git rev-parse --abbrev-ref HEAD` → refactor/wp-lovetravel-child/cleanup
+	- `grep -n "Theme Name:" style.css | head -n1` → confirms child theme
+	- `grep -R -n "add_action" inc | head -n5` → shows hooks registered
+	- Optional WP-CLI: `wp theme list` [Unverified]
+
+
 ### Rollback Commands
 ````bash
 git submodule deinit -f wp-content/themes/lovetravel-child
