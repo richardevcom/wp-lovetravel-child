@@ -39,3 +39,86 @@
 .status-error { color: #d63638; font-weight: 600; }
 
 button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Mailchimp Export: cards, stats, results */
+.mc4wp-export-card {
+  background: #fff;
+  border: 1px solid #c3c4c7;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+.mc4wp-export-card h2 {
+  margin-top: 0;
+  color: #23282d;
+  border-bottom: 2px solid #0073aa;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+.mc4wp-export-results {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 4px;
+  display: none;
+}
+.mc4wp-export-results.success {
+  background: #d1e7dd;
+  border: 1px solid #badbcc;
+  color: #0f5132;
+}
+.mc4wp-export-results.error {
+  background: #f8d7da;
+  border: 1px solid #f5c2c7;
+  color: #842029;
+}
+.mc4wp-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+.mc4wp-stat-box {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #dee2e6;
+  transition: transform 0.2s ease;
+}
+.mc4wp-stat-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.mc4wp-stat-number {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0073aa;
+  margin-bottom: 8px;
+  display: block;
+}
+.mc4wp-stat-label {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.mc4wp-download-link {
+  display: inline-block;
+  background: linear-gradient(90deg, #0073aa 0%, #005a87 100%);
+  color: #fff !important;
+  padding: 12px 24px;
+  text-decoration: none;
+  border-radius: 6px;
+  margin: 15px 0;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.mc4wp-download-link:hover {
+  background: linear-gradient(90deg, #005a87 0%, #004a73 100%);
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}

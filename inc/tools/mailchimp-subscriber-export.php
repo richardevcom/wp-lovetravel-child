@@ -110,30 +110,27 @@ class LoveTravel_Mailchimp_Subscriber_Export
             return;
         }
 
-        wp_enqueue_script('jquery');
-
         // Enqueue shared admin styles
         if (file_exists(LOVETRAVEL_CHILD_DIR . '/assets/css/admin-tools.css')) {
             wp_enqueue_style(
-                'lovetravel-child-admin-tools',
+                'lovetravel-admin-tools',
                 LOVETRAVEL_CHILD_URI . '/assets/css/admin-tools.css',
                 [],
                 LOVETRAVEL_CHILD_VERSION
             );
         }
 
-        // Enqueue mailchimp export JS
+        // Enqueue externalized JS and localize config
         if (file_exists(LOVETRAVEL_CHILD_DIR . '/assets/js/admin-mailchimp-export.js')) {
             wp_enqueue_script(
-                'lovetravel-child-admin-mailchimp-export',
+                'lovetravel-mailchimp-export-admin',
                 LOVETRAVEL_CHILD_URI . '/assets/js/admin-mailchimp-export.js',
                 ['jquery'],
                 LOVETRAVEL_CHILD_VERSION,
                 true
             );
-
             wp_localize_script(
-                'lovetravel-child-admin-mailchimp-export',
+                'lovetravel-mailchimp-export-admin',
                 'mc4wp_export_ajax',
                 [
                     'ajax_url' => admin_url('admin-ajax.php'),
@@ -240,7 +237,7 @@ class LoveTravel_Mailchimp_Subscriber_Export
             <div id="export-results" class="mc4wp-export-results"></div>
         </div>
 
-        <!-- JS moved to assets/js/admin-mailchimp-export.js -->
+        <!-- JS moved to assets/js/admin-mailchimp-export.js; styles moved to assets/css/admin-tools.css -->
 <?php
     }
 
