@@ -104,21 +104,4 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.mc4wp-download-link {
-  display: inline-block;
-  background: linear-gradient(90deg, #0073aa 0%, #005a87 100%);
-  color: #fff !important;
-  padding: 12px 24px;
-  text-decoration: none;
-  border-radius: 6px;
-  margin: 15px 0;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-.mc4wp-download-link:hover {
-  background: linear-gradient(90deg, #005a87 0%, #004a73 100%);
-  color: #fff !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
+/* Download link now uses WP .button styles */

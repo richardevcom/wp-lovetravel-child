@@ -147,94 +147,107 @@ class LoveTravel_Mailchimp_Subscriber_Export
      */
     public function admin_page()
     {
-        ?>
+?>
         <div class="wrap">
-            <h1>Export Payload Subscribers for Mailchimp</h1>
+            <h1 class="wp-heading-inline">Payload Subscribers Export</h1>
+            <hr class="wp-header-end">
 
-            <div class="notice notice-info">
-                <p><strong>Subscriber Export Tool:</strong> Export newsletter subscribers from Payload CMS and prepare them for Mailchimp import.</p>
-                <p><strong>Source:</strong> <?php echo esc_html($this->payload_base_url . $this->mailing_endpoint); ?></p>
-                <p><strong>Format:</strong> CSV file compatible with Mailchimp import</p>
-            </div>
+            <div id="poststuff">
+                <div id="post-body" class="metabox-holder columns-2">
 
-            <!-- Statistics Section -->
-            <div class="mc4wp-export-card">
-                <h2>Subscriber Statistics</h2>
-                <button type="button" id="refresh-stats" class="button">Refresh Statistics</button>
-
-                <div class="mc4wp-stats">
-                    <div class="mc4wp-stat-box">
-                        <div class="mc4wp-stat-number" id="total-subscribers">-</div>
-                        <div class="mc4wp-stat-label">Total Subscribers</div>
-                    </div>
-                    <div class="mc4wp-stat-box">
-                        <div class="mc4wp-stat-number" id="active-subscribers">-</div>
-                        <div class="mc4wp-stat-label">Active Subscribers</div>
-                    </div>
-                    <div class="mc4wp-stat-box">
-                        <div class="mc4wp-stat-number" id="recent-subscribers">-</div>
-                        <div class="mc4wp-stat-label">Last 30 Days</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Export Options -->
-            <div class="mc4wp-export-card">
-                <h2>Export Options</h2>
-
-                <table class="form-table">
-                    <tr>
-                        <th scope="row">Export Format</th>
-                        <td>
-                            <select id="export-format" class="regular-text">
-                                <option value="csv">CSV (Recommended for Mailchimp)</option>
-                                <option value="json">JSON</option>
-                            </select>
-                            <p class="description">CSV format is recommended for Mailchimp import</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Include Unsubscribed</th>
-                        <td>
-                            <label>
-                                <input type="checkbox" id="include-unsubscribed" value="1">
-                                Include unsubscribed users in export
-                            </label>
-                            <p class="description">Useful for data backup, but not recommended for Mailchimp import</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Date Range</th>
-                        <td>
-                            <label>
-                                <input type="checkbox" id="use-date-range" value="1">
-                                Export only subscribers from specific date range
-                            </label>
-                            <div id="date-range-options" style="display: none; margin-top: 10px;">
-                                <input type="date" id="start-date" class="regular-text"> to
-                                <input type="date" id="end-date" class="regular-text">
+                    <!-- Sidebar: Statistics -->
+                    <div id="postbox-container-1" class="postbox-container">
+                        <div class="postbox">
+                            <h2 class="hndle">Subscriber Statistics</h2>
+                            <div class="inside">
+                                <p>
+                                    <button type="button" id="refresh-stats" class="button">Refresh Statistics</button>
+                                </p>
+                                <table class="widefat">
+                                    <tr>
+                                        <td><strong>Total Subscribers:</strong></td>
+                                        <td id="total-subscribers">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Active Subscribers:</strong></td>
+                                        <td id="active-subscribers">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Last 30 Days:</strong></td>
+                                        <td id="recent-subscribers">-</td>
+                                    </tr>
+                                </table>
                             </div>
-                        </td>
-                    </tr>
-                </table>
+                        </div>
+                    </div>
 
-                <p class="submit">
-                    <button type="button" id="export-subscribers" class="button button-primary">Export Subscribers</button>
-                </p>
-            </div>
+                    <!-- Main Content -->
+                    <div id="postbox-container-2" class="postbox-container">
+                        <div class="postbox">
+                            <h2 class="hndle">Export Options</h2>
+                            <div class="inside">
+                                <table class="form-table">
+                                    <tr>
+                                        <th scope="row">Export Format</th>
+                                        <td>
+                                            <select id="export-format" class="regular-text">
+                                                <option value="csv">CSV (Recommended for Mailchimp)</option>
+                                                <option value="json">JSON</option>
+                                            </select>
+                                            <p class="description">CSV format is recommended for Mailchimp import</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Include Unsubscribed</th>
+                                        <td>
+                                            <label>
+                                                <input type="checkbox" id="include-unsubscribed" value="1">
+                                                Include unsubscribed users in export
+                                            </label>
+                                            <p class="description">Useful for data backup, but not recommended for Mailchimp import</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Date Range</th>
+                                        <td>
+                                            <label>
+                                                <input type="checkbox" id="use-date-range" value="1">
+                                                Export only subscribers from specific date range
+                                            </label>
+                                            <div id="date-range-options" style="display: none; margin-top: 10px;">
+                                                <input type="date" id="start-date" class="regular-text"> to
+                                                <input type="date" id="end-date" class="regular-text">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <p class="submit">
+                                    <button type="button" id="export-subscribers" class="button button-primary">Export Subscribers</button>
+                                </p>
+                            </div>
+                        </div>
 
-            <!-- Progress Section -->
-            <div id="export-progress" style="display: none;">
-                <h3>Export Progress</h3>
-                <div class="mc4wp-progress-bar">
-                    <div class="mc4wp-progress-fill" id="progress-fill"></div>
+                        <div class="postbox">
+                            <h2 class="hndle">Export Progress</h2>
+                            <div class="inside">
+                                <div class="mc4wp-progress-bar">
+                                    <div class="mc4wp-progress-fill" id="progress-fill"></div>
+                                </div>
+                                <div id="progress-text">Starting export...</div>
+                                <div id="progress-details"></div>
+                            </div>
+                        </div>
+
+                        <div class="postbox">
+                            <h2 class="hndle">Results</h2>
+                            <div class="inside">
+                                <div id="export-results" class="mc4wp-export-results"></div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <div id="progress-text">Starting export...</div>
-                <div id="progress-details"></div>
             </div>
-
-            <!-- Results Section -->
-            <div id="export-results" class="mc4wp-export-results"></div>
         </div>
 
         <!-- JS moved to assets/js/admin-mailchimp-export.js; styles moved to assets/css/admin-tools.css -->

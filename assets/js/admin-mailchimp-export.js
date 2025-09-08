@@ -11,10 +11,11 @@ jQuery(function ($) {
 	}
 
 	function showResult(type, html) {
+		const cls = type === 'success' ? 'notice notice-success' : 'notice notice-error';
 		$('#export-results')
-			.removeClass('success error')
-			.addClass(type)
-			.html(html)
+			.removeClass('success error notice notice-success notice-error')
+			.addClass(cls)
+			.html('<p>' + html + '</p>')
 			.show();
 	}
 
@@ -55,7 +56,7 @@ jQuery(function ($) {
 					updateProgress(100, 'Export completed successfully!', 'Exported ' + res.data.exported_count + ' subscribers');
 					showResult('success', '<strong>Export Complete!</strong><br>' +
 						'Successfully exported ' + res.data.exported_count + ' subscribers.<br>' +
-						'<a href="' + res.data.download_url + '" class="mc4wp-download-link" target="_blank">📥 Download Export File (' + res.data.filename + ')</a>');
+						'<a href="' + res.data.download_url + '" class="button button-secondary" target="_blank">📥 Download Export File (' + res.data.filename + ')</a>');
 				} else {
 					updateProgress(0, 'Export failed', '');
 					showResult('error', 'Export failed: ' + (res.data ? res.data.message : 'Unknown error'));
