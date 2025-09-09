@@ -151,6 +151,7 @@ class LoveTravel_Mailchimp_Subscriber_Export
         <div class="wrap">
             <h1 class="wp-heading-inline">Payload Subscribers Export</h1>
             <hr class="wp-header-end">
+            <div id="export-notices"></div>
 
             <div id="poststuff">
                 <div id="post-body" class="metabox-holder columns-2">
@@ -160,9 +161,6 @@ class LoveTravel_Mailchimp_Subscriber_Export
                         <div class="postbox">
                             <h2 class="hndle">Subscriber Statistics</h2>
                             <div class="inside">
-                                <p>
-                                    <button type="button" id="refresh-stats" class="button">Refresh Statistics</button>
-                                </p>
                                 <table class="widefat">
                                     <tr>
                                         <td><strong>Total Subscribers:</strong></td>
@@ -227,7 +225,7 @@ class LoveTravel_Mailchimp_Subscriber_Export
                             </div>
                         </div>
 
-                        <div class="postbox">
+                        <div class="postbox" id="export-progress">
                             <h2 class="hndle">Export Progress</h2>
                             <div class="inside">
                                 <div class="mc4wp-progress-bar">
@@ -235,13 +233,17 @@ class LoveTravel_Mailchimp_Subscriber_Export
                                 </div>
                                 <div id="progress-text">Starting export...</div>
                                 <div id="progress-details"></div>
+                                <p class="submit">
+                                    <a href="#" id="download-export" class="button button-secondary" target="_blank" style="display:none;">Download CSV</a>
+                                </p>
+                                <p class="description" id="download-description" style="display:none;">This will download the exported CSV file compatible with Mailchimp import.</p>
                             </div>
                         </div>
 
                         <div class="postbox">
-                            <h2 class="hndle">Results</h2>
+                            <h2 class="hndle">Export Log</h2>
                             <div class="inside">
-                                <div id="export-results" class="mc4wp-export-results"></div>
+                                <div id="export-log" class="import-log-box" aria-live="polite"></div>
                             </div>
                         </div>
                     </div>

@@ -12,11 +12,18 @@ jQuery(function ($) {
 
 	function showResult(type, html) {
 		const cls = type === 'success' ? 'notice notice-success' : 'notice notice-error';
-		$('#export-results')
+		$('#export-notices')
 			.removeClass('success error notice notice-success notice-error')
 			.addClass(cls)
 			.html('<p>' + html + '</p>')
 			.show();
+	}
+
+	function logLine(msg) {
+		const time = new Date().toLocaleTimeString();
+		$('#export-log').append('<div>[' + time + '] ' + msg + '</div>');
+		const el = document.getElementById('export-log');
+		if (el) el.scrollTop = el.scrollHeight;
 	}
 
 	function loadStatistics() {
@@ -39,7 +46,10 @@ jQuery(function ($) {
 
 	function exportSubscribers() {
 		$('#export-progress').show();
-		$('#export-results').hide().removeClass('success error');
+		$('#export-notices').hide().removeClass('notice notice-success notice-error');
+		$('#download-export').hide().attr('href', '#');
+		$('#download-description').hide();
+		logLine('Starting export...');
 		const data = {
 			action: 'export_mailchimp_subscribers',
 			nonce: cfg.nonce,
@@ -50,21 +60,27 @@ jQuery(function ($) {
 			end_date: $('#end-date').val()
 		};
 		updateProgress(10, 'Connecting to Payload CMS...', 'Initializing export process');
+		logLine('Submitting export request to server...');
 		$.post(cfg.ajax_url, data)
 			.done(function (res) {
 				if (res.success) {
 					updateProgress(100, 'Export completed successfully!', 'Exported ' + res.data.exported_count + ' subscribers');
-					showResult('success', '<strong>Export Complete!</strong><br>' +
-						'Successfully exported ' + res.data.exported_count + ' subscribers.<br>' +
-						'<a href="' + res.data.download_url + '" class="button button-secondary" target="_blank">📥 Download Export File (' + res.data.filename + ')</a>');
+					logLine('Export complete: ' + res.data.exported_count + ' subscribers.');
+					$('#download-export').attr('href', res.data.download_url).show();
+					$('#download-description').show();
+					showResult('success', 'Export complete: ' + res.data.exported_count + ' subscribers.');
 				} else {
 					updateProgress(0, 'Export failed', '');
-					showResult('error', 'Export failed: ' + (res.data ? res.data.message : 'Unknown error'));
+					const msg = 'Export failed: ' + (res.data ? res.data.message : 'Unknown error');
+					logLine(msg);
+					showResult('error', msg);
 				}
 			})
 			.fail(function (xhr, status) {
 				updateProgress(0, 'Export failed', '');
-				showResult('error', 'Export failed due to network error: ' + status);
+				const msg = 'Export failed due to network error: ' + status;
+				logLine(msg);
+				showResult('error', msg);
 			})
 			.always(function () {
 				exportInProgress = false;
@@ -73,10 +89,6 @@ jQuery(function ($) {
 	}
 
 	function bindEvents() {
-		$('#refresh-stats').on('click', function () {
-			const $btn = $(this); $btn.prop('disabled', true).text('Loading...');
-			loadStatistics().always(function () { $btn.prop('disabled', false).text('Refresh Statistics'); });
-		});
 		$('#use-date-range').on('change', function () { $('#date-range-options').toggle(this.checked); });
 		$('#export-subscribers').on('click', function () {
 			if (exportInProgress) { alert('Export already in progress!'); return; }
@@ -92,6 +104,7 @@ jQuery(function ($) {
 		return;
 	}
 
+	// Load fresh statistics on page load; no manual refresh button needed
 	loadStatistics();
 	bindEvents();
 });
