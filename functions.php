@@ -58,6 +58,11 @@ require_once LOVETRAVEL_CHILD_DIR . '/inc/tools/payload-media-import.php';
 require_once LOVETRAVEL_CHILD_DIR . '/inc/tools/mailchimp-subscriber-export.php';
 
 /**
+ * Include Adventures import functionality (Payload CMS -> CPT `nd_travel_cpt_1`)
+ */
+require_once LOVETRAVEL_CHILD_DIR . '/inc/tools/payload-adventures-import.php';
+
+/**
  * Include customizer modifications (if file exists)
  */
 $customizer_fonts_file = LOVETRAVEL_CHILD_DIR . '/inc/customizer/fonts.php';

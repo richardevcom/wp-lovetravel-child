@@ -106,7 +106,7 @@ function lovetravel_child_override_packages_taxonomies($args, $taxonomy)
             $args['rewrite'] = array('slug' => 'difficulty');
             break;
 
-        case 'nd_travel_cpt_1_tax_3': // Min Age
+        case 'nd_travel_cpt_1_tax_3': // Month
             $args['labels'] = array(
                 'name'              => __('Adventure Month', 'lovetravel-child'),
                 'singular_name'     => __('Adventure Month', 'lovetravel-child'),
