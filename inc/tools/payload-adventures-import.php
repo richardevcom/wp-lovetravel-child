@@ -31,7 +31,7 @@ class Lovetravel_Adventures_Import
         
         add_action('wp_ajax_lovetravel_adventures_get_stats', [$this, 'ajax_get_stats']);
     add_action('wp_ajax_lovetravel_adventures_import_page', [$this, 'ajax_import_page']);
-        add_action('wp_ajax_lovetravel_adventures_create_month_terms', [$this, 'ajax_create_month_terms']);
+    // Month terms creation was one-time; no longer exposed in UI
     }
 
     public function add_admin_menu()
@@ -179,12 +179,7 @@ class Lovetravel_Adventures_Import
         wp_send_json_success($results);
     }
 
-    public function ajax_create_month_terms()
-    {
-        $this->verify_request();
-        $created = $this->ensure_month_terms();
-        wp_send_json_success(['created' => $created]);
-    }
+    // ajax_create_month_terms removed per request (one-time action was done)
 
     private function upsert_adventure($doc, $overwrite = false, $dry_run = false)
     {
@@ -284,7 +279,8 @@ class Lovetravel_Adventures_Import
             // fallback to theme accent (cannot read here) -> fallback constant
             $color = '#EA5B10';
         }
-        update_post_meta($post_id, 'nd_travel_meta_box_color', sanitize_hex_color_no_hash($color) ? $color : '#EA5B10');
+        $safe_color = sanitize_hex_color($color);
+        update_post_meta($post_id, 'nd_travel_meta_box_color', $safe_color ?: '#EA5B10');
 
         // Prices
         if (isset($doc['reservationPrice'])) update_post_meta($post_id, 'reservation_price', floatval($doc['reservationPrice']));

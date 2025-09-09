@@ -7,7 +7,6 @@ jQuery(function ($) {
     dryRun: '#dry-run',
     start: '#start-import',
     stop: '#stop-import',
-    createMonths: '#create-month-terms',
     notices: '#adventures-notices',
     totalDocs: '#total-docs',
     totalPages: '#total-pages',
@@ -64,19 +63,6 @@ jQuery(function ($) {
         }
       })
       .fail(function () { notice('Stats request failed', 'error'); });
-  }
-
-  function createMonths() {
-    ajax('lovetravel_adventures_create_month_terms')
-      .done(function (res) {
-        if (res.success) {
-          const created = res.data.created || [];
-          notice('Month terms ensured. Created: ' + created.join(', '), 'success');
-        } else {
-          notice('Could not create month terms', 'warning');
-        }
-      })
-      .fail(function () { notice('Request failed', 'error'); });
   }
 
   function importNextPage() {
@@ -157,7 +143,6 @@ jQuery(function ($) {
   // Bindings
   $(S.form).on('submit', startImport);
   $(S.stop).on('click', stopImport);
-  $(S.createMonths).on('click', function (e) { e.preventDefault(); createMonths(); });
 
   // Init
   fetchStats();
