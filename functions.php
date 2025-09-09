@@ -48,6 +48,11 @@ require_once LOVETRAVEL_CHILD_DIR . '/inc/hooks/cpt-overrides.php';
 require_once LOVETRAVEL_CHILD_DIR . '/inc/includes/admin-utilities.php';
 
 /**
+ * Include Elementor templates helper (import/export utilities)
+ */
+require_once LOVETRAVEL_CHILD_DIR . '/inc/includes/elementor-templates.php';
+
+/**
  * Include Payload CMS media import functionality
  */
 require_once LOVETRAVEL_CHILD_DIR . '/inc/tools/payload-media-import.php';
