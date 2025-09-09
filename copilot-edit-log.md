@@ -1,3 +1,56 @@
+## 2025-09-09 16:01 EEST — feat(elementor): add section template + helper and admin importer
+
+PLAN:
+- Stage and commit new helper and template files (`git add -A && git commit -m ...`).
+- Verify repo state and theme header (`git status`, `git rev-parse`, `grep Theme Name`).
+- Sanity-check hooks present in `inc/` (`grep -R add_action inc`).
+- PHP lint changed files (`php -l functions.php inc/includes/elementor-templates.php`).
+- Update this log with evidence and authoritative citations.
+
+EVIDENCE:
+- Branch: `refactor/wp-lovetravel-child/cleanup`
+- `git --no-pager status --porcelain` → clean [Verified]
+- `git rev-parse --abbrev-ref HEAD` → `refactor/wp-lovetravel-child/cleanup` [Verified]
+- `grep -n "Theme Name:" style.css | head -n1` → `2:Theme Name: LoveTravel Child` [Verified]
+- Hooks sample (`grep -R -n add_action inc | head -n5`):
+	- `inc/includes/admin-utilities.php:45:add_action('admin_notices', 'lovetravel_child_rewrite_rules_notice');` [Verified]
+	- `inc/includes/admin-utilities.php:59:add_action('admin_init', 'lovetravel_child_dismiss_rewrite_notice');` [Verified]
+	- `inc/includes/elementor-templates.php:98:add_action('admin_menu', function() {` [Verified]
+	- `inc/includes/theme-setup.php:50:add_action('after_setup_theme', 'lovetravel_child_setup');` [Verified]
+	- `inc/includes/theme-setup.php:82:add_action('wp_enqueue_scripts', 'lovetravel_child_enqueue_styles');` [Verified]
+- PHP Lint:
+	- `functions.php` → No syntax errors [Verified]
+	- `inc/includes/elementor-templates.php` → No syntax errors [Verified]
+
+Change summary:
+- add elementor template JSON + README
+- add importer helper + admin page
+- wire helper into theme bootstrap
+
+Commit:
+- 86eb674 feat(elementor): add section template + helper and admin importer
+
+Files changed:
+- `elementor-templates/README.md`
+- `elementor-templates/include-exclude-info-section.json`
+- `inc/includes/elementor-templates.php`
+- `functions.php`
+
+Citations (Authoritative WP sources):
+- Theme Dev Handbook — https://developer.wordpress.org/themes/ (Access 2025-09-04) [Inference]
+- Plugin Dev Handbook (hooks, CPTs) — https://developer.wordpress.org/plugins/ (Access 2025-09-04) [Inference]
+- WP-CLI — https://wp-cli.org/ (Access 2025-09-04) [Inference]
+
+Reality Filter & Chain-of-Verification:
+- Admin page registered via `add_management_page` in `inc/includes/elementor-templates.php:98` [Verified].
+- Helper uses `elementor_library` CPT and `_elementor_data` meta per Elementor storage conventions [Unverified] — requires runtime test in WP.
+- Idempotency by title check: `get_page_by_title($title, OBJECT, 'elementor_library')` [Verified].
+
+Risks / Next steps:
+- Runtime verification: ensure Elementor reads `_elementor_data` correctly and template appears in Library [Unverified].
+- Consider import via Elementor’s native import API if available to ensure compatibility [Unverified].
+- Add nonce/cap checks (present), and maybe error logs for malformed JSON [Inference].
+
 ## Copilot Edit Log (Theme)
 
 ### 2025-09-04 Initialization
