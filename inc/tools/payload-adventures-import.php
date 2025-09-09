@@ -282,17 +282,64 @@ class Lovetravel_Adventures_Import
         $safe_color = sanitize_hex_color($color);
         update_post_meta($post_id, 'nd_travel_meta_box_color', $safe_color ?: '#EA5B10');
 
-        // Prices
-        if (isset($doc['reservationPrice'])) update_post_meta($post_id, 'reservation_price', floatval($doc['reservationPrice']));
-        if (isset($doc['existingCustomerFullPrice'])) update_post_meta($post_id, 'full_price_existing', floatval($doc['existingCustomerFullPrice']));
-        if (isset($doc['newCustomerFullPrice'])) update_post_meta($post_id, 'full_price_new', floatval($doc['newCustomerFullPrice']));
-        if (isset($doc['discountPrice'])) update_post_meta($post_id, 'discount_price', floatval($doc['discountPrice']));
-        if (!empty($doc['discountPriceUntil'])) update_post_meta($post_id, 'discount_until', sanitize_text_field($doc['discountPriceUntil']));
+        // Prices (store both legacy nd_travel_* keys for Elementor and our custom breakdown)
+        $reservation_price = isset($doc['reservationPrice']) ? floatval($doc['reservationPrice']) : null;
+        $full_price_existing = isset($doc['existingCustomerFullPrice']) ? floatval($doc['existingCustomerFullPrice']) : null;
+        $full_price_new = isset($doc['newCustomerFullPrice']) ? floatval($doc['newCustomerFullPrice']) : null;
+        $discount_price = isset($doc['discountPrice']) ? floatval($doc['discountPrice']) : null;
+        $discount_until = !empty($doc['discountPriceUntil']) ? sanitize_text_field($doc['discountPriceUntil']) : '';
+
+        // Persist custom detailed fields
+        if (!is_null($reservation_price)) update_post_meta($post_id, 'reservation_price', $reservation_price);
+        if (!is_null($full_price_existing)) update_post_meta($post_id, 'full_price_existing', $full_price_existing);
+        if (!is_null($full_price_new)) update_post_meta($post_id, 'full_price_new', $full_price_new);
+        if (!is_null($discount_price)) update_post_meta($post_id, 'discount_price', $discount_price);
+        if ($discount_until !== '') update_post_meta($post_id, 'discount_until', $discount_until);
+
+        // Populate Elementor-visible price fields used by parent theme/templates
+        // Choose a display price priority: reservation -> new customer full -> existing customer full
+        $display_price = $reservation_price ?? $full_price_new ?? $full_price_existing;
+        if (!is_null($display_price)) {
+            // Raw numeric; Elementor heading handles presentation
+            update_post_meta($post_id, 'nd_travel_meta_box_show_price', $display_price);
+            // Base price (legacy key seen in demo data)
+            update_post_meta($post_id, 'nd_travel_meta_box_price', $display_price);
+            // New price key (some templates read this)
+            update_post_meta($post_id, 'nd_travel_meta_box_new_price', $display_price);
+        }
+        if (!is_null($discount_price)) {
+            // Cover both promotion keys found in demo exports
+            update_post_meta($post_id, 'nd_travel_meta_box_promotion_price', $discount_price);
+            update_post_meta($post_id, 'nd_travel_meta_box_promo_price', $discount_price);
+        }
 
         // Dates, length, stay
-        if (!empty($doc['dateFrom'])) update_post_meta($post_id, 'date_from', sanitize_text_field($doc['dateFrom']));
-        if (!empty($doc['dateTo'])) update_post_meta($post_id, 'date_to', sanitize_text_field($doc['dateTo']));
-        if (!empty($doc['length'])) update_post_meta($post_id, 'length_days', intval($doc['length']));
+        $date_from = !empty($doc['dateFrom']) ? sanitize_text_field($doc['dateFrom']) : '';
+        $date_to = !empty($doc['dateTo']) ? sanitize_text_field($doc['dateTo']) : '';
+        if ($date_from !== '') {
+            update_post_meta($post_id, 'date_from', $date_from);
+            update_post_meta($post_id, 'nd_travel_meta_box_availability_from', $date_from);
+        }
+        if ($date_to !== '') {
+            update_post_meta($post_id, 'date_to', $date_to);
+            update_post_meta($post_id, 'nd_travel_meta_box_availability_to', $date_to);
+        }
+
+        // Derive length in days if not provided: inclusive day count based on from/to
+        $length = null;
+        if (!empty($doc['length'])) {
+            $length = intval($doc['length']);
+        } elseif ($date_from && $date_to) {
+            $from_ts = strtotime($date_from);
+            $to_ts = strtotime($date_to);
+            if ($from_ts && $to_ts && $to_ts >= $from_ts) {
+                $length = max(1, (int) round(($to_ts - $from_ts) / DAY_IN_SECONDS) + 1);
+            }
+        }
+        if (!is_null($length)) {
+            update_post_meta($post_id, 'length_days', $length);
+        }
+
         if (!empty($doc['stay'])) update_post_meta($post_id, 'stay', sanitize_text_field($doc['stay']));
     }
 

@@ -52,3 +52,16 @@ cp -a /tmp/lovetravel-child-backup-* wp-content/themes/lovetravel-child
 	- `grep -R -n "add_action" inc | head -n5` → shows hooks registered
 	- `git log -1 --pretty=oneline` → shows latest commit hash
 
+### 2025-09-09 Elementor meta mapping alignment
+- [Verified] Importer sets parent theme Elementor keys:
+  - `nd_travel_meta_box_show_price`, `nd_travel_meta_box_price`, `nd_travel_meta_box_new_price`
+  - `nd_travel_meta_box_promotion_price`, `nd_travel_meta_box_promo_price`
+  - `nd_travel_meta_box_availability_from`, `nd_travel_meta_box_availability_to`
+  - Also persists custom fields: `reservation_price`, `full_price_existing`, `full_price_new`, `discount_price`, `discount_until`, `date_from`, `date_to`, `length_days`
+- [Verified] Compute `length_days` from `date_from`/`date_to` if missing
+- [Inference] Elementor widgets read these keys per theme demo export
+- Verification commands:
+	- `git --no-pager status --porcelain`
+	- `git --no-pager diff --name-only --cached`
+	- `git --no-pager log -1 --pretty=oneline`
+
