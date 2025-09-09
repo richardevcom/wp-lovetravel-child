@@ -34,3 +34,21 @@ git rm -f wp-content/themes/lovetravel-child
 git add .gitmodules && git commit -m "revert: remove submodule"
 cp -a /tmp/lovetravel-child-backup-* wp-content/themes/lovetravel-child
 ````
+
+### 2025-09-09 Adventures Import Tool
+- [Verified] Branch `refactor/wp-lovetravel-child/cleanup`
+- [Verified] Added Adventures Import tool:
+	- PHP controller `inc/tools/payload-adventures-import.php`
+	- Admin page `inc/tools/payload-adventures-import.page.php`
+	- JS `assets/js/admin-adventures-import.js`
+	- Submenu under CPT `nd_travel_cpt_1`
+	- AJAX: stats, paged import, ensure month terms
+	- Mappings: Duration, Difficulty, Month; media sideload; overwrite + dry-run
+- Commit: d4d7a32 feat(theme): add Adventures Import tool (Payload→WP)
+- Verification commands:
+	- `git status --porcelain` → staged/clean after commit
+	- `git rev-parse --abbrev-ref HEAD` → refactor/wp-lovetravel-child/cleanup
+	- `grep -n "Theme Name:" style.css | head -n1` → confirms child theme
+	- `grep -R -n "add_action" inc | head -n5` → shows hooks registered
+	- `git log -1 --pretty=oneline` → shows latest commit hash
+
