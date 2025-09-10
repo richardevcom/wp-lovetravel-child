@@ -73,6 +73,12 @@ function lovetravel_child_import_elementor_template($file) {
     // Mark as section/page
     update_post_meta($post_id, '_elementor_edit_mode', 'builder');
 
+    // Ensure taxonomy term is set for Elementor library filtering
+    // Taxonomy: elementor_library_type; terms like 'section', 'page'
+    if (taxonomy_exists('elementor_library_type')) {
+        wp_set_object_terms($post_id, $type, 'elementor_library_type', false);
+    }
+
     return [ 'success' => true, 'message' => 'Imported template: ' . $title, 'template_id' => (int) $post_id ];
 }
 
