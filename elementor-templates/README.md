@@ -5,9 +5,14 @@ This folder holds reusable Elementor templates/sections shipped with the child t
 - Store JSON exports here (filename: slugified, e.g. `adventure-entry.json`, `include-exclude-info-section.json`).
 - Do not embed JSON inside PHP. Import via WP Admin or helper.
 
+Included templates:
+- `include-exclude-info-section.json` — Include/Exclude info section
+- `adventure-about-section.json` — About section for adventure posts
+- `adventure-description-section.json` — Description section for adventure posts
+
 ## How to import (WP Admin)
 1. Go to `Templates → Saved Templates`.
-2. Click `Import Templates` and select the JSON file from this folder.
+2. Click `Import Templates` and select the JSON file from this folder. The selector shows each file with its internal `title` and `type` for clarity, followed by the filename.
 3. Insert it in Elementor from the Library under `My Templates`.
 
 ## Theme helper / WP-CLI (optional)

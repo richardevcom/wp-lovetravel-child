@@ -1,0 +1,45 @@
+{
+  "title": "Adventure – About",
+  "type": "section",
+  "content": [
+    {
+      "id": "section-about",
+      "elType": "section",
+      "settings": {
+        "content_width": "boxed",
+        "gap": "extended"
+      },
+      "elements": [
+        {
+          "id": "column-about",
+          "elType": "column",
+          "settings": {
+            "_column_size": 100
+          },
+          "elements": [
+            {
+              "id": "heading-about",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "About this adventure",
+                "tag": "h2",
+                "align": "left"
+              },
+              "elements": []
+            },
+            {
+              "id": "text-about",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p>Use this section to introduce the trip: who it's for, what makes it special, and what to expect. Replace this placeholder with a short, compelling summary.</p>"
+              },
+              "elements": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
