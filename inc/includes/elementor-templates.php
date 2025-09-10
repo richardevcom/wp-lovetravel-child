@@ -99,12 +99,13 @@ if (defined('WP_CLI') && WP_CLI) {
 }
 
 /**
- * Admin UI: Tools → Elementor Templates Import
+ * Admin UI: Elementor → Templates Import (submenu, placed at bottom)
  */
 add_action('admin_menu', function() {
-    add_management_page(
+    add_submenu_page(
+        'elementor',
         __('Elementor Templates Import', 'lovetravel-child'),
-        __('Elementor Templates Import', 'lovetravel-child'),
+        __('Templates Import', 'lovetravel-child'),
         'manage_options',
         'lovetravel-elementor-import',
         function() {
@@ -137,4 +138,4 @@ add_action('admin_menu', function() {
             echo '</form></div>';
         }
     );
-});
+}, 99);
