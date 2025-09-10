@@ -1,3 +1,33 @@
+### 2025-09-10 11:22 EEST — chore(admin): move Templates Import under Elementor menu
+
+PLAN:
+- Replace `add_management_page` with `add_submenu_page` under parent `elementor`.
+- Hook with priority 99 so it appears at the bottom of Elementor menu.
+- Lint, commit, and verify hooks present.
+
+EVIDENCE:
+- Commit: 2f081b2 chore(admin): move Templates Import under Elementor menu (submenu, low priority)
+- File changed: `inc/includes/elementor-templates.php`
+- Grep before/after shows `add_action('admin_menu'...)` remains and submenu registration present [Verified]
+
+Citations:
+- Plugin Dev Handbook — Admin Menus: https://developer.wordpress.org/plugins/administration-menus/ (Access 2025-09-10) [Inference]
+- Theme Dev Handbook — Hooks usage: https://developer.wordpress.org/themes/advanced-topics/hooks/ (Access 2025-09-10) [Inference]
+
+Notes:
+- Parent slug `elementor` targets Elementor’s WP Admin menu at `/wp-admin/admin.php?page=elementor` [Unverified]. If Elementor changes the slug, adjust accordingly.
+
+### 2025-09-10 11:04 EEST — fix(elementor): set elementor_library_type term during import
+
+EVIDENCE:
+- Commit: 0755f1d fix(elementor): set elementor_library_type term during import
+- File changed: `inc/includes/elementor-templates.php`
+- Verification snippets:
+	- Branch: `refactor/wp-lovetravel-child/cleanup` [Verified]
+	- Hooks list includes `admin_menu` for importer UI [Verified]
+
+Note: Taxonomy `elementor_library_type` assignment added if taxonomy exists [Inference → requires runtime check].
+
 ## 2025-09-09 16:01 EEST — feat(elementor): add section template + helper and admin importer
 
 PLAN:
