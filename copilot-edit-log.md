@@ -1,3 +1,23 @@
+### 2025-09-10 12:32 EEST — feat(importer): always create new template (no duplicate check)
+
+PLAN:
+- Remove the title-based existence check in `lovetravel_child_import_elementor_template()`.
+- Always call `wp_insert_post` to create a new `elementor_library` post.
+- Lint and commit with a scoped message.
+
+EVIDENCE:
+- Commit: fac7306 feat(importer): always create new elementor_library template (no duplicate check)
+- Diff shows removal of `get_page_by_title` and early return [Verified]
+- Lint: `php -l inc/includes/elementor-templates.php` → No syntax errors [Verified]
+
+Citations:
+- Inserting posts programmatically — https://developer.wordpress.org/reference/functions/wp_insert_post/ (Access 2025-09-10) [Inference]
+- Post meta API — https://developer.wordpress.org/reference/functions/update_post_meta/ (Access 2025-09-10) [Inference]
+
+Notes:
+- This allows re-importing even if a prior copy is in Trash; each import gets a unique ID [Verified by logic].
+- If desired later, we can add a UI toggle for "skip duplicates" vs "always new" [Inference].
+
 ### 2025-09-10 12:21 EEST — feat(admin): add 'Import Templates' button at bottom of Elementor Library list
 
 PLAN:
