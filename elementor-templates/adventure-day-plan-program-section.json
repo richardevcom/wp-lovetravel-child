@@ -1,0 +1,82 @@
+{
+  "content": [
+    {
+      "id": "351acd02",
+      "settings": {
+        "layout": "full_width",
+        "border_border": "solid",
+        "border_width": {"unit":"px","top":"0","right":"0","bottom":"1","left":"0","isLinked":""},
+        "border_color": "#E4E4E4",
+        "margin": {"unit":"px","top":"0","right":"0","bottom":"0","left":"0","isLinked":""},
+        "padding": {"unit":"px","top":"60","right":"0","bottom":"40","left":"0","isLinked":""},
+        "_title": "Program"
+      },
+      "elements": [
+        {
+          "id": "4d762795",
+          "settings": {
+            "_column_size": "100",
+            "margin": {"unit":"px","top":"0","right":"0","bottom":"0","left":"0","isLinked":""},
+            "padding": {"unit":"px","top":"0","right":"0","bottom":"0","left":"0","isLinked":""}
+          },
+          "elements": [
+            {
+              "id": "307b355",
+              "settings": {"title": "Pl\u0101ns","header_size": "h3"},
+              "elements": [],
+              "isInner": false,
+              "widgetType": "heading",
+              "elType": "widget"
+            },
+            {
+              "id": "16ed9e53",
+              "settings": {
+                "title": "<p>\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo \ntempor mi. Pellentesque non consectetur ex. In id ullamcorper neque. \nEtiam finibus magna massa, vel convallis nibh finibus at. Donec sit amet\n neque mattis, accumsan dui sed, pharetra libero. Aliquam ultrices lacus\n ac lectus ultricies scelerisque. Curabitur blandit sapien a felis \nhendrerit, eu pulvinar ante hendrerit.\n<\/p><br>",
+                "header_size": "p",
+                "_margin": {"unit":"px","top":"0","right":"0","bottom":"0","left":"0","isLinked":""},
+                "_padding": {"unit":"px","top":"0","right":"0","bottom":"0","left":"0","isLinked":""}
+              },
+              "elements": [],
+              "isInner": false,
+              "widgetType": "heading",
+              "elType": "widget"
+            },
+            {
+              "id": "71b43f80",
+              "settings": {
+                "tabs": [
+                  {"tab_title": "<span style=\"color:#d57c48\">1 DIENA<\/span> - Iera\u0161\u0101n\u0101s un orient\u0113\u0161an\u0101s","tab_content": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo tempor mi. Pellentesque non consectetur ex.<\/p>","_id": "9e51253"},
+                  {"tab_title": "<span style=\"color:#d57c48\">2 DIENA<\/span> - Kajako\u0161ana no (A) uz (B)","tab_content": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo tempor mi. Pellentesque non consectetur ex.<\/p>","_id": "1b8d296"},
+                  {"tab_title": "<span style=\"color:#d57c48\">3 DIENA<\/span> -  P\u0101rg\u0101jiens no (B) uz (C)","tab_content": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo tempor mi. Pellentesque non consectetur ex.<\/p>","_id": "c5a6cde"}
+                ],
+                "selected_icon": {"value":"fas fa-chevron-right","library":"fa-solid"},
+                "selected_active_icon": {"value":"fas fa-chevron-up","library":"fa-solid"},
+                "title_color": "#000000",
+                "title_padding": {"unit":"px","top":"30","right":"0","bottom":"30","left":"0","isLinked":""},
+                "icon_align": "right",
+                "icon_space": {"unit":"px","size":"0","sizes":[]},
+                "content_padding": {"unit":"px","top":"0","right":"0","bottom":"20","left":"0","isLinked":""},
+                "border_width": {"unit":"px","size":"1","sizes":[]},
+                "border_color": "#E4E4E4",
+                "_css_classes": "nd_travel_single_package_itineray",
+                "custom_css": ".nd_travel_single_package_itineray .elementor-toggle-item:last-child .elementor-tab-title { border-width:0px; }"
+              },
+              "elements": [],
+              "isInner": false,
+              "widgetType": "toggle",
+              "elType": "widget"
+            }
+          ],
+          "isInner": "",
+          "elType": "column"
+        }
+      ],
+      "isInner": "",
+      "elType": "section"
+    }
+  ],
+  "page_settings": [],
+  "version": "0.4",
+  "title": "Adventure Day Plan, Program",
+  "type": "section"
+}

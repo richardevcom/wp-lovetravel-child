@@ -9,6 +9,7 @@ Included templates:
 - `include-exclude-info-section.json` — Include/Exclude info section
 - `adventure-about-section.json` — About section for adventure posts
 - `adventure-description-section.json` — Description section for adventure posts
+- `adventure-day-plan-program-section.json` — Day plan/program section (toggle itinerary)
 
 ## How to import (WP Admin)
 1. Go to `Templates → Saved Templates`.

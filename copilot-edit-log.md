@@ -175,15 +175,53 @@ cp -a /tmp/lovetravel-child-backup-* wp-content/themes/lovetravel-child
 	- `git log -1 --pretty=oneline` → shows latest commit hash
 
 ### 2025-09-09 Elementor meta mapping alignment
-- [Verified] Importer sets parent theme Elementor keys:
   - `nd_travel_meta_box_show_price`, `nd_travel_meta_box_price`, `nd_travel_meta_box_new_price`
   - `nd_travel_meta_box_promotion_price`, `nd_travel_meta_box_promo_price`
   - `nd_travel_meta_box_availability_from`, `nd_travel_meta_box_availability_to`
   - Also persists custom fields: `reservation_price`, `full_price_existing`, `full_price_new`, `discount_price`, `discount_until`, `date_from`, `date_to`, `length_days`
-- [Verified] Compute `length_days` from `date_from`/`date_to` if missing
-- [Inference] Elementor widgets read these keys per theme demo export
-- Verification commands:
 	- `git --no-pager status --porcelain`
 	- `git --no-pager diff --name-only --cached`
 	- `git --no-pager log -1 --pretty=oneline`
+### 2025-09-10 13:15 EEST — feat(elementor): add About/Description templates + pretty-name importer
+
+PLAN:
+- Add two new templates under `elementor-templates/`: `adventure-about-section.json`, `adventure-description-section.json`.
+- Enhance importer UI to show each file's internal `title` and `type` next to filename.
+- Update README to list new templates and note the pretty-name selector.
+- Lint and commit with scoped message.
+
+EVIDENCE:
+- Branch: `refactor/wp-lovetravel-child/cleanup` [Verified]
+- Status before: clean working tree [Verified]
+- Lint: `php -l inc/includes/elementor-templates.php` → No syntax errors [Verified]
+- Commit: 90ddf62 feat(elementor): add Adventure About/Description templates; enhance importer UI with pretty names from JSON title/type
+- Files changed:
+	- `elementor-templates/adventure-about-section.json`
+	- `elementor-templates/adventure-description-section.json`
+	- `elementor-templates/README.md`
+	- `inc/includes/elementor-templates.php`
+
+Citations (Authoritative WP sources):
+- Theme Dev Handbook — https://developer.wordpress.org/themes/ (Access 2025-09-10) [Inference]
+- Coding Standards (PHP) — https://developer.wordpress.org/coding-standards/ (Access 2025-09-10) [Inference]
+- Plugin Dev Handbook — https://developer.wordpress.org/plugins/ (Access 2025-09-10) [Inference]
+
+Change summary:
+- add two Elementor section templates for adventure posts
+- enhance importer UI to display prettier names with title/type
+- update README with template list and UI note
+
+Reflection / Risks:
+- [Inference] JSON parsing is tolerant to common export shapes, but malformed files will show as filename-only; verify at runtime.
+- [Inference] Large template files could add minor latency to populate the selector; consider caching labels if needed.
+
+Verification commands used:
+1. `git status --porcelain` [Verified]
+2. `git rev-parse --abbrev-ref HEAD` [Verified]
+3. `grep -n "Theme Name:" style.css | head -n1` [Verified]
+4. `grep -R -n "add_action" inc | head -n5` [Verified]
+5. `php -l inc/includes/elementor-templates.php` [Verified]
+
+Success criteria: Clean working tree post-commit; importer UI shows human-friendly labels; templates import successfully into Elementor Library.
+
 
