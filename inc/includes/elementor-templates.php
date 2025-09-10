@@ -23,6 +23,24 @@ class Lovetravel_Elementor_Templates_Helper {
 }
 
 /**
+ * Add "Import Templates" action link at the bottom of Elementor Library listing.
+ * Target screen: edit.php?post_type=elementor_library
+ */
+add_action('manage_posts_extra_tablenav', function($which){
+    if ($which !== 'bottom') {
+        return;
+    }
+    $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+    if (! $screen || empty($screen->id) || $screen->id !== 'edit-elementor_library') {
+        return;
+    }
+    $url = add_query_arg([], admin_url('admin.php?page=lovetravel-elementor-import'));
+    echo '<div class="alignleft actions" style="margin-top:8px">';
+    echo '<a class="button button-primary" href="' . esc_url($url) . '">' . esc_html__('Import Templates', 'lovetravel-child') . '</a>';
+    echo '</div>';
+}, 20);
+
+/**
  * Import an Elementor template JSON file from the child theme directory.
  * - Does not overwrite if a template having the same title already exists.
  *
