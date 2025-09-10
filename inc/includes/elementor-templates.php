@@ -60,10 +60,38 @@ function lovetravel_child_import_elementor_template($file) {
         return [ 'success' => false, 'message' => 'Invalid JSON in ' . $file ];
     }
 
-    // Elementor import expects the JSON structure as provided by Elementor exports.
-    // Here, we minimally handle both full templates and section exports.
-    $title = isset($data['title']) ? sanitize_text_field($data['title']) : basename($file, '.json');
-    $type  = isset($data['type']) ? sanitize_key($data['type']) : 'section';
+    // Normalize Elementor export shapes to the elements array expected in _elementor_data.
+    // Accept shapes:
+    // 1) { content: [ ...elements... ], title, type }
+    // 2) { content: { content: [ ...elements... ], title, type }, ... }
+    // 3) [ ...elements... ] (raw elements array)
+    $elements = null;
+    $title    = null;
+    $type     = null;
+
+    if (isset($data['content']) && is_array($data['content']) && (isset($data['content'][0]) || empty($data['content']))) {
+        // Typical Elementor export
+        $elements = $data['content'];
+        $title    = $data['title'] ?? null;
+        $type     = $data['type'] ?? null;
+    } elseif (isset($data['content']['content']) && is_array($data['content']['content'])) {
+        // Double-wrapped export
+        $elements = $data['content']['content'];
+        $title    = $data['content']['title'] ?? ($data['title'] ?? null);
+        $type     = $data['content']['type'] ?? ($data['type'] ?? null);
+    } elseif (isset($data[0]) && is_array($data[0]) && (isset($data[0]['elType']) || isset($data[0]['el_type']))) {
+        // Raw elements array
+        $elements = $data;
+        $title    = null;
+        $type     = null;
+    }
+
+    if (! is_array($elements)) {
+        return [ 'success' => false, 'message' => 'Unrecognized Elementor JSON structure in ' . $file ];
+    }
+
+    $title = sanitize_text_field($title ?? basename($file, '.json'));
+    $type  = sanitize_key($type ?? 'section');
 
     // Always import as a new template (allow duplicates). No title-based idempotency.
 
@@ -81,8 +109,9 @@ function lovetravel_child_import_elementor_template($file) {
     // Store template type and data
     update_post_meta($post_id, '_elementor_template_type', $type); // e.g., section, page
 
-    // Elementor stores content in _elementor_data meta as JSON string
-    update_post_meta($post_id, '_elementor_data', wp_slash($json));
+    // Elementor stores content in _elementor_data meta as JSON string (elements array only)
+    $elements_json = wp_json_encode($elements);
+    update_post_meta($post_id, '_elementor_data', wp_slash($elements_json));
 
     // Mark as section/page
     update_post_meta($post_id, '_elementor_edit_mode', 'builder');
