@@ -65,11 +65,7 @@ function lovetravel_child_import_elementor_template($file) {
     $title = isset($data['title']) ? sanitize_text_field($data['title']) : basename($file, '.json');
     $type  = isset($data['type']) ? sanitize_key($data['type']) : 'section';
 
-    // Check if a template with this title already exists in elementor_library
-    $existing = get_page_by_title($title, OBJECT, 'elementor_library');
-    if ($existing) {
-        return [ 'success' => true, 'message' => 'Template exists: ' . $title . ' (ID ' . $existing->ID . ')', 'template_id' => (int) $existing->ID ];
-    }
+    // Always import as a new template (allow duplicates). No title-based idempotency.
 
     // Create elementor_library post
     $postarr = [
