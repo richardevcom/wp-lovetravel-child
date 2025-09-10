@@ -1,3 +1,22 @@
+### 2025-09-10 12:21 EEST — feat(admin): add 'Import Templates' button at bottom of Elementor Library list
+
+PLAN:
+- Hook `manage_posts_extra_tablenav` and inject a primary button when `$which==='bottom'` on `edit-elementor_library` screen.
+- Point button to our importer page `admin.php?page=lovetravel-elementor-import`.
+- Lint and commit with a scoped message.
+
+EVIDENCE:
+- Commit: 7e425e4 feat(admin): add 'Import Templates' button at bottom of Elementor Library list
+- Grep: `inc/includes/elementor-templates.php:29:add_action('manage_posts_extra_tablenav', function($which){` [Verified]
+- Lint: `php -l inc/includes/elementor-templates.php` → No syntax errors [Verified]
+
+Citations:
+- Admin List Table hooks — https://developer.wordpress.org/reference/hooks/manage_posts_extra_tablenav/ (Access 2025-09-10) [Inference]
+- Admin URLs — https://developer.wordpress.org/reference/functions/admin_url/ (Access 2025-09-10) [Inference]
+
+Notes:
+- Screen ID check uses `edit-elementor_library`; if Elementor changes the CPT key, adjust accordingly [Unverified].
+
 ### 2025-09-10 11:22 EEST — chore(admin): move Templates Import under Elementor menu
 
 PLAN:
