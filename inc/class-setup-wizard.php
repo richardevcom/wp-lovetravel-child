@@ -44,6 +44,7 @@ class LoveTravel_Child_Setup_Wizard
         add_action('wp_ajax_lovetravel_wizard_import_step', array($this, 'ajax_import_step'));
         add_action('wp_ajax_lovetravel_wizard_complete', array($this, 'ajax_complete_wizard'));
         add_action('wp_ajax_lovetravel_wizard_get_progress', array($this, 'ajax_get_import_progress'));
+        add_action('wp_ajax_lovetravel_wizard_stop_import', array($this, 'ajax_stop_import'));
 
         // ✅ Verified: Background import cron hook
         add_action('lovetravel_process_adventure_import', array($this, 'process_background_adventure_import'));
@@ -200,8 +201,14 @@ class LoveTravel_Child_Setup_Wizard
                         <div class="wizard-step-actions">
                             <button type="button" class="button button-primary"
                                 data-step="adventures"
+                                id="start-adventure-import"
                                 <?php echo isset($import_status['adventures']) ? 'disabled' : ''; ?>>
                                 <?php esc_html_e('Start Adventure Import', 'lovetravel-child'); ?>
+                            </button>
+                            <button type="button" class="button button-secondary"
+                                id="stop-adventure-import"
+                                style="display: none;">
+                                <?php esc_html_e('Stop Import', 'lovetravel-child'); ?>
                             </button>
                         </div>
                         
@@ -507,7 +514,7 @@ class LoveTravel_Child_Setup_Wizard
         // ✅ Verified: Get current progress
         $progress = get_option('lovetravel_adventure_import_progress', array());
         
-        if (empty($progress) || $progress['status'] === 'completed') {
+        if (empty($progress) || $progress['status'] === 'completed' || $progress['status'] === 'stopped') {
             return;
         }
 
@@ -1014,10 +1021,50 @@ class LoveTravel_Child_Setup_Wizard
             case 'completed':
                 return sprintf(__('Import completed! %d adventures imported, %d skipped', 'lovetravel-child'), 
                     $progress['imported'], $progress['skipped']);
+            case 'stopped':
+                return sprintf(__('Import stopped by user. %d adventures imported, %d skipped', 'lovetravel-child'), 
+                    $progress['imported'] ?? 0, $progress['skipped'] ?? 0);
             case 'failed':
                 return __('Import failed. Check error details.', 'lovetravel-child');
             default:
                 return __('Import in progress...', 'lovetravel-child');
+        }
+    }
+
+    /**
+     * ✅ Verified: AJAX handler to stop background import
+     */
+    public function ajax_stop_import()
+    {
+        // ✅ Verified: Security checks
+        if (! wp_verify_nonce($_POST['nonce'], 'lovetravel_wizard_nonce')) {
+            wp_die('Security check failed');
+        }
+
+        if (! current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Insufficient permissions'));
+        }
+
+        // ✅ Verified: Stop background import
+        $progress = get_option('lovetravel_adventure_import_progress', array());
+        
+        if (! empty($progress)) {
+            $progress['status'] = 'stopped';
+            $progress['stopped_at'] = current_time('mysql');
+            $progress['stopped_by_user'] = true;
+            update_option('lovetravel_adventure_import_progress', $progress);
+            
+            // ✅ Verified: Clear any scheduled cron jobs
+            wp_clear_scheduled_hook('lovetravel_process_adventure_import');
+            
+            wp_send_json_success(array(
+                'message' => __('Import stopped successfully', 'lovetravel-child'),
+                'progress' => $progress
+            ));
+        } else {
+            wp_send_json_error(array(
+                'message' => __('No import process found to stop', 'lovetravel-child')
+            ));
         }
     }
 

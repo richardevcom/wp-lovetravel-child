@@ -24,6 +24,25 @@ w/**
 	margin-bottom: 5px;
 }
 
+/* ✅ Verified: Stop import button styling */
+.lovetravel-wizard #stop-adventure-import {
+	background-color: #d63638;
+	border-color: #d63638;
+	color: #fff;
+}
+
+.lovetravel-wizard #stop-adventure-import:hover {
+	background-color: #b32d2e;
+	border-color: #b32d2e;
+}
+
+.lovetravel-wizard #stop-adventure-import:disabled {
+	background-color: #f6a9aa;
+	border-color: #f6a9aa;
+	color: #fff;
+	opacity: 0.8;
+}
+
 /* ✅ Verified: Adventure import options */
 .lovetravel-wizard .adventure-import-options {
 	margin: 15px 0;

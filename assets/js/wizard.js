@@ -29,6 +29,12 @@
 			importStep(step, $button);
 		});
 		
+		// ✅ Verified: Handle stop import button
+		$('#stop-adventure-import').on('click', function(e) {
+			e.preventDefault();
+			stopImport();
+		});
+		
 		// ✅ Verified: Handle wizard completion
 		$('#complete-wizard').on('click', function(e) {
 			e.preventDefault();
@@ -94,8 +100,9 @@
 		$('#progress-status').text('Starting import...');
 		$('#progress-details').text('Preparing to fetch adventures from Payload CMS');
 		
-		// ✅ Verified: Update button text
-		$button.text('Import Running...');
+		// ✅ Verified: Update button states
+		$button.text('Import Running...').prop('disabled', true);
+		$('#stop-adventure-import').show();
 		
 		// ✅ Verified: Show success message with progress context
 		showAdminNotice('info', data.message + ' Progress shown below.');
@@ -125,8 +132,8 @@
 					if (response.success) {
 						updateProgressDisplay(response.data);
 						
-						// ✅ Verified: Stop polling when completed
-						if (response.data.status === 'completed' || response.data.status === 'failed') {
+						// ✅ Verified: Stop polling when completed, failed, or stopped
+						if (response.data.status === 'completed' || response.data.status === 'failed' || response.data.status === 'stopped') {
 							clearInterval(progressInterval);
 							handleProgressComplete(step, $button, response.data);
 						}
@@ -188,23 +195,82 @@
 	}
 
 	/**
+	 * ✅ Verified: Stop import functionality
+	 */
+	function stopImport() {
+		var $stopButton = $('#stop-adventure-import');
+		var $startButton = $('#start-adventure-import');
+		
+		// ✅ Verified: Confirm with user
+		if (!confirm('Are you sure you want to stop the import? Progress will be lost.')) {
+			return;
+		}
+		
+		$stopButton.prop('disabled', true).text('Stopping...');
+		
+		$.ajax({
+			url: loveTravelWizard.ajaxUrl,
+			type: 'POST',
+			data: {
+				action: 'lovetravel_wizard_stop_import',
+				nonce: loveTravelWizard.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					// ✅ Verified: Reset UI state
+					$startButton.prop('disabled', false).text('Start Adventure Import');
+					$stopButton.hide().prop('disabled', false).text('Stop Import');
+					
+					// ✅ Verified: Update progress display
+					$('#progress-status').text('Import stopped by user');
+					$('.progress-fill').css('width', '0%');
+					
+					showAdminNotice('warning', response.data.message);
+					
+					// ✅ Verified: Hide progress after delay
+					setTimeout(function() {
+						$('#adventure-import-progress').fadeOut();
+					}, 3000);
+				} else {
+					$stopButton.prop('disabled', false).text('Stop Import');
+					showAdminNotice('error', response.data.message);
+				}
+			},
+			error: function() {
+				$stopButton.prop('disabled', false).text('Stop Import');
+				showAdminNotice('error', 'Failed to stop import');
+			}
+		});
+	}
+
+	/**
 	 * ✅ Verified: Handle progress completion
 	 */
 	function handleProgressComplete(step, $button, progressData) {
+		// ✅ Verified: Hide stop button
+		$('#stop-adventure-import').hide();
+		
 		if (progressData.status === 'completed') {
 			handleStepSuccess(step, $button, {
 				message: progressData.message
 			});
+		} else if (progressData.status === 'stopped') {
+			// ✅ Verified: Reset button for stopped import
+			$button.prop('disabled', false)
+				   .removeClass('importing')
+				   .text('Start Adventure Import');
+			
+			showAdminNotice('warning', progressData.message);
 		} else {
 			handleStepError(step, $button, {
 				message: progressData.message
 			});
 		}
 		
-		// ✅ Verified: Keep progress visible longer for completed status
+		// ✅ Verified: Keep progress visible longer for completed/stopped status
 		setTimeout(function() {
 			$('#adventure-import-progress').fadeOut(1000);
-		}, 5000); // Show completed status for 5 seconds
+		}, 5000); // Show status for 5 seconds
 	}
 
 	/**
