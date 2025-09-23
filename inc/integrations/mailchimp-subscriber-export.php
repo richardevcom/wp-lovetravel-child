@@ -612,10 +612,10 @@ class LoveTravel_Mailchimp_Subscriber_Export
 }
 
 // Initialize the exporter only if Mailchimp for WP is active
-// ✅ Verified: Class will be instantiated via functions.php hook system
+// ✅ Fixed: Changed to init hook so admin_menu registration works
 if (function_exists('mc4wp') || class_exists('MC4WP_Container')) {
-    // Class instantiation handled in functions.php via WordPress hooks
-    add_action('admin_init', function () {
+    // Class instantiation handled via WordPress hooks
+    add_action('init', function () {
         if (is_admin()) {
             new LoveTravel_Mailchimp_Subscriber_Export();
         }

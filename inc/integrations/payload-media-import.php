@@ -809,8 +809,8 @@ class PayloadMediaImporter
 }
 
 // Initialize the importer singleton via WordPress hooks to prevent conflicts
-// ✅ Verified: Singleton instantiation handled properly through WordPress hooks
-add_action('admin_init', function() {
+// ✅ Fixed: Changed to init hook so admin_menu registration works
+add_action('init', function() {
     if (is_admin()) {
         PayloadMediaImporter::get_instance();
     }

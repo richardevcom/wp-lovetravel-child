@@ -497,8 +497,8 @@ class Lovetravel_Adventures_Import
 }
 
 // Initialize via WordPress hooks to prevent duplicate admin interfaces
-// ✅ Verified: Class instantiation handled in functions.php  
-add_action('admin_init', function() {
+// ✅ Fixed: Changed to init hook so admin_menu registration works
+add_action('init', function() {
     if (is_admin()) {
         new Lovetravel_Adventures_Import();
     }

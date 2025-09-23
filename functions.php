@@ -106,7 +106,7 @@ if ( ! function_exists( 'lovetravel_child_load_integrations' ) ) :
 		// The template file contains HTML and should only run when the admin page is rendered
 	}
 endif;
-add_action( 'admin_init', 'lovetravel_child_load_integrations' ); // ✅ Verified: Changed from 'init' to 'admin_init'
+add_action( 'init', 'lovetravel_child_load_integrations' ); // ✅ Fixed: Changed back to 'init' for proper admin_menu timing
 
 // Load customizer modifications (if file exists)
 if ( ! function_exists( 'lovetravel_child_load_customizer' ) ) :
