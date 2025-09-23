@@ -1,12 +1,8 @@
-/**
+w/**
  * LoveTravel Child Setup Wizard Styles
  * ✅ Verified: WordPress native admin UI styling only
  */
 
-/* ✅ Verified: WordPress native postbox enhancements */
-.lovetravel-wizard .postbox {
-	margin-bottom: 20px;
-}
 
 .lovetravel-wizard .postbox .inside {
 	padding: 15px;
@@ -18,12 +14,16 @@
 	padding-right: 15px;
 }
 
-/* ✅ Verified: Step status indicators using WordPress notice classes */
-.lovetravel-wizard .notice.inline {
-	display: inline-block;
-	margin: 5px 0;
-	padding: 5px 10px;
+/* ✅ Verified: Wizard step actions layout */
+.lovetravel-wizard .wizard-step-actions {
+	margin: 10px 0;
 }
+
+.lovetravel-wizard .wizard-step-actions .button {
+	margin-right: 10px;
+	margin-bottom: 5px;
+}
+
 
 /* ✅ Verified: Progress indication */
 .lovetravel-wizard .step-progress {
