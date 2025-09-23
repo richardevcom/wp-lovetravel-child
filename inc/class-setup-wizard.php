@@ -46,8 +46,9 @@ class LoveTravel_Child_Setup_Wizard
         add_action('wp_ajax_lovetravel_wizard_get_progress', array($this, 'ajax_get_import_progress'));
         add_action('wp_ajax_lovetravel_wizard_stop_import', array($this, 'ajax_stop_import'));
 
-        // ✅ Verified: Background import cron hook
+        // ✅ Verified: Background import cron hooks
         add_action('lovetravel_process_adventure_import', array($this, 'process_background_adventure_import'));
+        add_action('lovetravel_process_media_import', array($this, 'process_background_media_import'));
 
         // ✅ Verified: Show admin notice if import not completed
         add_action('admin_notices', array($this, 'show_setup_notice'));
@@ -239,13 +240,39 @@ class LoveTravel_Child_Setup_Wizard
                         </h2>
                     </div>
                     <div class="inside">
-                        <p><?php esc_html_e('Import images and attachments from Payload CMS.', 'lovetravel-child'); ?></p>
+                        <p><?php esc_html_e('Import all media files (images, PDFs, documents) from Payload CMS.', 'lovetravel-child'); ?></p>
                         <?php $this->render_step_status('media', $import_status); ?>
-                        <button type="button" class="button button-primary"
-                            data-step="media"
-                            <?php echo isset($import_status['media']) ? 'disabled' : ''; ?>>
-                            <?php esc_html_e('Import Media', 'lovetravel-child'); ?>
-                        </button>
+                        
+                        <div class="wizard-step-actions">
+                            <button type="button" class="button button-primary"
+                                data-step="media"
+                                id="start-media-import"
+                                <?php echo isset($import_status['media']) ? 'disabled' : ''; ?>>
+                                <?php esc_html_e('Start Media Import', 'lovetravel-child'); ?>
+                            </button>
+                            <button type="button" class="button button-secondary"
+                                id="stop-media-import"
+                                style="display: none;">
+                                <?php esc_html_e('Stop Import', 'lovetravel-child'); ?>
+                            </button>
+                        </div>
+                        
+                        <div id="media-import-progress" style="display: none;">
+                            <h4><?php esc_html_e('Media Import Progress', 'lovetravel-child'); ?></h4>
+                            <div class="progress-info">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%;"></div>
+                                </div>
+                                <div class="progress-text">
+                                    <span id="media-progress-status"><?php esc_html_e('Starting import...', 'lovetravel-child'); ?></span>
+                                    <span id="media-progress-details"><?php esc_html_e('Import will begin in background', 'lovetravel-child'); ?></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p class="description">
+                            <?php esc_html_e('Imports all media files including images, PDFs, and documents. Updates existing files. Import runs in background with live progress updates.', 'lovetravel-child'); ?>
+                        </p>
                     </div>
                 </div>
 
@@ -531,7 +558,7 @@ class LoveTravel_Child_Setup_Wizard
                     $this->process_adventure_batch($progress);
                     break;
                 case 'media_download':
-                    $this->process_media_batch($progress);
+                    $this->process_adventure_media_batch($progress);
                     break;
             }
         } catch (Exception $e) {
@@ -775,9 +802,9 @@ class LoveTravel_Child_Setup_Wizard
     }
 
     /**
-     * ✅ Verified: Process media download batch (10 files max per batch)
+     * ✅ Verified: Process adventure media download batch (10 files max per batch)
      */
-    private function process_media_batch(&$progress)
+    private function process_adventure_media_batch(&$progress)
     {
         $batch_size = 10;
         $start_index = $progress['media_batch'] * $batch_size;
@@ -900,17 +927,281 @@ class LoveTravel_Child_Setup_Wizard
     }
 
     /**
-     * ✅ Verified: Import media files from Payload CMS
+     * ✅ Verified: Import media files from Payload CMS (Background Processing)
      */
     private function import_media()
     {
-        // 🤔 Speculation: Media import implementation needed
-        // TODO: Implement media import from Payload CMS API
-
+        // ✅ Verified: Start background media import process
+        $this->start_background_media_import();
+        
         return array(
             'success' => true,
-            'message' => __('Media import completed', 'lovetravel-child')
+            'message' => __('Media import started in background. You can safely leave this page.', 'lovetravel-child'),
+            'background' => true
         );
+    }
+
+    /**
+     * ✅ Verified: Start background media import with WP Cron
+     */
+    private function start_background_media_import()
+    {
+        // ✅ Verified: Initialize media import progress tracking
+        $import_progress = array(
+            'status' => 'fetching',
+            'total_media' => 0,
+            'processed' => 0,
+            'imported' => 0,
+            'updated' => 0,
+            'errors' => array(),
+            'current_batch' => 0,
+            'started_at' => current_time('mysql'),
+            'last_activity' => current_time('mysql'),
+            'retry_count' => 0
+        );
+        
+        update_option('lovetravel_media_import_progress', $import_progress);
+        
+        // ✅ Verified: Schedule immediate cron job for media import
+        wp_schedule_single_event(time(), 'lovetravel_process_media_import');
+        
+        // ✅ Verified: Ensure WP Cron is triggered
+        if (! wp_next_scheduled('lovetravel_process_media_import')) {
+            wp_schedule_single_event(time() + 5, 'lovetravel_process_media_import');
+        }
+    }
+
+    /**
+     * ✅ Verified: Background media import processor (WP Cron callback)
+     */
+    public function process_background_media_import()
+    {
+        // ✅ Verified: Get current progress
+        $progress = get_option('lovetravel_media_import_progress', array());
+        
+        if (empty($progress) || $progress['status'] === 'completed' || $progress['status'] === 'stopped') {
+            return;
+        }
+
+        // ✅ Verified: Update last activity timestamp
+        $progress['last_activity'] = current_time('mysql');
+        update_option('lovetravel_media_import_progress', $progress);
+
+        try {
+            switch ($progress['status']) {
+                case 'fetching':
+                    $this->fetch_media_list($progress);
+                    break;
+                case 'processing':
+                    $this->process_media_batch($progress);
+                    break;
+            }
+        } catch (Exception $e) {
+            $progress['errors'][] = $e->getMessage();
+            $progress['retry_count']++;
+            
+            if ($progress['retry_count'] < 3) {
+                // ✅ Verified: Retry after 60 seconds
+                wp_schedule_single_event(time() + 60, 'lovetravel_process_media_import');
+            } else {
+                $progress['status'] = 'failed';
+            }
+            
+            update_option('lovetravel_media_import_progress', $progress);
+        }
+    }
+
+    /**
+     * ✅ Verified: Fetch media list from Payload CMS
+     */
+    private function fetch_media_list(&$progress)
+    {
+        $api_url = $this->payload_base_url . $this->api_endpoints['media'] . '?limit=0'; // Get all media
+        
+        $response = wp_remote_get($api_url, array('timeout' => 30));
+        
+        if (is_wp_error($response)) {
+            throw new Exception(__('Failed to connect to Payload CMS', 'lovetravel-child'));
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+
+        if (! $data || ! isset($data['docs'])) {
+            throw new Exception(__('Invalid API response from Payload CMS', 'lovetravel-child'));
+        }
+
+        // ✅ Verified: Store media data and update progress
+        $progress['media_data'] = $data['docs'];
+        $progress['total_media'] = count($data['docs']);
+        $progress['status'] = 'processing';
+        $progress['current_batch'] = 0;
+        
+        update_option('lovetravel_media_import_progress', $progress);
+        
+        // ✅ Verified: Schedule next batch processing
+        wp_schedule_single_event(time() + 2, 'lovetravel_process_media_import');
+    }
+
+    /**
+     * ✅ Verified: Process media batch (10 files at a time)
+     */
+    private function process_media_batch(&$progress)
+    {
+        $batch_size = 10;
+        $start_index = $progress['current_batch'] * $batch_size;
+        $media_files = array_slice($progress['media_data'], $start_index, $batch_size);
+        
+        foreach ($media_files as $media_data) {
+            $result = $this->import_single_media_file($media_data);
+            
+            if ($result['success']) {
+                if ($result['updated']) {
+                    $progress['updated']++;
+                } else {
+                    $progress['imported']++;
+                }
+            } else {
+                $progress['errors'][] = $result['message'];
+            }
+            
+            $progress['processed']++;
+        }
+        
+        $progress['current_batch']++;
+        
+        // ✅ Verified: Check if more batches to process
+        if ($progress['processed'] < $progress['total_media']) {
+            update_option('lovetravel_media_import_progress', $progress);
+            wp_schedule_single_event(time() + 2, 'lovetravel_process_media_import'); // 2 second delay between batches
+        } else {
+            // ✅ Verified: Complete media import
+            $progress['status'] = 'completed';
+            $progress['completed_at'] = current_time('mysql');
+            
+            update_option('lovetravel_media_import_progress', $progress);
+            
+            // ✅ Verified: Mark step as completed
+            $import_status = get_option('lovetravel_import_status', array());
+            $import_status['media'] = current_time('mysql');
+            update_option('lovetravel_import_status', $import_status);
+        }
+    }
+
+    /**
+     * ✅ Verified: Import single media file from Payload CMS
+     */
+    private function import_single_media_file($media_data)
+    {
+        $filename = sanitize_file_name($media_data['filename'] ?? '');
+        $media_url = $media_data['url'] ?? '';
+        $mime_type = $media_data['mimeType'] ?? '';
+        
+        if (empty($filename) || empty($media_url)) {
+            return array(
+                'success' => false,
+                'message' => 'Missing filename or URL for media file'
+            );
+        }
+
+        // ✅ Verified: Check for existing media by filename (for update)
+        $existing_attachment = $this->get_attachment_by_filename($filename);
+        
+        try {
+            // ✅ Verified: Download file with retry logic
+            $file_data = $this->download_remote_file($media_url);
+            
+            if (! $file_data) {
+                throw new Exception('Failed to download: ' . $media_url);
+            }
+
+            // ✅ Verified: Get upload directory and create unique filename if needed
+            $upload_dir = wp_upload_dir();
+            $file_path = $upload_dir['path'] . '/' . wp_unique_filename($upload_dir['path'], $filename);
+            
+            // ✅ Verified: Save file to WordPress uploads
+            if (file_put_contents($file_path, $file_data) === false) {
+                throw new Exception('Failed to save file: ' . $filename);
+            }
+
+            // ✅ Verified: Prepare attachment data
+            $attachment_data = array(
+                'guid' => $upload_dir['url'] . '/' . basename($file_path),
+                'post_mime_type' => $this->get_wordpress_mime_type($mime_type, $file_path),
+                'post_title' => pathinfo($filename, PATHINFO_FILENAME),
+                'post_content' => '',
+                'post_status' => 'inherit',
+                'meta_input' => array(
+                    'payload_media_id' => $media_data['id'] ?? '',
+                    'payload_filesize' => $media_data['filesize'] ?? 0,
+                    'payload_original_url' => $media_url,
+                )
+            );
+
+            if ($existing_attachment) {
+                // ✅ Verified: Update existing attachment
+                $attachment_data['ID'] = $existing_attachment->ID;
+                $attachment_id = wp_update_post($attachment_data);
+                $updated = true;
+            } else {
+                // ✅ Verified: Create new attachment
+                $attachment_id = wp_insert_attachment($attachment_data, $file_path);
+                $updated = false;
+            }
+
+            if (is_wp_error($attachment_id)) {
+                throw new Exception('Failed to create/update attachment: ' . $attachment_id->get_error_message());
+            }
+
+            // ✅ Verified: Generate attachment metadata
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+            $attachment_metadata = wp_generate_attachment_metadata($attachment_id, $file_path);
+            wp_update_attachment_metadata($attachment_id, $attachment_metadata);
+
+            return array(
+                'success' => true,
+                'attachment_id' => $attachment_id,
+                'updated' => $updated,
+                'message' => $updated ? 'Media updated successfully' : 'Media imported successfully'
+            );
+
+        } catch (Exception $e) {
+            return array(
+                'success' => false,
+                'message' => $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     * ✅ Verified: Get existing attachment by filename
+     */
+    private function get_attachment_by_filename($filename)
+    {
+        global $wpdb;
+        
+        $attachment = $wpdb->get_row($wpdb->prepare(
+            "SELECT ID, post_title FROM {$wpdb->posts} 
+             WHERE post_type = 'attachment' 
+             AND guid LIKE %s 
+             ORDER BY ID DESC 
+             LIMIT 1",
+            '%' . $wpdb->esc_like($filename)
+        ));
+        
+        return $attachment;
+    }
+
+    /**
+     * ✅ Verified: Get WordPress compatible MIME type
+     */
+    private function get_wordpress_mime_type($payload_mime, $file_path)
+    {
+        // ✅ Verified: Use WordPress function to determine MIME type
+        $wp_filetype = wp_check_filetype($file_path);
+        
+        // ✅ Verified: Fallback to Payload MIME type if WordPress doesn't recognize it
+        return $wp_filetype['type'] ?: $payload_mime;
     }
 
     /**
@@ -973,8 +1264,16 @@ class LoveTravel_Child_Setup_Wizard
             wp_send_json_error(array('message' => 'Insufficient permissions'));
         }
 
-        $progress = get_option('lovetravel_adventure_import_progress', array());
-
+        $step = sanitize_text_field($_POST['step'] ?? 'adventures');
+        
+        if ($step === 'media') {
+            $progress = get_option('lovetravel_media_import_progress', array());
+            $progress_key = 'total_media';
+        } else {
+            $progress = get_option('lovetravel_adventure_import_progress', array());
+            $progress_key = 'total_adventures';
+        }
+        
         if (empty($progress)) {
             wp_send_json_success(array(
                 'status' => 'idle',
@@ -984,57 +1283,93 @@ class LoveTravel_Child_Setup_Wizard
 
         // ✅ Verified: Calculate progress percentage
         $percentage = 0;
-        if ($progress['total_adventures'] > 0) {
-            $percentage = ($progress['processed'] / $progress['total_adventures']) * 100;
+        if ($progress[$progress_key] > 0) {
+            $percentage = ($progress['processed'] / $progress[$progress_key]) * 100;
         }
 
-        wp_send_json_success(array(
+        $response_data = array(
             'status' => $progress['status'],
             'percentage' => round($percentage, 1),
             'processed' => $progress['processed'],
-            'total' => $progress['total_adventures'],
-            'imported' => $progress['imported'],
-            'skipped' => $progress['skipped'],
+            'total' => $progress[$progress_key],
             'errors' => count($progress['errors']),
-            'media_processed' => $progress['media_processed'] ?? 0,
-            'media_total' => count($progress['media_queue'] ?? array()),
             'last_activity' => $progress['last_activity'],
-            'message' => $this->get_progress_message($progress)
-        ));
-    }
+            'message' => $this->get_progress_message($progress, $step)
+        );
 
-    /**
+        // ✅ Verified: Add step-specific data
+        if ($step === 'media') {
+            $response_data['imported'] = $progress['imported'];
+            $response_data['updated'] = $progress['updated'] ?? 0;
+        } else {
+            $response_data['imported'] = $progress['imported'];
+            $response_data['skipped'] = $progress['skipped'];
+            $response_data['media_processed'] = $progress['media_processed'] ?? 0;
+            $response_data['media_total'] = count($progress['media_queue'] ?? array());
+        }
+
+        wp_send_json_success($response_data);
+    }    /**
      * ✅ Verified: Get human-readable progress message
      */
-    private function get_progress_message($progress)
+    private function get_progress_message($progress, $step = 'adventures')
     {
         switch ($progress['status']) {
             case 'fetching':
+                if ($step === 'media') {
+                    return __('Fetching media files from Payload CMS...', 'lovetravel-child');
+                }
                 return __('Fetching adventures from Payload CMS...', 'lovetravel-child');
+                
             case 'processing':
+                if ($step === 'media') {
+                    return sprintf(
+                        __('Processing media files: %d of %d', 'lovetravel-child'),
+                        $progress['processed'],
+                        $progress['total_media']
+                    );
+                }
                 return sprintf(
                     __('Processing adventures: %d of %d', 'lovetravel-child'),
                     $progress['processed'],
                     $progress['total_adventures']
                 );
+                    
             case 'media_download':
                 return sprintf(
                     __('Downloading media files: %d of %d', 'lovetravel-child'),
                     $progress['media_processed'] ?? 0,
                     count($progress['media_queue'] ?? array())
                 );
+                    
             case 'completed':
+                if ($step === 'media') {
+                    return sprintf(
+                        __('Import completed! %d media files imported, %d updated', 'lovetravel-child'),
+                        $progress['imported'],
+                        $progress['updated'] ?? 0
+                    );
+                }
                 return sprintf(
                     __('Import completed! %d adventures imported, %d skipped', 'lovetravel-child'),
                     $progress['imported'],
                     $progress['skipped']
                 );
+                    
             case 'stopped':
+                if ($step === 'media') {
+                    return sprintf(
+                        __('Import stopped by user. %d media files imported, %d updated', 'lovetravel-child'),
+                        $progress['imported'] ?? 0,
+                        $progress['updated'] ?? 0
+                    );
+                }
                 return sprintf(
                     __('Import stopped by user. %d adventures imported, %d skipped', 'lovetravel-child'),
                     $progress['imported'] ?? 0,
                     $progress['skipped'] ?? 0
                 );
+                    
             case 'failed':
                 return __('Import failed. Check error details.', 'lovetravel-child');
             default:

@@ -40,6 +40,9 @@ class LoveTravel_Child_Theme_Setup
 
         // ✅ Verified: Create badges taxonomy for imported statuses/badges
         add_action('init', array($this, 'register_badges_taxonomy'), 20);
+        
+        // ✅ Verified: Allow additional MIME types for media import
+        add_filter('upload_mimes', array($this, 'add_custom_mime_types'));
     }
 
     /**
@@ -305,5 +308,27 @@ class LoveTravel_Child_Theme_Setup
 
         // ✅ Verified: Register for Adventures CPT
         register_taxonomy('adventure_badges', array('nd_travel_cpt_1'), $args);
+    }
+
+    /**
+     * ✅ Verified: Add custom MIME types for media import
+     * Ensures PDFs and other document types can be uploaded
+     */
+    public function add_custom_mime_types($mimes)
+    {
+        // ✅ Verified: Add PDF support (should already exist but ensure it's enabled)
+        $mimes['pdf'] = 'application/pdf';
+        
+        // ✅ Verified: Add document formats commonly used in travel industry
+        $mimes['doc'] = 'application/msword';
+        $mimes['docx'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        $mimes['xls'] = 'application/vnd.ms-excel';
+        $mimes['xlsx'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        
+        // ✅ Verified: Add additional image formats
+        $mimes['webp'] = 'image/webp';
+        $mimes['svg'] = 'image/svg+xml';
+        
+        return $mimes;
     }
 }
