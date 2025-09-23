@@ -82,17 +82,13 @@ class LoveTravel_Mailchimp_Subscriber_Export
      */
     public function add_admin_menu()
     {
-        // Only add if Mailchimp for WP plugin is active
-        if (!function_exists('mc4wp')) {
-            return;
-        }
-
+        // Add under Tools menu for better accessibility
         add_submenu_page(
-            'mailchimp-for-wp',
-            'Payload Export',
-            'Payload Export',
+            'tools.php',
+            'Payload Subscribers Export',
+            'Payload Subscribers Export',
             'manage_options',
-            'mc4wp-export-subscribers',
+            'payload-subscribers-export',
             [$this, 'admin_page']
         );
     }
@@ -106,7 +102,7 @@ class LoveTravel_Mailchimp_Subscriber_Export
     public function enqueue_admin_scripts($hook)
     {
         // Only load on our specific page
-        if (!isset($_GET['page']) || $_GET['page'] !== 'mc4wp-export-subscribers') {
+        if (!isset($_GET['page']) || $_GET['page'] !== 'payload-subscribers-export') {
             return;
         }
 
@@ -611,13 +607,10 @@ class LoveTravel_Mailchimp_Subscriber_Export
     }
 }
 
-// Initialize the exporter only if Mailchimp for WP is active
+// Initialize the exporter - now under Tools menu for better accessibility
 // ✅ Fixed: Changed to init hook so admin_menu registration works
-if (function_exists('mc4wp') || class_exists('MC4WP_Container')) {
-    // Class instantiation handled via WordPress hooks
-    add_action('init', function () {
-        if (is_admin()) {
-            new LoveTravel_Mailchimp_Subscriber_Export();
-        }
-    });
-}
+add_action('init', function () {
+    if (is_admin()) {
+        new LoveTravel_Mailchimp_Subscriber_Export();
+    }
+});
