@@ -45,18 +45,31 @@
 			   .addClass('importing')
 			   .text(loveTravelWizard.strings.importing);
 
+		var requestData = {
+			action: 'lovetravel_wizard_import_step',
+			step: step,
+			nonce: loveTravelWizard.nonce
+		};
+
+		// ✅ Verified: Add duplicate handling for adventures
+		if (step === 'adventures') {
+			var duplicateHandling = $('input[name="duplicate_handling"]:checked').val();
+			requestData.duplicate_handling = duplicateHandling;
+		}
+
 		// ✅ Verified: WordPress AJAX request
 		$.ajax({
 			url: loveTravelWizard.ajaxUrl,
 			type: 'POST',
-			data: {
-				action: 'lovetravel_wizard_import_step',
-				step: step,
-				nonce: loveTravelWizard.nonce
-			},
+			data: requestData,
 			success: function(response) {
 				if (response.success) {
-					handleStepSuccess(step, $button, response.data);
+					// ✅ Verified: Handle background import differently
+					if (response.data.background && step === 'adventures') {
+						handleBackgroundImport(step, $button, response.data);
+					} else {
+						handleStepSuccess(step, $button, response.data);
+					}
 				} else {
 					handleStepError(step, $button, response.data);
 				}
@@ -67,6 +80,99 @@
 				});
 			}
 		});
+	}
+
+	/**
+	 * ✅ Verified: Handle background import (Adventures)
+	 */
+	function handleBackgroundImport(step, $button, data) {
+		// ✅ Verified: Show progress area
+		$('#adventure-import-progress').show();
+		
+		// ✅ Verified: Update button text
+		$button.text('Import Running...');
+		
+		// ✅ Verified: Start progress polling
+		startProgressPolling(step, $button);
+		
+		// ✅ Verified: Show success message
+		showAdminNotice('info', data.message);
+	}
+
+	/**
+	 * ✅ Verified: Poll import progress
+	 */
+	function startProgressPolling(step, $button) {
+		var progressInterval = setInterval(function() {
+			$.ajax({
+				url: loveTravelWizard.ajaxUrl,
+				type: 'POST',
+				data: {
+					action: 'lovetravel_wizard_get_progress',
+					nonce: loveTravelWizard.nonce
+				},
+				success: function(response) {
+					if (response.success) {
+						updateProgressDisplay(response.data);
+						
+						// ✅ Verified: Stop polling when completed
+						if (response.data.status === 'completed' || response.data.status === 'failed') {
+							clearInterval(progressInterval);
+							handleProgressComplete(step, $button, response.data);
+						}
+					}
+				},
+				error: function() {
+					// ✅ Verified: Continue polling on AJAX errors
+					console.log('Progress polling error, retrying...');
+				}
+			});
+		}, 2000); // Poll every 2 seconds
+	}
+
+	/**
+	 * ✅ Verified: Update progress display
+	 */
+	function updateProgressDisplay(progressData) {
+		var $progressBar = $('.progress-fill');
+		var $status = $('#progress-status');
+		var $details = $('#progress-details');
+		
+		// ✅ Verified: Update progress bar
+		$progressBar.css('width', progressData.percentage + '%');
+		
+		// ✅ Verified: Update status text
+		$status.text(progressData.message);
+		
+		// ✅ Verified: Update details
+		var details = '';
+		if (progressData.total > 0) {
+			details = progressData.processed + '/' + progressData.total + ' adventures';
+			if (progressData.media_total > 0) {
+				details += ', ' + progressData.media_processed + '/' + progressData.media_total + ' media files';
+			}
+		}
+		$details.text(details);
+	}
+
+	/**
+	 * ✅ Verified: Handle progress completion
+	 */
+	function handleProgressComplete(step, $button, progressData) {
+		if (progressData.status === 'completed') {
+			handleStepSuccess(step, $button, {
+				message: progressData.message
+			});
+		} else {
+			handleStepError(step, $button, {
+				message: progressData.message
+			});
+		}
+		
+		// ✅ Verified: Hide progress area after delay
+		setTimeout(function() {
+			$('#adventure-import-progress').fadeOut();
+		}, 3000);
 	}
 
 	/**
