@@ -49,6 +49,7 @@ class LoveTravel_Child_Setup_Wizard
         // ✅ Verified: Background import cron hooks
         add_action('lovetravel_process_adventure_import', array($this, 'process_background_adventure_import'));
         add_action('lovetravel_process_media_import', array($this, 'process_background_media_import'));
+        add_action('lovetravel_process_destinations_import', array($this, 'process_background_destinations_import'));
 
         // ✅ Verified: Show admin notice if import not completed
         add_action('admin_notices', array($this, 'show_setup_notice'));
