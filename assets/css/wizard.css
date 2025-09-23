@@ -12,6 +12,12 @@
 	padding: 15px;
 }
 
+/* ✅ Verified: Fix WordPress postbox header padding */
+.lovetravel-wizard .postbox-header .hndle {
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
 /* ✅ Verified: Step status indicators using WordPress notice classes */
 .lovetravel-wizard .notice.inline {
 	display: inline-block;
