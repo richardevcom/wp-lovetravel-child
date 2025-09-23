@@ -148,6 +148,11 @@ if (defined('WP_CLI') && WP_CLI) {
  * Admin UI: Elementor → Templates Import (submenu, placed at bottom)
  */
 add_action('admin_menu', function () {
+    // Check if Elementor menu exists before adding submenu
+    if ( ! class_exists( '\Elementor\Plugin' ) ) {
+        return;
+    }
+    
     add_submenu_page(
         'elementor',
         __('Elementor Templates Import', 'lovetravel-child'),

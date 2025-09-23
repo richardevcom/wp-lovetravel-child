@@ -608,7 +608,13 @@ class LoveTravel_Mailchimp_Subscriber_Export
         // Output file
         readfile($filepath);
         exit;
-    }
+        }
+
+}
+
+// Initialize the Mailchimp Export tool
+if ( is_admin() ) {
+    new Lovetravel_Mailchimp_Export();
 }
 
 // Initialize the exporter only if Mailchimp for WP is active

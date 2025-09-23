@@ -58,7 +58,7 @@ if ( ! function_exists( 'lovetravel_child_load_utilities' ) ) :
 		require_once LOVETRAVEL_CHILD_DIR . '/inc/utilities/cpt-overrides.php';
 	}
 endif;
-add_action( 'init', 'lovetravel_child_load_utilities' );
+add_action( 'init', 'lovetravel_child_load_utilities', 5 ); // Priority 5 to run before plugin CPT registration
 
 // Load admin functionality
 if ( ! function_exists( 'lovetravel_child_load_admin' ) ) :
