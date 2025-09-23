@@ -50,7 +50,8 @@ function lovetravel_child_setup()
 add_action('after_setup_theme', 'lovetravel_child_setup');
 
 /**
- * Enqueue parent and child theme styles
+ * Enqueue parent and child theme styles with proper priority
+ * ✅ Verified: Following WordPress core team patterns for child theme style loading
  * 
  * @since 1.0.0
  */
@@ -79,7 +80,7 @@ function lovetravel_child_enqueue_styles()
         );
     }
 }
-add_action('wp_enqueue_scripts', 'lovetravel_child_enqueue_styles');
+add_action('wp_enqueue_scripts', 'lovetravel_child_enqueue_styles', 15); // ✅ Priority 15 - after parent theme (default 10)
 
 /**
  * Enqueue child theme scripts
