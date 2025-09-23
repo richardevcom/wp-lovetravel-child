@@ -125,10 +125,6 @@ class LoveTravel_Child_Setup_Wizard
                 <?php esc_html_e('TribeTravel Setup Wizard', 'lovetravel-child'); ?>
             </h1>
 
-            <div class="notice notice-info">
-                <p><?php esc_html_e('This wizard will import your content from the old TribeTravel website. This is a one-time setup process.', 'lovetravel-child'); ?></p>
-            </div>
-
             <div id="lovetravel-wizard-container" class="lovetravel-wizard">
                 <?php $this->render_wizard_steps(); ?>
             </div>
@@ -613,17 +609,20 @@ class LoveTravel_Child_Setup_Wizard
         $response = wp_remote_get($api_url, array('timeout' => 30));
 
         if (is_wp_error($response)) {
-            throw new Exception(__('Failed to connect to Payload CMS', 'lovetravel-child'));
+            throw new Exception(__('Failed to connect to Payload CMS: ', 'lovetravel-child') . $response->get_error_message());
+        }
+
+        $response_code = wp_remote_retrieve_response_code($response);
+        if ($response_code !== 200) {
+            throw new Exception(__('API returned error code: ', 'lovetravel-child') . $response_code);
         }
 
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
 
-        if (! $data || ! isset($data['docs'])) {
-            throw new Exception(__('Invalid API response from Payload CMS', 'lovetravel-child'));
-        }
-
-        // ✅ Verified: Store adventures data and update progress
+        if (! $data || ! isset($data['docs']) || ! is_array($data['docs'])) {
+            throw new Exception(__('Invalid API response from Payload CMS. Response: ', 'lovetravel-child') . substr($body, 0, 200));
+        }        // ✅ Verified: Store adventures data and update progress
         $progress['adventures_data'] = $data['docs'];
         $progress['total_adventures'] = count($data['docs']);
         $progress['status'] = 'processing';
@@ -706,7 +705,7 @@ class LoveTravel_Child_Setup_Wizard
         $post_data = array(
             'post_title'   => sanitize_text_field($adventure_data['title'] ?? ''),
             'post_name'    => $slug,
-            'post_content' => wp_kses_post($adventure_data['description'] ?? ''),
+            'post_content' => wp_kses_post($this->extract_string_from_field($adventure_data['description'] ?? '')),
             'post_type'    => 'nd_travel_cpt_1', // Adventures CPT
             'post_status'  => 'publish',
             'meta_input'   => array(
@@ -723,7 +722,7 @@ class LoveTravel_Child_Setup_Wizard
                 'length'              => $adventure_data['length'] ?? '',
                 'stay'                => $adventure_data['stay'] ?? '',
                 'spaces_left'         => $adventure_data['spacesLeft'] ?? '',
-                'language'            => $adventure_data['language'] ?? '',
+                'language'            => maybe_serialize($adventure_data['language'] ?? array()),
                 'responsible'         => $adventure_data['responsible'] ?? '',
 
                 // ✅ Verified: Settings
@@ -732,9 +731,13 @@ class LoveTravel_Child_Setup_Wizard
                 'show_price'          => $adventure_data['showPrice'] ?? false,
                 'interactive'         => $adventure_data['interactive'] ?? false,
 
-                // ✅ Verified: Additional content
-                'important_info'      => wp_kses_post($adventure_data['important'] ?? ''),
-                'video_url'           => esc_url_raw($adventure_data['video'] ?? ''),
+                // ✅ Verified: Additional content and media
+                'important_info'      => wp_kses_post($this->extract_string_from_field($adventure_data['important'] ?? '')),
+                'video_url'           => $this->extract_video_url($adventure_data['video'] ?? array()),
+                'themes'              => maybe_serialize($adventure_data['themes'] ?? array()),
+                'images'              => maybe_serialize($adventure_data['images'] ?? array()),
+                'thumbnail'           => maybe_serialize($adventure_data['thumbnail'] ?? array()),
+                'slider_image'        => maybe_serialize($adventure_data['sliderImage'] ?? array()),
             )
         );
 
@@ -756,6 +759,69 @@ class LoveTravel_Child_Setup_Wizard
         $this->set_adventure_taxonomies($post_id, $adventure_data);
 
         return array('success' => true, 'post_id' => $post_id, 'message' => 'Adventure imported successfully');
+    }
+
+    /**
+     * ✅ Verified: Extract string from Payload field (handles arrays and strings)
+     */
+    private function extract_string_from_field($field)
+    {
+        if (is_string($field)) {
+            return $field;
+        }
+        
+        if (is_array($field)) {
+            // If it's an array with one item that has content, extract it
+            if (count($field) === 1 && isset($field[0])) {
+                if (is_array($field[0]) && isset($field[0]['children'])) {
+                    // Rich text format - extract text from children
+                    return $this->extract_text_from_rich_content($field[0]['children']);
+                }
+                return is_string($field[0]) ? $field[0] : '';
+            }
+            // If multiple items, join them
+            $strings = array_filter($field, 'is_string');
+            return implode(' ', $strings);
+        }
+        
+        return '';
+    }
+    
+    /**
+     * ✅ Verified: Extract text from rich content structure
+     */
+    private function extract_text_from_rich_content($children)
+    {
+        if (!is_array($children)) {
+            return '';
+        }
+        
+        $text = '';
+        foreach ($children as $child) {
+            if (is_array($child) && isset($child['text'])) {
+                $text .= $child['text'];
+            } elseif (is_array($child) && isset($child['children'])) {
+                $text .= $this->extract_text_from_rich_content($child['children']);
+            }
+        }
+        
+        return $text;
+    }
+    
+    /**
+     * ✅ Verified: Extract video URL from Payload video field
+     */
+    private function extract_video_url($video_field)
+    {
+        if (is_string($video_field)) {
+            return esc_url_raw($video_field);
+        }
+        
+        if (is_array($video_field) && isset($video_field['url'])) {
+            return esc_url_raw($video_field['url']);
+        }
+        
+        return '';
     }
 
     /**
@@ -1661,22 +1727,24 @@ class LoveTravel_Child_Setup_Wizard
             case 'completed':
                 if ($step === 'media') {
                     return sprintf(
-                        __('Import completed! %d media files imported, %d updated', 'lovetravel-child'),
+                        __('Import completed! %d of %d media files imported, %d updated', 'lovetravel-child'),
                         $progress['imported'],
+                        $progress['total_media'] ?? 0,
                         $progress['updated'] ?? 0
                     );
                 } elseif ($step === 'destinations') {
                     return sprintf(
-                        __('Import completed! %d destinations and %d locations created, %d updated', 'lovetravel-child'),
+                        __('Import completed! %d destinations and %d locations created from %d total', 'lovetravel-child'),
                         $progress['destinations_created'] ?? 0,
                         $progress['locations_created'] ?? 0,
-                        $progress['updated'] ?? 0
+                        $progress['total_destinations'] ?? 0
                     );
                 }
                 return sprintf(
-                    __('Import completed! %d adventures imported, %d skipped', 'lovetravel-child'),
-                    $progress['imported'],
-                    $progress['skipped']
+                    __('Import completed! %d of %d adventures imported, %d skipped', 'lovetravel-child'),
+                    $progress['imported'] ?? 0,
+                    $progress['total_adventures'] ?? 0,
+                    $progress['skipped'] ?? 0
                 );
 
             case 'stopped':
@@ -1739,7 +1807,7 @@ class LoveTravel_Child_Setup_Wizard
             $progress['status'] = 'stopped';
             $progress['stopped_at'] = current_time('mysql');
             $progress['stopped_by_user'] = true;
-            
+
             if ($step === 'media') {
                 update_option('lovetravel_media_import_progress', $progress);
             } elseif ($step === 'destinations') {
