@@ -51,9 +51,10 @@ w/**
 .lovetravel-wizard #adventure-import-progress {
 	margin: 15px 0;
 	padding: 15px;
-	background: #fff;
-	border: 1px solid #c3c4c7;
+	background: #f0f6fc;
+	border: 1px solid #2271b1;
 	border-radius: 4px;
+	box-shadow: 0 2px 4px rgba(34, 113, 177, 0.1);
 }
 
 .lovetravel-wizard .progress-info h4 {
@@ -90,6 +91,22 @@ w/**
 
 .lovetravel-wizard #progress-details {
 	color: #787c82;
+}
+
+/* ✅ Verified: Progress area animations */
+.lovetravel-wizard #adventure-import-progress {
+	animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 

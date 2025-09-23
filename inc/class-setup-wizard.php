@@ -206,20 +206,20 @@ class LoveTravel_Child_Setup_Wizard
                         </div>
                         
                         <div id="adventure-import-progress" style="display: none;">
-                            <h4><?php esc_html_e('Import Progress', 'lovetravel-child'); ?></h4>
+                            <h4><?php esc_html_e('Adventure Import Progress', 'lovetravel-child'); ?></h4>
                             <div class="progress-info">
                                 <div class="progress-bar">
                                     <div class="progress-fill" style="width: 0%;"></div>
                                 </div>
                                 <div class="progress-text">
-                                    <span id="progress-status"><?php esc_html_e('Preparing...', 'lovetravel-child'); ?></span>
-                                    <span id="progress-details"></span>
+                                    <span id="progress-status"><?php esc_html_e('Starting import...', 'lovetravel-child'); ?></span>
+                                    <span id="progress-details"><?php esc_html_e('Import will begin in background', 'lovetravel-child'); ?></span>
                                 </div>
                             </div>
                         </div>
                         
                         <p class="description">
-                            <?php esc_html_e('Import runs in background. You can safely leave this page and return later.', 'lovetravel-child'); ?>
+                            <?php esc_html_e('Import runs in background with live progress updates. You can safely leave this page and return later to check status.', 'lovetravel-child'); ?>
                         </p>
                     </div>
                 </div>

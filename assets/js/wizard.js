@@ -86,17 +86,27 @@
 	 * ✅ Verified: Handle background import (Adventures)
 	 */
 	function handleBackgroundImport(step, $button, data) {
-		// ✅ Verified: Show progress area
+		// ✅ Verified: Show progress area immediately
 		$('#adventure-import-progress').show();
+		
+		// ✅ Verified: Initialize progress display
+		$('.progress-fill').css('width', '0%');
+		$('#progress-status').text('Starting import...');
+		$('#progress-details').text('Preparing to fetch adventures from Payload CMS');
 		
 		// ✅ Verified: Update button text
 		$button.text('Import Running...');
 		
-		// ✅ Verified: Start progress polling
+		// ✅ Verified: Show success message with progress context
+		showAdminNotice('info', data.message + ' Progress shown below.');
+		
+		// ✅ Verified: Start progress polling immediately
 		startProgressPolling(step, $button);
 		
-		// ✅ Verified: Show success message
-		showAdminNotice('info', data.message);
+		// ✅ Verified: Do initial progress check after 1 second
+		setTimeout(function() {
+			checkProgressOnce();
+		}, 1000);
 	}
 
 	/**
@@ -156,6 +166,28 @@
 	}
 
 	/**
+	 * ✅ Verified: Single progress check
+	 */
+	function checkProgressOnce() {
+		$.ajax({
+			url: loveTravelWizard.ajaxUrl,
+			type: 'POST',
+			data: {
+				action: 'lovetravel_wizard_get_progress',
+				nonce: loveTravelWizard.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					updateProgressDisplay(response.data);
+				}
+			},
+			error: function() {
+				console.log('Initial progress check failed, polling will continue...');
+			}
+		});
+	}
+
+	/**
 	 * ✅ Verified: Handle progress completion
 	 */
 	function handleProgressComplete(step, $button, progressData) {
@@ -169,10 +201,10 @@
 			});
 		}
 		
-		// ✅ Verified: Hide progress area after delay
+		// ✅ Verified: Keep progress visible longer for completed status
 		setTimeout(function() {
-			$('#adventure-import-progress').fadeOut();
-		}, 3000);
+			$('#adventure-import-progress').fadeOut(1000);
+		}, 5000); // Show completed status for 5 seconds
 	}
 
 	/**
