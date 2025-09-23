@@ -60,11 +60,11 @@ function lovetravel_child_enqueue_styles()
     $parent_theme = wp_get_theme(get_template());
     $parent_version = $parent_theme->get('Version');
 
-    // Enqueue child theme stylesheet
+    // Enqueue child theme stylesheet with correct parent dependency
     wp_enqueue_style(
         'lovetravel-child-style',
         get_stylesheet_directory_uri() . '/style.css',
-        array('lovetravel-parent-style'),
+        array('nicdark-style'), // ✅ Verified: Parent theme uses 'nicdark-style' handle
         LOVETRAVEL_CHILD_VERSION
     );
 

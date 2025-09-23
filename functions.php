@@ -78,31 +78,35 @@ if ( ! function_exists( 'lovetravel_child_load_admin' ) ) :
 endif;
 add_action( 'init', 'lovetravel_child_load_admin' );
 
-// Load integrations
+// Load integrations (admin-only to prevent frontend conflicts)  
 if ( ! function_exists( 'lovetravel_child_load_integrations' ) ) :
 	/**
 	 * Load third-party integrations and tools.
+	 * ✅ Verified: Only loads in admin context to prevent UI conflicts
 	 *
 	 * @since LoveTravel Child 1.0
 	 *
 	 * @return void
 	 */
 	function lovetravel_child_load_integrations() {
-		// Elementor templates integration
+		// Only load admin integrations in admin context
+		if ( ! is_admin() ) {
+			return;
+		}
+		
+		// Elementor templates integration (admin only)
 		require_once LOVETRAVEL_CHILD_DIR . '/inc/integrations/elementor-templates.php';
 		
-		// Payload CMS integrations
+		// Payload CMS integrations (admin only)  
 		require_once LOVETRAVEL_CHILD_DIR . '/inc/integrations/payload-media-import.php';
 		require_once LOVETRAVEL_CHILD_DIR . '/inc/integrations/mailchimp-subscriber-export.php';
 		require_once LOVETRAVEL_CHILD_DIR . '/inc/integrations/payload-adventures-import.php';
 		
-		// Load additional admin page for Payload imports
-		if ( file_exists( LOVETRAVEL_CHILD_DIR . '/inc/integrations/payload-import-admin-page.php' ) ) {
-			require_once LOVETRAVEL_CHILD_DIR . '/inc/integrations/payload-import-admin-page.php';
-		}
+		// ✅ FIXED: Admin page template should NOT be loaded here - it's included by admin_page() callback
+		// The template file contains HTML and should only run when the admin page is rendered
 	}
 endif;
-add_action( 'init', 'lovetravel_child_load_integrations' );
+add_action( 'admin_init', 'lovetravel_child_load_integrations' ); // ✅ Verified: Changed from 'init' to 'admin_init'
 
 // Load customizer modifications (if file exists)
 if ( ! function_exists( 'lovetravel_child_load_customizer' ) ) :

@@ -8,6 +8,7 @@ A professional WordPress child theme extending the LoveTravel theme with custom 
 ## 🌟 Features
 
 ### Core Functionality
+
 - **WordPress Child Theme**: Proper inheritance from LoveTravel parent theme
 - **Travel Industry Focus**: Custom post type overrides for "Adventures" (instead of generic "Travel")
 - **Translation Ready**: Full i18n support with `lovetravel-child` text domain
@@ -15,6 +16,7 @@ A professional WordPress child theme extending the LoveTravel theme with custom 
 - **Modern PHP**: Compatible with PHP 7.4+ and follows WordPress coding standards
 
 ### Content Management
+
 - **Adventure Management**: Enhanced CPT labels and taxonomy overrides
   - Custom post type: `nd_travel_cpt_1` → "Adventures"
   - Taxonomy overrides: Duration, Difficulty, Month
@@ -25,15 +27,17 @@ A professional WordPress child theme extending the LoveTravel theme with custom 
 ### Admin Tools & Integrations
 
 #### 🎨 Elementor Templates
+
 - **Pre-built Sections**: Ready-to-use adventure page sections
   - Include/Exclude info section
-  - Adventure About section  
+  - Adventure About section
   - Adventure Description section
   - Day Plan/Program section (toggle itinerary)
 - **Template Importer**: Easy import via WP Admin interface
 - **Library Integration**: Seamless Elementor Library compatibility
 
 #### 📧 Mailchimp Integration
+
 - **Subscriber Export**: Export newsletter subscribers from Payload CMS
 - **Mailchimp Compatible**: CSV format optimized for Mailchimp import
 - **Advanced Filtering**: Date ranges, subscription status, batch processing
@@ -44,6 +48,7 @@ A professional WordPress child theme extending the LoveTravel theme with custom 
 #### 🔄 Payload CMS Sync Tools
 
 ##### Media Import
+
 - **Bulk Media Import**: Import media files from Payload CMS to WordPress
 - **Background Processing**: Non-blocking batch import with progress tracking
 - **Smart Skip Logic**: Avoid duplicate imports with existing file detection
@@ -51,7 +56,8 @@ A professional WordPress child theme extending the LoveTravel theme with custom 
 - **State Management**: Reliable start/stop/resume functionality
 - **Admin Interface**: User-friendly progress monitoring
 
-##### Adventures Import  
+##### Adventures Import
+
 - **Content Migration**: Import adventure posts from Payload CMS
 - **Field Mapping**: Automatic mapping of Payload fields to WordPress meta
 - **Taxonomy Sync**: Duration, Difficulty, Month term management
@@ -60,6 +66,7 @@ A professional WordPress child theme extending the LoveTravel theme with custom 
 - **Overwrite Control**: Choose to update existing or create new posts
 
 ### Developer Features
+
 - **Modular Architecture**: Well-organized file structure with clear separation of concerns
 - **Hook System**: Extensive WordPress hook integration for customization
 - **Error Handling**: Comprehensive error logging and user feedback
@@ -119,18 +126,21 @@ lovetravel-child/
 
 ## 🚀 Installation
 
-1. **Prerequisites**: 
+1. **Prerequisites**:
+
    - WordPress 6.0+
    - LoveTravel parent theme installed and activated
    - PHP 7.4+
 
 2. **Install Child Theme**:
+
    ```bash
    cd wp-content/themes/
    git clone [repository-url] lovetravel-child
    ```
 
 3. **Activate Theme**:
+
    - Go to WordPress Admin → Appearance → Themes
    - Activate "LoveTravel Child"
 
@@ -171,6 +181,7 @@ Import pre-built templates:
 ## 🛠️ Development
 
 ### Coding Standards
+
 - Follows WordPress Coding Standards (WPCS)
 - PHP 7.4+ compatible with modern PHP practices
 - Extensive inline documentation with proper DocBlocks
@@ -181,6 +192,7 @@ Import pre-built templates:
 ### Development Workflow
 
 #### Git Workflow
+
 1. **Sync**: `git fetch origin && git checkout main && git pull --ff-only`
 2. **Branch**: `git checkout -b feat/<slug>` (kebab-case, descriptive)
 3. **Develop**: Edit minimal files, keep functions modular
@@ -190,6 +202,7 @@ Import pre-built templates:
 7. **PR**: Open pull request with clear description
 
 #### Pre-Commit Checklist
+
 - [ ] `git diff --name-only` shows minimal, relevant changes
 - [ ] No debug code: `grep -R "var_dump\|console.log" . || true` (should be empty)
 - [ ] PHP syntax: `php -l` on changed files
@@ -197,6 +210,7 @@ Import pre-built templates:
 - [ ] WordPress hooks properly documented and cited
 
 #### Release Process
+
 1. **Prepare**: Clean working tree, merged features into `main`
 2. **Version**: Update version in `style.css` and `functions.php`
 3. **Changelog**: Update `CHANGELOG.md` with new version
@@ -204,21 +218,26 @@ Import pre-built templates:
 5. **Push**: `git push origin v<version>`
 
 ### Customization
+
 - **Custom Functions**: Add to `functions.php` (marked section at bottom)
 - **Custom Styles**: Place in `assets/css/custom.css` (auto-enqueued)
 - **Custom JavaScript**: Add to `assets/js/custom.js` (auto-enqueued)
 - **Hooks Available**: Use `lovetravel_child_` prefixed hooks for customization
 
 ### Translation
+
 Text domain: `lovetravel-child`
 
 Generate POT file:
+
 ```bash
 wp i18n make-pot . languages/lovetravel-child.pot --domain=lovetravel-child
 ```
 
 ### Development History
+
 **Key Milestones:**
+
 - **Sept 2025**: Initial v1.0.0 release with complete feature set
 - **Major Features Added**: Payload CMS integration, Elementor templates, admin tools
 - **Architecture**: Modular design with organized file structure in `inc/` directory
@@ -232,7 +251,7 @@ wp i18n make-pot . languages/lovetravel-child.pot --domain=lovetravel-child
 The theme integrates with several Payload CMS endpoints:
 
 - **Mailing**: `/api/mailing` - Newsletter subscribers
-- **Media**: `/api/media` - File uploads and assets  
+- **Media**: `/api/media` - File uploads and assets
 - **Adventures**: `/api/adventures` - Travel packages/adventures
 
 ### WordPress Integration
@@ -281,19 +300,21 @@ The theme integrates with several Payload CMS endpoints:
 ## 🎨 Styling & Theming
 
 ### CSS Variables
+
 The theme defines custom CSS variables for consistent styling:
 
 ```css
 :root {
-    --accent-color: #ea5b10;
-    --background-color: #ffffff;
-    --text-primary: #000000;
-    --text-secondary: #363635;
-    --border-light: #e8e6e1;
+  --accent-color: #ea5b10;
+  --background-color: #ffffff;
+  --text-primary: #000000;
+  --text-secondary: #363635;
+  --border-light: #e8e6e1;
 }
 ```
 
 ### Responsive Design
+
 - Mobile-first approach
 - Flexible grid system
 - Optimized for travel industry needs
@@ -304,18 +325,22 @@ The theme defines custom CSS variables for consistent styling:
 ### Common Issues
 
 **Permalinks not working after activation:**
+
 - Go to Settings → Permalinks and click "Save Changes"
 
 **Import tools not appearing:**
+
 - Ensure parent plugins are active (Mailchimp for WP, Elementor)
 - Check user permissions (manage_options capability required)
 
 **Payload API connection issues:**
+
 - Verify API endpoints in configuration
 - Check network connectivity and CORS settings
 - Review WordPress error logs
 
 ### Debug Mode
+
 Enable WordPress debug mode for detailed error information:
 
 ```php
@@ -349,11 +374,13 @@ This theme is licensed under the GNU General Public License v2 or later.
 ## 🆘 Support
 
 For theme-specific issues:
+
 - Check documentation in this repository
 - Review WordPress error logs
 - Ensure parent theme compatibility
 
 For travel industry specific features:
+
 - Payload CMS integration documentation
 - Adventure post type customizations
 - Booking and pricing meta field usage

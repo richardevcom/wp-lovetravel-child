@@ -49,12 +49,10 @@ function lovetravel_child_is_admin() {
 
 /**
  * Load text domain for translations
+ * ✅ FIXED: Textdomain loading handled in theme-setup.php to prevent duplicate loading
  *
  * @since LoveTravel Child 1.0
  *
  * @return void
  */
-function lovetravel_child_load_textdomain() {
-	load_child_theme_textdomain( 'lovetravel-child', LOVETRAVEL_CHILD_DIR . '/languages' );
-}
-add_action( 'after_setup_theme', 'lovetravel_child_load_textdomain' );
+// Textdomain loading moved to theme-setup.php to prevent conflicts
