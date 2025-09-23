@@ -29,10 +29,20 @@
 			importStep(step, $button);
 		});
 		
-		// ✅ Verified: Handle stop import button
+		// ✅ Verified: Handle stop import buttons
 		$('#stop-adventure-import').on('click', function(e) {
 			e.preventDefault();
-			stopImport();
+			stopImport('adventures');
+		});
+		
+		$('#stop-media-import').on('click', function(e) {
+			e.preventDefault();
+			stopImport('media');
+		});
+		
+		$('#stop-destinations-import').on('click', function(e) {
+			e.preventDefault();
+			stopImport('destinations');
 		});
 		
 		// ✅ Verified: Handle wizard completion
@@ -106,6 +116,13 @@
 			$('#media-progress-status').text('Starting import...');
 			$('#media-progress-details').text('Preparing to fetch media files from Payload CMS');
 			$('#stop-media-import').show();
+		} else if (step === 'destinations') {
+			// ✅ Verified: Show destinations progress area
+			$('#destinations-import-progress').show();
+			$('#destinations-import-progress .progress-fill').css('width', '0%');
+			$('#destinations-progress-status').text('Starting import...');
+			$('#destinations-progress-details').text('Preparing to fetch destinations from Payload CMS');
+			$('#stop-destinations-import').show();
 		}
 		
 		// ✅ Verified: Update button states
@@ -167,6 +184,10 @@
 			$progressBar = $('#media-import-progress .progress-fill');
 			$status = $('#media-progress-status');
 			$details = $('#media-progress-details');
+		} else if (step === 'destinations') {
+			$progressBar = $('#destinations-import-progress .progress-fill');
+			$status = $('#destinations-progress-status');
+			$details = $('#destinations-progress-details');
 		} else {
 			$progressBar = $('.progress-fill');
 			$status = $('#progress-status');
@@ -186,6 +207,11 @@
 				details = progressData.processed + '/' + progressData.total + ' media files';
 				if (progressData.imported && progressData.updated) {
 					details += ' (' + progressData.imported + ' new, ' + progressData.updated + ' updated)';
+				}
+			} else if (step === 'destinations') {
+				details = progressData.processed + '/' + progressData.total + ' destinations';
+				if (progressData.destinations_created || progressData.locations_created || progressData.updated) {
+					details += ' (' + progressData.destinations_created + ' destinations, ' + progressData.locations_created + ' locations, ' + progressData.updated + ' updated)';
 				}
 			} else {
 				details = progressData.processed + '/' + progressData.total + ' adventures';
@@ -225,9 +251,30 @@
 	/**
 	 * ✅ Verified: Stop import functionality
 	 */
-	function stopImport() {
-		var $stopButton = $('#stop-adventure-import');
-		var $startButton = $('#start-adventure-import');
+	function stopImport(step) {
+		step = step || 'adventures';
+		
+		var $stopButton, $startButton, $progressContainer, $statusElement, $progressBar;
+		
+		if (step === 'media') {
+			$stopButton = $('#stop-media-import');
+			$startButton = $('[data-step="media"]');
+			$progressContainer = $('#media-import-progress');
+			$statusElement = $('#media-progress-status');
+			$progressBar = $('#media-import-progress .progress-fill');
+		} else if (step === 'destinations') {
+			$stopButton = $('#stop-destinations-import');
+			$startButton = $('[data-step="destinations"]');
+			$progressContainer = $('#destinations-import-progress');
+			$statusElement = $('#destinations-progress-status');
+			$progressBar = $('#destinations-import-progress .progress-fill');
+		} else {
+			$stopButton = $('#stop-adventure-import');
+			$startButton = $('[data-step="adventures"]');
+			$progressContainer = $('#adventure-import-progress');
+			$statusElement = $('#progress-status');
+			$progressBar = $('.progress-fill');
+		}
 		
 		// ✅ Verified: Confirm with user
 		if (!confirm('Are you sure you want to stop the import? Progress will be lost.')) {
@@ -241,23 +288,24 @@
 			type: 'POST',
 			data: {
 				action: 'lovetravel_wizard_stop_import',
+				step: step,
 				nonce: loveTravelWizard.nonce
 			},
 			success: function(response) {
 				if (response.success) {
 					// ✅ Verified: Reset UI state
-					$startButton.prop('disabled', false).text('Start Adventure Import');
+					$startButton.prop('disabled', false).removeClass('importing').text('Start Import');
 					$stopButton.hide().prop('disabled', false).text('Stop Import');
 					
 					// ✅ Verified: Update progress display
-					$('#progress-status').text('Import stopped by user');
-					$('.progress-fill').css('width', '0%');
+					$statusElement.text('Import stopped by user');
+					$progressBar.css('width', '0%');
 					
 					showAdminNotice('warning', response.data.message);
 					
 					// ✅ Verified: Hide progress after delay
 					setTimeout(function() {
-						$('#adventure-import-progress').fadeOut();
+						$progressContainer.fadeOut();
 					}, 3000);
 				} else {
 					$stopButton.prop('disabled', false).text('Stop Import');
@@ -280,6 +328,8 @@
 			$('#stop-adventure-import').hide();
 		} else if (step === 'media') {
 			$('#stop-media-import').hide();
+		} else if (step === 'destinations') {
+			$('#stop-destinations-import').hide();
 		}
 		
 		if (progressData.status === 'completed') {
@@ -288,7 +338,7 @@
 			});
 		} else if (progressData.status === 'stopped') {
 			// ✅ Verified: Reset button for stopped import
-			var buttonText = 'Start ' + (step === 'media' ? 'Media' : 'Adventure') + ' Import';
+			var buttonText = 'Start ' + (step === 'media' ? 'Media' : (step === 'destinations' ? 'Destinations' : 'Adventure')) + ' Import';
 			$button.prop('disabled', false)
 				   .removeClass('importing')
 				   .text(buttonText);
@@ -301,7 +351,7 @@
 		}
 		
 		// ✅ Verified: Keep progress visible longer for completed/stopped status
-		var progressSelector = step === 'media' ? '#media-import-progress' : '#adventure-import-progress';
+		var progressSelector = step === 'media' ? '#media-import-progress' : (step === 'destinations' ? '#destinations-import-progress' : '#adventure-import-progress');
 		setTimeout(function() {
 			$(progressSelector).fadeOut(1000);
 		}, 5000); // Show status for 5 seconds
