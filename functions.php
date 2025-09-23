@@ -35,7 +35,7 @@ define('LOVETRAVEL_CHILD_URI', get_stylesheet_directory_uri());
 /**
  * Include core theme setup and functionality
  */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/includes/theme-setup.php';
+require_once LOVETRAVEL_CHILD_DIR . '/inc/theme-setup.php';
 
 /**
  * Include hooks and filters for customizations
@@ -45,12 +45,12 @@ require_once LOVETRAVEL_CHILD_DIR . '/inc/hooks/cpt-overrides.php';
 /**
  * Include admin utilities and helper functions
  */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/includes/admin-utilities.php';
+require_once LOVETRAVEL_CHILD_DIR . '/inc/admin-utilities.php';
 
 /**
  * Include Elementor templates helper (import/export utilities)
  */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/includes/elementor-templates.php';
+require_once LOVETRAVEL_CHILD_DIR . '/inc/elementor-templates.php';
 
 /**
  * Include Payload CMS media import functionality

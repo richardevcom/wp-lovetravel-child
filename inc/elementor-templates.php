@@ -6,22 +6,21 @@ if (! defined('ABSPATH')) {
 
 /**
  * Elementor Templates Helper
- * - Stores JSON under elementor-templates/
+ * - Stores JSON under elementor/
  * - Provides importer function with idempotency
  * - Adds optional WP-CLI command for batch import
  */
 class Lovetravel_Elementor_Templates_Helper
 {
-    const DIR = 'elementor-templates';
 
     public static function template_dir()
     {
-        return trailingslashit(LOVETRAVEL_CHILD_DIR . '/' . self::DIR);
+        return trailingslashit(LOVETRAVEL_CHILD_DIR . '/inc/templates/elementor/');
     }
 
     public static function template_uri()
     {
-        return trailingslashit(LOVETRAVEL_CHILD_URI . '/' . self::DIR);
+        return trailingslashit(LOVETRAVEL_CHILD_URI . '/inc/templates/elementor/');
     }
 }
 
@@ -160,7 +159,7 @@ add_action('admin_menu', function () {
                 wp_die(__('Insufficient permissions', 'lovetravel-child'));
             }
             $dir = Lovetravel_Elementor_Templates_Helper::template_dir();
-            $files = is_dir($dir) ? array_values(array_filter(scandir($dir), function ($f) {
+            $files = is_dir($dir) ? array_values(array: array_filter(scandir($dir), function ($f) {
                 return substr($f, -5) === '.json';
             })) : [];
             echo '<div class="wrap"><h1>' . esc_html__('Elementor Templates Import', 'lovetravel-child') . '</h1>';
