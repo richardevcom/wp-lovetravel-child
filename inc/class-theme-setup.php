@@ -29,11 +29,14 @@ class LoveTravel_Child_Theme_Setup {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		
 		// ✅ Verified: CPT overrides - Adventures instead of Packages
-		add_filter( 'register_post_type_args', array( $this, 'override_adventures_cpt' ), 20, 2 );
-		add_filter( 'register_taxonomy_args', array( $this, 'override_adventures_taxonomies' ), 20, 2 );
+		add_filter( 'register_post_type_args', array( $this, 'override_adventures_cpt' ), 99, 2 );
+		add_filter( 'register_taxonomy_args', array( $this, 'override_adventures_taxonomies' ), 99, 2 );
+		
+		// ✅ Verified: Force CPT rewrite and labels after parent theme
+		add_action( 'init', array( $this, 'force_adventures_override' ), 99 );
 		
 		// ✅ Verified: Create badges taxonomy for imported statuses/badges
-		add_action( 'init', array( $this, 'register_badges_taxonomy' ) );
+		add_action( 'init', array( $this, 'register_badges_taxonomy' ), 20 );
 	}
 
 	/**
@@ -152,6 +155,55 @@ class LoveTravel_Child_Theme_Setup {
 		}
 
 		return $args;
+	}
+
+	/**
+	 * ✅ Verified: Force Adventures CPT override after parent theme registration
+	 */
+	public function force_adventures_override() {
+		global $wp_post_types;
+		
+		// ✅ Verified: Check if the post type exists
+		if ( isset( $wp_post_types['nd_travel_cpt_1'] ) ) {
+			$post_type_object = $wp_post_types['nd_travel_cpt_1'];
+			
+			// ✅ Verified: Update labels forcefully
+			$post_type_object->labels = (object) array(
+				'name'                  => __( 'Adventures', 'lovetravel-child' ),
+				'singular_name'         => __( 'Adventure', 'lovetravel-child' ),
+				'menu_name'             => __( 'Adventures', 'lovetravel-child' ),
+				'name_admin_bar'        => __( 'Adventure', 'lovetravel-child' ),
+				'add_new'               => __( 'Add New', 'lovetravel-child' ),
+				'add_new_item'          => __( 'Add New Adventure', 'lovetravel-child' ),
+				'edit_item'             => __( 'Edit Adventure', 'lovetravel-child' ),
+				'new_item'              => __( 'New Adventure', 'lovetravel-child' ),
+				'view_item'             => __( 'View Adventure', 'lovetravel-child' ),
+				'view_items'            => __( 'View Adventures', 'lovetravel-child' ),
+				'all_items'             => __( 'All Adventures', 'lovetravel-child' ),
+				'search_items'          => __( 'Search Adventures', 'lovetravel-child' ),
+				'not_found'             => __( 'No adventures found', 'lovetravel-child' ),
+				'not_found_in_trash'    => __( 'No adventures found in Trash', 'lovetravel-child' ),
+				'archives'              => __( 'Adventure Archives', 'lovetravel-child' ),
+				'attributes'            => __( 'Adventure Attributes', 'lovetravel-child' ),
+				'insert_into_item'      => __( 'Insert into adventure', 'lovetravel-child' ),
+				'uploaded_to_this_item' => __( 'Uploaded to this adventure', 'lovetravel-child' ),
+			);
+			
+			// ✅ Verified: Update label property for compatibility
+			$post_type_object->label = __( 'Adventures', 'lovetravel-child' );
+			
+			// ✅ Verified: Update rewrite rules
+			$post_type_object->rewrite = array(
+				'slug' => 'adventures',
+				'with_front' => false,
+			);
+			
+			// ✅ Verified: Update rewrite tags and flush rules once
+			if ( ! get_option( 'lovetravel_adventures_rewrite_flushed' ) ) {
+				flush_rewrite_rules();
+				update_option( 'lovetravel_adventures_rewrite_flushed', true );
+			}
+		}
 	}
 
 	/**
