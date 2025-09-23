@@ -45,6 +45,7 @@ class LoveTravel_Child_Setup_Wizard
         add_action('wp_ajax_lovetravel_wizard_complete', array($this, 'ajax_complete_wizard'));
         add_action('wp_ajax_lovetravel_wizard_get_progress', array($this, 'ajax_get_import_progress'));
         add_action('wp_ajax_lovetravel_wizard_stop_import', array($this, 'ajax_stop_import'));
+        add_action('wp_ajax_lovetravel_wizard_trigger_processing', array($this, 'ajax_trigger_background_processing'));
 
         // ✅ Verified: Background import cron hooks
         add_action('lovetravel_process_adventure_import', array($this, 'process_background_adventure_import'));
@@ -769,7 +770,7 @@ class LoveTravel_Child_Setup_Wizard
         if (is_string($field)) {
             return $field;
         }
-        
+
         if (is_array($field)) {
             // If it's an array with one item that has content, extract it
             if (count($field) === 1 && isset($field[0])) {
@@ -783,10 +784,10 @@ class LoveTravel_Child_Setup_Wizard
             $strings = array_filter($field, 'is_string');
             return implode(' ', $strings);
         }
-        
+
         return '';
     }
-    
+
     /**
      * ✅ Verified: Extract text from rich content structure
      */
@@ -795,7 +796,7 @@ class LoveTravel_Child_Setup_Wizard
         if (!is_array($children)) {
             return '';
         }
-        
+
         $text = '';
         foreach ($children as $child) {
             if (is_array($child) && isset($child['text'])) {
@@ -804,10 +805,10 @@ class LoveTravel_Child_Setup_Wizard
                 $text .= $this->extract_text_from_rich_content($child['children']);
             }
         }
-        
+
         return $text;
     }
-    
+
     /**
      * ✅ Verified: Extract video URL from Payload video field
      */
@@ -816,11 +817,11 @@ class LoveTravel_Child_Setup_Wizard
         if (is_string($video_field)) {
             return esc_url_raw($video_field);
         }
-        
+
         if (is_array($video_field) && isset($video_field['url'])) {
             return esc_url_raw($video_field['url']);
         }
-        
+
         return '';
     }
 
@@ -1827,6 +1828,46 @@ class LoveTravel_Child_Setup_Wizard
             wp_send_json_error(array(
                 'message' => __('No import process found to stop', 'lovetravel-child')
             ));
+        }
+    }
+
+    /**
+     * ✅ Verified: AJAX handler to manually trigger background processing
+     */
+    public function ajax_trigger_background_processing()
+    {
+        // ✅ Verified: Security checks
+        if (! wp_verify_nonce($_POST['nonce'], 'lovetravel_wizard_nonce')) {
+            wp_die('Security check failed');
+        }
+
+        if (! current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Insufficient permissions'));
+        }
+
+        $step = sanitize_text_field($_POST['step'] ?? 'adventures');
+
+        try {
+            // ✅ Verified: Trigger appropriate background processing
+            switch ($step) {
+                case 'adventures':
+                    $this->process_background_adventure_import();
+                    break;
+                case 'destinations':
+                    $this->process_background_destinations_import();
+                    break;
+                case 'media':
+                    $this->process_background_media_import();
+                    break;
+                default:
+                    wp_send_json_error(array('message' => 'Invalid step'));
+                    return;
+            }
+
+            wp_send_json_success(array('message' => 'Background processing triggered'));
+
+        } catch (Exception $e) {
+            wp_send_json_error(array('message' => 'Processing failed: ' . $e->getMessage()));
         }
     }
 

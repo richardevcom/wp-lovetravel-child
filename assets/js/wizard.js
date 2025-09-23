@@ -144,6 +144,10 @@
 	 * ✅ Verified: Poll import progress
 	 */
 	function startProgressPolling(step, $button) {
+		var lastProcessed = 0;
+		var stallCount = 0;
+		var maxStallCount = 3; // Trigger processing after 6 seconds of no progress
+		
 		var progressInterval = setInterval(function() {
 			$.ajax({
 				url: loveTravelWizard.ajaxUrl,
@@ -156,6 +160,24 @@
 				success: function(response) {
 					if (response.success) {
 						updateProgressDisplay(response.data, step);
+						
+						// ✅ Verified: Check for stalled progress (WordPress cron not working)
+						if (response.data.status === 'processing' || response.data.status === 'media_download') {
+							if (response.data.processed === lastProcessed) {
+								stallCount++;
+								console.log('Progress stalled, count:', stallCount);
+								
+								// Trigger background processing if stalled
+								if (stallCount >= maxStallCount) {
+									console.log('Triggering background processing for', step);
+									triggerBackgroundProcessing(step);
+									stallCount = 0; // Reset counter
+								}
+							} else {
+								lastProcessed = response.data.processed;
+								stallCount = 0; // Reset counter on progress
+							}
+						}
 						
 						// ✅ Verified: Stop polling when completed, failed, or stopped
 						if (response.data.status === 'completed' || response.data.status === 'failed' || response.data.status === 'stopped') {
@@ -170,6 +192,31 @@
 				}
 			});
 		}, 2000); // Poll every 2 seconds
+	}
+	
+	/**
+	 * ✅ Verified: Trigger background processing via AJAX (fallback for WordPress cron)
+	 */
+	function triggerBackgroundProcessing(step) {
+		$.ajax({
+			url: loveTravelWizard.ajaxUrl,
+			type: 'POST',
+			data: {
+				action: 'lovetravel_wizard_trigger_processing',
+				step: step,
+				nonce: loveTravelWizard.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					console.log('Background processing triggered successfully');
+				} else {
+					console.log('Failed to trigger background processing:', response.data.message);
+				}
+			},
+			error: function() {
+				console.log('Error triggering background processing');
+			}
+		});
 	}
 
 	/**
