@@ -18,6 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 define( 'LOVETRAVEL_CHILD_VERSION', '2.0.0' );
 define( 'LOVETRAVEL_CHILD_DIR', get_stylesheet_directory() );
+define( 'LOVETRAVEL_CHILD_PATH', get_stylesheet_directory() );
 define( 'LOVETRAVEL_CHILD_URI', get_stylesheet_directory_uri() );
 
 /**
