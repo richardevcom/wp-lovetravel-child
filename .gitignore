@@ -1,7 +1,22 @@
-.vscode/
-.DS_Store
-Thumbs.db
-*.log
+# Ignore build artifacts and development files
+node_modules/
 dist/
 build/
-node_modules/
+.DS_Store
+Thumbs.db
+
+# Ignore generated language files
+languages/*.mo
+
+# Ignore development and IDE files
+*.log
+*.tmp
+.vscode/
+.idea/
+
+# Ignore backup files
+*.bak
+*~
+
+# Ignore system files
+.htaccess

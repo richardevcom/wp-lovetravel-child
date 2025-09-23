@@ -1,95 +1,134 @@
 <?php
-
 /**
- * LoveTravel Child Theme Functions
- * 
- * This file handles the main functionality for the LoveTravel child theme.
- * It includes various components and ensures proper inheritance from the parent theme.
- * 
+ * LoveTravel Child Theme functions and definitions.
+ *
+ * @link https://developer.wordpress.org/themes/basics/theme-functions/
+ *
  * @package LoveTravel_Child
+ * @subpackage LoveTravel_Child
+ * @since LoveTravel Child 1.0
  * @version 1.0.0
  * @author richardevcom
- * @link https://github.com/richardevcom
  */
 
 // Prevent direct access
-if (! defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /**
- * Child theme version
+ * Child theme version and constants
+ * 
+ * @since LoveTravel Child 1.0
  */
-define('LOVETRAVEL_CHILD_VERSION', '1.0.0');
+define( 'LOVETRAVEL_CHILD_VERSION', '1.0.0' );
+define( 'LOVETRAVEL_CHILD_DIR', get_stylesheet_directory() );
+define( 'LOVETRAVEL_CHILD_URI', get_stylesheet_directory_uri() );
 
-/**
- * Theme directory path
- */
-define('LOVETRAVEL_CHILD_DIR', get_stylesheet_directory());
+// Core theme setup and functionality
+if ( ! function_exists( 'lovetravel_child_theme_setup' ) ) :
+	/**
+	 * Sets up theme defaults and registers support for various WordPress features.
+	 *
+	 * @since LoveTravel Child 1.0
+	 *
+	 * @return void
+	 */
+	function lovetravel_child_theme_setup() {
+		// Load theme setup module
+		require_once LOVETRAVEL_CHILD_DIR . '/inc/setup/theme-setup.php';
+	}
+endif;
+add_action( 'after_setup_theme', 'lovetravel_child_theme_setup' );
 
-/**
- * Theme directory URI
- */
-define('LOVETRAVEL_CHILD_URI', get_stylesheet_directory_uri());
+// Load utility functions and customizations
+if ( ! function_exists( 'lovetravel_child_load_utilities' ) ) :
+	/**
+	 * Load utility functions and customizations.
+	 *
+	 * @since LoveTravel Child 1.0
+	 *
+	 * @return void
+	 */
+	function lovetravel_child_load_utilities() {
+		// Load common utility functions
+		require_once LOVETRAVEL_CHILD_DIR . '/inc/utilities/common-functions.php';
+		
+		// Load CPT overrides and customizations
+		require_once LOVETRAVEL_CHILD_DIR . '/inc/utilities/cpt-overrides.php';
+	}
+endif;
+add_action( 'init', 'lovetravel_child_load_utilities' );
 
-/**
- * Include core theme setup and functionality
- */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/theme-setup.php';
+// Load admin functionality
+if ( ! function_exists( 'lovetravel_child_load_admin' ) ) :
+	/**
+	 * Load admin functionality and utilities.
+	 *
+	 * @since LoveTravel Child 1.0
+	 *
+	 * @return void
+	 */
+	function lovetravel_child_load_admin() {
+		if ( is_admin() ) {
+			// Admin utilities and helpers
+			require_once LOVETRAVEL_CHILD_DIR . '/inc/admin/admin-utilities.php';
+		}
+	}
+endif;
+add_action( 'init', 'lovetravel_child_load_admin' );
 
-/**
- * Include hooks and filters for customizations
- */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/hooks/cpt-overrides.php';
+// Load integrations
+if ( ! function_exists( 'lovetravel_child_load_integrations' ) ) :
+	/**
+	 * Load third-party integrations and tools.
+	 *
+	 * @since LoveTravel Child 1.0
+	 *
+	 * @return void
+	 */
+	function lovetravel_child_load_integrations() {
+		// Elementor templates integration
+		require_once LOVETRAVEL_CHILD_DIR . '/inc/integrations/elementor-templates.php';
+		
+		// Payload CMS integrations
+		require_once LOVETRAVEL_CHILD_DIR . '/inc/integrations/payload-media-import.php';
+		require_once LOVETRAVEL_CHILD_DIR . '/inc/integrations/mailchimp-subscriber-export.php';
+		require_once LOVETRAVEL_CHILD_DIR . '/inc/integrations/payload-adventures-import.php';
+		
+		// Load additional admin page for Payload imports
+		if ( file_exists( LOVETRAVEL_CHILD_DIR . '/inc/integrations/payload-import-admin-page.php' ) ) {
+			require_once LOVETRAVEL_CHILD_DIR . '/inc/integrations/payload-import-admin-page.php';
+		}
+	}
+endif;
+add_action( 'init', 'lovetravel_child_load_integrations' );
 
-/**
- * Include admin utilities and helper functions
- */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/admin-utilities.php';
-
-/**
- * Include Elementor templates helper (import/export utilities)
- */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/elementor-templates.php';
-
-/**
- * Include Payload CMS media import functionality
- */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/tools/payload-media-import.php';
-
-/**
- * Include Mailchimp subscriber export functionality
- */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/tools/mailchimp-subscriber-export.php';
-
-/**
- * Include Adventures import functionality (Payload CMS -> CPT `nd_travel_cpt_1`)
- */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/tools/payload-adventures-import.php';
-
-/**
- * Include customizer modifications (if file exists)
- */
-$customizer_fonts_file = LOVETRAVEL_CHILD_DIR . '/inc/customizer/fonts.php';
-if (file_exists($customizer_fonts_file)) {
-    require_once $customizer_fonts_file;
-}
+// Load customizer modifications (if file exists)
+if ( ! function_exists( 'lovetravel_child_load_customizer' ) ) :
+	/**
+	 * Load customizer modifications.
+	 *
+	 * @since LoveTravel Child 1.0
+	 *
+	 * @return void
+	 */
+	function lovetravel_child_load_customizer() {
+		$customizer_fonts_file = LOVETRAVEL_CHILD_DIR . '/inc/customizer/fonts.php';
+		if ( file_exists( $customizer_fonts_file ) ) {
+			require_once $customizer_fonts_file;
+		}
+	}
+endif;
+add_action( 'customize_register', 'lovetravel_child_load_customizer' );
 
 /**
  * Custom functions for the child theme
  * 
  * Add your custom functionality below this line.
  * Keep functions organized and well-documented.
- */
-
-/**
- * Example custom function
  * 
- * @since 1.0.0
+ * @since LoveTravel Child 1.0
  */
-function lovetravel_child_example_function()
-{
-    // Add your custom code here
-}
 
 // Add your custom functions here

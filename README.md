@@ -72,34 +72,47 @@ A professional WordPress child theme extending the LoveTravel theme with custom 
 lovetravel-child/
 ├── README.md                    # Main documentation (this file)
 ├── CHANGELOG.md                 # Version history and changes
+├── readme.txt                   # WordPress theme information
 ├── style.css                    # Theme header and base styles
-├── functions.php                # Main theme bootstrap
-├── assets/
+├── functions.php                # Main theme bootstrap (modular loading)
+├── .gitignore                   # Version control exclusions
+├── assets/                      # Static assets (CSS, JS, images, fonts)
 │   ├── css/
-│   │   ├── custom.css          # Custom theme styles
+│   │   ├── custom.css          # Custom theme styles (auto-enqueued)
 │   │   └── admin-tools.css     # Admin interface styling
-│   └── js/
-│       ├── custom.js           # Frontend JavaScript
-│       ├── admin-mailchimp-export.js
-│       └── admin-adventures-import.js
-├── inc/
-│   ├── includes/
-│   │   ├── theme-setup.php     # Core theme setup
-│   │   ├── admin-utilities.php # Admin helpers
-│   │   └── elementor-templates.php # Elementor integration
-│   ├── hooks/
+│   ├── js/
+│   │   ├── custom.js           # Frontend JavaScript (auto-enqueued)
+│   │   ├── admin-mailchimp-export.js
+│   │   └── admin-adventures-import.js
+│   ├── images/                  # Theme images and assets
+│   └── fonts/                   # Custom fonts
+├── inc/                         # PHP includes (organized by functionality)
+│   ├── setup/
+│   │   └── theme-setup.php     # Core theme setup and enqueuing
+│   ├── admin/
+│   │   └── admin-utilities.php # Admin notices and helpers
+│   ├── integrations/
+│   │   ├── elementor-templates.php # Elementor template tools
+│   │   ├── payload-media-import.php
+│   │   ├── mailchimp-subscriber-export.php
+│   │   ├── payload-adventures-import.php
+│   │   └── payload-import-admin-page.php
+│   ├── utilities/
+│   │   ├── common-functions.php # Shared utility functions
 │   │   └── cpt-overrides.php   # Post type customizations
-│   └── tools/
-│       ├── mailchimp-subscriber-export.php
-│       ├── payload-media-import.php
-│       ├── payload-adventures-import.php
-│       └── payload-import-admin-page.php
-├── elementor-templates/         # Pre-built Elementor sections
-│   ├── README.md                # Template usage guide
-│   ├── include-exclude-info-section.json
-│   ├── adventure-about-section.json
-│   ├── adventure-description-section.json
-│   └── adventure-day-plan-program-section.json
+│   └── templates/
+│       └── elementor/          # Elementor template JSON files
+│           ├── README.md
+│           ├── include-exclude-info-section.json
+│           ├── adventure-about-section.json
+│           ├── adventure-description-section.json
+│           └── adventure-day-plan-program-section.json
+├── template-parts/              # PHP template parts for theme customization
+│   └── content-adventure.php   # Adventure post content template
+├── languages/                   # Translation files
+│   └── lovetravel-child.pot    # Translation template
+├── patterns/                    # Block patterns (future use)
+├── styles/                      # Theme style variations (future use)
 └── .github/
     └── copilot-instructions.md  # AI coding assistant guidelines
 ```
