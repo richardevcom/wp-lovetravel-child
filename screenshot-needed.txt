@@ -1,1 +1,0 @@
-This child theme needs a 1200x900px screenshot.png file for WordPress admin theme selection.

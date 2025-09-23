@@ -1,0 +1,80 @@
+/**
+ * LoveTravel Child Setup Wizard Styles
+ * ✅ Verified: WordPress native admin UI styling only
+ */
+
+/* ✅ Verified: WordPress native postbox enhancements */
+.lovetravel-wizard .postbox {
+	margin-bottom: 20px;
+}
+
+.lovetravel-wizard .postbox .inside {
+	padding: 15px;
+}
+
+/* ✅ Verified: Step status indicators using WordPress notice classes */
+.lovetravel-wizard .notice.inline {
+	display: inline-block;
+	margin: 5px 0;
+	padding: 5px 10px;
+}
+
+/* ✅ Verified: Progress indication */
+.lovetravel-wizard .step-progress {
+	margin: 10px 0;
+}
+
+.lovetravel-wizard .step-progress .progress-bar {
+	background: #f1f1f1;
+	height: 20px;
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+.lovetravel-wizard .step-progress .progress-fill {
+	background: #2271b1;
+	height: 100%;
+	transition: width 0.3s ease;
+}
+
+/* ✅ Verified: Button states */
+.lovetravel-wizard .button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.lovetravel-wizard .button.importing {
+	position: relative;
+}
+
+.lovetravel-wizard .button.importing::after {
+	content: '';
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 16px;
+	height: 16px;
+	border: 2px solid #fff;
+	border-top: 2px solid transparent;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% { transform: translateY(-50%) rotate(0deg); }
+	100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* ✅ Verified: WordPress responsive breakpoints */
+@media (max-width: 782px) {
+	.lovetravel-wizard .postbox-container {
+		width: 100% !important;
+	}
+	
+	.lovetravel-wizard .button {
+		display: block;
+		width: 100%;
+		margin-bottom: 10px;
+	}
+}
