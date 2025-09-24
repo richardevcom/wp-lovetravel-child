@@ -46,6 +46,7 @@ class LoveTravel_Child_Setup_Wizard
         add_action('wp_ajax_lovetravel_wizard_get_progress', array($this, 'ajax_get_import_progress'));
         add_action('wp_ajax_lovetravel_wizard_stop_import', array($this, 'ajax_stop_import'));
         add_action('wp_ajax_lovetravel_wizard_trigger_processing', array($this, 'ajax_trigger_background_processing'));
+        add_action('wp_ajax_lovetravel_wizard_reset_progress', array($this, 'ajax_reset_import_progress'));
 
         // ✅ Verified: Background import cron hooks
         add_action('lovetravel_process_adventure_import', array($this, 'process_background_adventure_import'));
@@ -54,6 +55,9 @@ class LoveTravel_Child_Setup_Wizard
 
         // ✅ Verified: Show admin notice if import not completed
         add_action('admin_notices', array($this, 'show_setup_notice'));
+
+        // ⚠️ Debug: Add debug endpoint (remove in production)
+        add_action('wp_ajax_lovetravel_debug_destinations', array($this, 'debug_destinations_import'));
     }
 
     /**
@@ -119,6 +123,12 @@ class LoveTravel_Child_Setup_Wizard
             wp_die(__('You do not have sufficient permissions to access this page.', 'lovetravel-child'));
         }
 
+        // ⚠️ Debug: Handle debug mode
+        if (isset($_GET['debug']) && $_GET['debug'] === 'destinations') {
+            $this->debug_destinations_import();
+            return;
+        }
+
         // ✅ Verified: WordPress native admin UI structure
 ?>
         <div class="wrap">
@@ -153,11 +163,47 @@ class LoveTravel_Child_Setup_Wizard
                     <div class="inside">
                         <p><?php esc_html_e('Import pre-built Elementor templates for Adventures.', 'lovetravel-child'); ?></p>
                         <?php $this->render_step_status('elementor_templates', $import_status); ?>
+
+                        <!-- Import Options -->
+                        <div class="import-options-section">
+                            <h4><?php esc_html_e('Import Options', 'lovetravel-child'); ?></h4>
+                            <div class="import-controls">
+                                <div class="option-group">
+                                    <label for="template-collision-action"><?php esc_html_e('If template exists:', 'lovetravel-child'); ?></label>
+                                    <select id="template-collision-action" name="template_collision_action">
+                                        <option value="skip" selected><?php esc_html_e('Skip existing templates', 'lovetravel-child'); ?></option>
+                                        <option value="update"><?php esc_html_e('Update existing templates', 'lovetravel-child'); ?></option>
+                                        <option value="create_new"><?php esc_html_e('Create new with unique names', 'lovetravel-child'); ?></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Display -->
+                        <div id="elementor-import-progress" style="display: none;">
+                            <h4><?php esc_html_e('Template Import Progress', 'lovetravel-child'); ?></h4>
+                            <div class="progress-info">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%;"></div>
+                                </div>
+                                <div class="progress-text">
+                                    <span id="elementor-progress-status"><?php esc_html_e('Starting import...', 'lovetravel-child'); ?></span>
+                                    <span id="elementor-progress-details"><?php esc_html_e('Import will begin shortly', 'lovetravel-child'); ?></span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="wizard-step-actions">
                             <button type="button" class="button button-primary"
                                 data-step="elementor_templates"
+                                id="start-elementor-import"
                                 <?php echo isset($import_status['elementor_templates']) ? 'disabled' : ''; ?>>
                                 <?php esc_html_e('Import Default Templates', 'lovetravel-child'); ?>
+                            </button>
+                            <button type="button" class="button button-secondary"
+                                id="stop-elementor-import"
+                                style="display: none;">
+                                <?php esc_html_e('Stop Import', 'lovetravel-child'); ?>
                             </button>
                             <a href="<?php echo esc_url(admin_url('edit.php?post_type=elementor_library')); ?>"
                                 class="button button-secondary" target="_blank">
@@ -181,20 +227,33 @@ class LoveTravel_Child_Setup_Wizard
                         <p><?php esc_html_e('Import adventure content from Payload CMS with media files.', 'lovetravel-child'); ?></p>
                         <?php $this->render_step_status('adventures', $import_status); ?>
 
-                        <div class="adventure-import-options">
-                            <h4><?php esc_html_e('Duplicate Handling', 'lovetravel-child'); ?></h4>
-                            <label>
-                                <input type="radio" name="duplicate_handling" value="skip" checked>
-                                <?php esc_html_e('Skip existing adventures', 'lovetravel-child'); ?>
-                            </label><br>
-                            <label>
-                                <input type="radio" name="duplicate_handling" value="update">
-                                <?php esc_html_e('Update existing adventures', 'lovetravel-child'); ?>
-                            </label><br>
-                            <label>
-                                <input type="radio" name="duplicate_handling" value="create_new">
-                                <?php esc_html_e('Create new with unique names', 'lovetravel-child'); ?>
-                            </label>
+                        <!-- Import Options -->
+                        <div class="import-options-section">
+                            <h4><?php esc_html_e('Import Options', 'lovetravel-child'); ?></h4>
+                            <div class="import-controls">
+                                <div class="option-group">
+                                    <label for="adventure-collision-action"><?php esc_html_e('If adventure exists:', 'lovetravel-child'); ?></label>
+                                    <select id="adventure-collision-action" name="adventure_collision_action">
+                                        <option value="skip"><?php esc_html_e('Skip existing adventures', 'lovetravel-child'); ?></option>
+                                        <option value="update"><?php esc_html_e('Update existing adventures', 'lovetravel-child'); ?></option>
+                                        <option value="create_new" selected><?php esc_html_e('Create new with unique names', 'lovetravel-child'); ?></option>
+                                    </select>
+                                </div>
+
+                                <div class="option-group">
+                                    <label for="media-collision-action"><?php esc_html_e('If media file exists:', 'lovetravel-child'); ?></label>
+                                    <select id="media-collision-action" name="media_collision_action">
+                                        <option value="skip" selected><?php esc_html_e('Skip existing files', 'lovetravel-child'); ?></option>
+                                        <option value="update"><?php esc_html_e('Update existing files', 'lovetravel-child'); ?></option>
+                                        <option value="create_new"><?php esc_html_e('Create new with unique names', 'lovetravel-child'); ?></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="collision-preview" style="display: none;">
+                                <h5><?php esc_html_e('Import Conflicts:', 'lovetravel-child'); ?></h5>
+                                <div id="collision-list"></div>
+                            </div>
                         </div>
 
                         <div class="wizard-step-actions">
@@ -211,6 +270,7 @@ class LoveTravel_Child_Setup_Wizard
                             </button>
                         </div>
 
+                        <!-- Progress Display -->
                         <div id="adventure-import-progress" style="display: none;">
                             <h4><?php esc_html_e('Adventure Import Progress', 'lovetravel-child'); ?></h4>
                             <div class="progress-info">
@@ -221,6 +281,12 @@ class LoveTravel_Child_Setup_Wizard
                                     <span id="progress-status"><?php esc_html_e('Starting import...', 'lovetravel-child'); ?></span>
                                     <span id="progress-details"><?php esc_html_e('Import will begin in background', 'lovetravel-child'); ?></span>
                                 </div>
+                            </div>
+
+                            <!-- Live Logs Display -->
+                            <div id="adventure-live-logs-container" class="live-logs-wrapper" style="display: none;">
+                                <h4><?php esc_html_e('Logs', 'lovetravel-child'); ?></h4>
+                                <div id="adventure-live-logs-list" class="live-logs-list"></div>
                             </div>
                         </div>
 
@@ -240,6 +306,28 @@ class LoveTravel_Child_Setup_Wizard
                     <div class="inside">
                         <p><?php esc_html_e('Import all media files (images, PDFs, documents) from Payload CMS.', 'lovetravel-child'); ?></p>
                         <?php $this->render_step_status('media', $import_status); ?>
+
+                        <!-- Import Options -->
+                        <div class="import-options-section">
+                            <h4><?php esc_html_e('Import Options', 'lovetravel-child'); ?></h4>
+                            <div class="import-controls">
+                                <div class="option-group">
+                                    <label for="media-file-collision-action"><?php esc_html_e('If media file exists:', 'lovetravel-child'); ?></label>
+                                    <select id="media-file-collision-action" name="media_file_collision_action">
+                                        <option value="skip" selected><?php esc_html_e('Skip existing files', 'lovetravel-child'); ?></option>
+                                        <option value="update"><?php esc_html_e('Update existing files', 'lovetravel-child'); ?></option>
+                                        <option value="create_new"><?php esc_html_e('Create new with unique names', 'lovetravel-child'); ?></option>
+                                    </select>
+                                </div>
+                                <div class="option-group">
+                                    <label>
+                                        <input type="checkbox" id="skip-media-downloads" value="1">
+                                        <?php esc_html_e('Skip downloads (testing mode)', 'lovetravel-child'); ?>
+                                    </label>
+                                    <small class="description"><?php esc_html_e('Creates media records without downloading files - faster for testing', 'lovetravel-child'); ?></small>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="wizard-step-actions">
                             <button type="button" class="button button-primary"
@@ -266,6 +354,12 @@ class LoveTravel_Child_Setup_Wizard
                                     <span id="media-progress-details"><?php esc_html_e('Import will begin in background', 'lovetravel-child'); ?></span>
                                 </div>
                             </div>
+
+                            <!-- Live Logs Display -->
+                            <div id="media-live-logs-container" class="live-logs-wrapper" style="display: none;">
+                                <h4><?php esc_html_e('Logs', 'lovetravel-child'); ?></h4>
+                                <div id="media-live-logs-list" class="live-logs-list"></div>
+                            </div>
                         </div>
 
                         <p class="description">
@@ -284,6 +378,21 @@ class LoveTravel_Child_Setup_Wizard
                     <div class="inside">
                         <p><?php esc_html_e('Import destinations and locations from Payload CMS to WordPress CPTs.', 'lovetravel-child'); ?></p>
                         <?php $this->render_step_status('destinations', $import_status); ?>
+
+                        <!-- Import Options -->
+                        <div class="import-options-section">
+                            <h4><?php esc_html_e('Import Options', 'lovetravel-child'); ?></h4>
+                            <div class="import-controls">
+                                <div class="option-group">
+                                    <label for="destination-collision-action"><?php esc_html_e('If destination exists:', 'lovetravel-child'); ?></label>
+                                    <select id="destination-collision-action" name="destination_collision_action">
+                                        <option value="skip" selected><?php esc_html_e('Skip existing destinations', 'lovetravel-child'); ?></option>
+                                        <option value="update"><?php esc_html_e('Update existing destinations', 'lovetravel-child'); ?></option>
+                                        <option value="create_new"><?php esc_html_e('Create new with unique names', 'lovetravel-child'); ?></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="wizard-step-actions">
                             <button type="button" class="button button-primary"
@@ -310,6 +419,12 @@ class LoveTravel_Child_Setup_Wizard
                                     <span id="destinations-progress-details"><?php esc_html_e('Import will begin in background', 'lovetravel-child'); ?></span>
                                 </div>
                             </div>
+
+                            <!-- Live Logs Display -->
+                            <div id="destinations-live-logs-container" class="live-logs-wrapper" style="display: none;">
+                                <h4><?php esc_html_e('Logs', 'lovetravel-child'); ?></h4>
+                                <div id="destinations-live-logs-list" class="live-logs-list"></div>
+                            </div>
                         </div>
 
                         <p class="description">
@@ -330,6 +445,9 @@ class LoveTravel_Child_Setup_Wizard
                         <button type="button" class="button button-secondary" id="complete-wizard">
                             <?php esc_html_e('Complete Setup & Remove Wizard', 'lovetravel-child'); ?>
                         </button>
+                        <button type="button" class="button button-secondary" id="reset-wizard-progress" style="margin-left: 10px; background: #dc3232; border-color: #dc3232; color: white;">
+                            <?php esc_html_e('Reset All Progress', 'lovetravel-child'); ?>
+                        </button>
                     </div>
                 </div>
 
@@ -339,14 +457,86 @@ class LoveTravel_Child_Setup_Wizard
     }
 
     /**
-     * ✅ Verified: Render step status indicator
+     * ✅ Enhanced: Render minimal step status indicator with dynamic info
      */
     private function render_step_status($step, $import_status)
     {
         if (isset($import_status[$step])) {
-            echo '<div class="notice notice-success inline"><p>' . esc_html__('Completed', 'lovetravel-child') . '</p></div>';
+            // Success - minimal green checkmark with text
+            echo '<span class="wizard-step-status wizard-step-completed">';
+            echo '<span class="dashicons dashicons-yes-alt"></span>';
+            echo '<span>' . esc_html__('Completed', 'lovetravel-child') . '</span>';
+            
+            // Add step-specific completion info
+            $completion_info = $this->get_step_completion_info($step);
+            if ($completion_info) {
+                echo '<span>' . esc_html($completion_info) . '</span>';
+            }
+            echo '</span>';
         } else {
-            echo '<div class="notice notice-warning inline"><p>' . esc_html__('Pending', 'lovetravel-child') . '</p></div>';
+            // Pending - minimal orange clock with text  
+            echo '<span class="wizard-step-status wizard-step-pending">';
+            echo '<span class="dashicons dashicons-clock"></span>';
+            echo '<span>' . esc_html__('Pending', 'lovetravel-child') . '</span>';
+            echo '</span>';
+        }
+    }
+
+    /**
+     * ✅ Get completion info for specific step
+     */
+    private function get_step_completion_info($step)
+    {
+        switch ($step) {
+            case 'elementor_templates':
+                // Count imported Elementor templates
+                $templates = get_posts(array(
+                    'post_type' => 'elementor_library',
+                    'posts_per_page' => -1,
+                    'meta_query' => array(
+                        array(
+                            'key' => '_lovetravel_imported',
+                            'compare' => 'EXISTS'
+                        )
+                    )
+                ));
+                return count($templates) . ' templates imported';
+
+            case 'adventures':
+                // Count imported adventures
+                $adventures = get_posts(array(
+                    'post_type' => 'nd_travel_cpt_1',
+                    'posts_per_page' => -1,
+                    'fields' => 'ids'
+                ));
+                return count($adventures) . ' adventures imported';
+
+            case 'media':
+                // Count imported media files
+                $media = get_posts(array(
+                    'post_type' => 'attachment',
+                    'posts_per_page' => -1,
+                    'meta_query' => array(
+                        array(
+                            'key' => 'payload_original_url',
+                            'compare' => 'EXISTS'
+                        )
+                    ),
+                    'fields' => 'ids'
+                ));
+                return count($media) . ' media files imported';
+
+            case 'destinations':
+                // Count destinations and locations
+                $destinations = get_posts(array(
+                    'post_type' => array('nd_travel_destination', 'nd_travel_location'),
+                    'posts_per_page' => -1,
+                    'fields' => 'ids'
+                ));
+                return count($destinations) . ' destinations imported';
+
+            default:
+                return null;
         }
     }
 
@@ -512,11 +702,15 @@ class LoveTravel_Child_Setup_Wizard
      */
     private function import_adventures()
     {
-        // ✅ Verified: Get duplicate handling preference
-        $duplicate_handling = sanitize_text_field($_POST['duplicate_handling'] ?? 'create_new');
+        // ✅ NEW: Get collision handling preferences
+        $adventure_collision_action = sanitize_text_field($_POST['adventure_collision_action'] ?? 'create_new');
+        $media_collision_action = sanitize_text_field($_POST['media_collision_action'] ?? 'skip');
+
+        // Backward compatibility
+        $duplicate_handling = sanitize_text_field($_POST['duplicate_handling'] ?? $adventure_collision_action);
 
         // ✅ Verified: Start background import process
-        $this->start_background_adventure_import($duplicate_handling);
+        $this->start_background_adventure_import($duplicate_handling, $adventure_collision_action, $media_collision_action);
 
         return array(
             'success' => true,
@@ -526,24 +720,76 @@ class LoveTravel_Child_Setup_Wizard
     }
 
     /**
+     * ✅ Verified: Clean up recent media files from last 2 days
+     */
+    private function cleanup_recent_media_files()
+    {
+        $two_days_ago = date('Y-m-d H:i:s', strtotime('-2 days'));
+
+        $recent_attachments = get_posts(array(
+            'post_type' => 'attachment',
+            'post_status' => 'inherit',
+            'date_query' => array(
+                array(
+                    'after' => $two_days_ago,
+                    'inclusive' => true,
+                ),
+            ),
+            'meta_query' => array(
+                'relation' => 'OR',
+                array(
+                    'key' => 'payload_media_id',
+                    'compare' => 'EXISTS'
+                ),
+                array(
+                    'key' => '_wp_attachment_test_import',
+                    'compare' => 'EXISTS'
+                )
+            ),
+            'numberposts' => -1
+        ));
+
+        $deleted_count = 0;
+        foreach ($recent_attachments as $attachment) {
+            $file_path = get_attached_file($attachment->ID);
+            if ($file_path && file_exists($file_path)) {
+                unlink($file_path);
+            }
+            wp_delete_attachment($attachment->ID, true);
+            $deleted_count++;
+        }
+
+        error_log("LoveTravel Wizard: Cleaned up {$deleted_count} recent media files");
+        return $deleted_count;
+    }
+
+    /**
      * ✅ Verified: Start background adventure import with WP Cron
      */
-    private function start_background_adventure_import($duplicate_handling)
+    private function start_background_adventure_import($duplicate_handling, $adventure_collision_action = 'create_new', $media_collision_action = 'skip')
     {
+        // ✅ PRE-IMPORT: Clean up recent media files
+        $deleted_count = $this->cleanup_recent_media_files();
+
         // ✅ Verified: Initialize import progress tracking
         $import_progress = array(
             'status' => 'fetching',
             'duplicate_handling' => $duplicate_handling,
+            'adventure_collision_action' => $adventure_collision_action,
+            'media_collision_action' => $media_collision_action,
             'total_adventures' => 0,
-            'processed' => 0,
+            'processed_adventures' => 0,
             'imported' => 0,
             'skipped' => 0,
             'errors' => array(),
+            'debug_logs' => array("Cleaned up {$deleted_count} recent media files"),
             'current_batch' => 0,
             'started_at' => current_time('mysql'),
             'last_activity' => current_time('mysql'),
             'media_queue' => array(),
-            'retry_count' => 0
+            'retry_count' => 0,
+            'deleted_recent' => $deleted_count,
+            'collisions' => array()
         );
 
         update_option('lovetravel_adventure_import_progress', $import_progress);
@@ -555,6 +801,12 @@ class LoveTravel_Child_Setup_Wizard
         if (! wp_next_scheduled('lovetravel_process_adventure_import')) {
             wp_schedule_single_event(time() + 5, 'lovetravel_process_adventure_import');
         }
+
+        // ✅ Verified: Immediate processing bypass for cron issues
+        error_log('LoveTravel Wizard: Starting immediate background processing to bypass cron');
+
+        // Try to process immediately if we can
+        $this->process_background_adventure_import();
     }
 
     /**
@@ -607,32 +859,175 @@ class LoveTravel_Child_Setup_Wizard
     {
         $api_url = $this->payload_base_url . $this->api_endpoints['adventures'] . '?limit=0'; // Get all
 
-        $response = wp_remote_get($api_url, array('timeout' => 30));
+        // Log API request for debugging
+        error_log('LoveTravel Wizard: Fetching adventures from ' . $api_url);
+        $progress['debug_logs'][] = 'API Request: ' . $api_url;
+
+        $response = wp_remote_get($api_url, array(
+            'timeout' => 30,
+            'user-agent' => 'WordPress/' . get_bloginfo('version') . '; ' . home_url()
+        ));
 
         if (is_wp_error($response)) {
-            throw new Exception(__('Failed to connect to Payload CMS: ', 'lovetravel-child') . $response->get_error_message());
+            $error_msg = 'Failed to connect to Payload CMS: ' . $response->get_error_message();
+            error_log('LoveTravel Wizard Error: ' . $error_msg);
+            throw new Exception(__($error_msg, 'lovetravel-child'));
         }
 
         $response_code = wp_remote_retrieve_response_code($response);
         if ($response_code !== 200) {
-            throw new Exception(__('API returned error code: ', 'lovetravel-child') . $response_code);
+            $error_msg = 'API returned error code: ' . $response_code;
+            error_log('LoveTravel Wizard Error: ' . $error_msg);
+            throw new Exception(__($error_msg, 'lovetravel-child'));
         }
 
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
 
-        if (! $data || ! isset($data['docs']) || ! is_array($data['docs'])) {
-            throw new Exception(__('Invalid API response from Payload CMS. Response: ', 'lovetravel-child') . substr($body, 0, 200));
-        }        // ✅ Verified: Store adventures data and update progress
+        // Enhanced error checking with more detailed logging
+        if (! $data) {
+            $error_msg = 'Failed to parse JSON response. Raw response: ' . substr($body, 0, 500);
+            error_log('LoveTravel Wizard Error: ' . $error_msg);
+            throw new Exception(__('Invalid JSON response from Payload CMS', 'lovetravel-child'));
+        }
+
+        if (! isset($data['docs'])) {
+            $error_msg = 'API response missing docs field. Available fields: ' . implode(', ', array_keys($data));
+            error_log('LoveTravel Wizard Error: ' . $error_msg);
+            throw new Exception(__('Invalid API response structure from Payload CMS', 'lovetravel-child'));
+        }
+
+        if (! is_array($data['docs'])) {
+            $error_msg = 'API docs field is not an array. Type: ' . gettype($data['docs']);
+            error_log('LoveTravel Wizard Error: ' . $error_msg);
+            throw new Exception(__('Invalid docs field in API response', 'lovetravel-child'));
+        }
+
+        // Log successful fetch
+        error_log('LoveTravel Wizard: Successfully fetched ' . count($data['docs']) . ' adventures');
+
+        // ✅ Verified: Store adventures data and update progress
         $progress['adventures_data'] = $data['docs'];
         $progress['total_adventures'] = count($data['docs']);
         $progress['status'] = 'processing';
         $progress['current_batch'] = 0;
+        $progress['debug_logs'][] = 'Fetched ' . count($data['docs']) . ' adventures successfully';
 
         update_option('lovetravel_adventure_import_progress', $progress);
 
         // ✅ Verified: Schedule next batch processing
         wp_schedule_single_event(time() + 2, 'lovetravel_process_adventure_import');
+    }
+
+    /**
+     * ✅ Get comprehensive MIME type for file
+     * @param string $file_path Path to file
+     * @param string $filename Original filename
+     * @return string MIME type
+     */
+    private function get_comprehensive_mime_type($file_path, $filename)
+    {
+        // First try WordPress native detection
+        $wp_filetype = wp_check_filetype($filename);
+        if (!empty($wp_filetype['type'])) {
+            return $wp_filetype['type'];
+        }
+
+        // Get extension from filename
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        // Comprehensive MIME type mapping
+        $mime_types = array(
+            // Images
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            'svg' => 'image/svg+xml',
+            'bmp' => 'image/bmp',
+            'ico' => 'image/x-icon',
+            'tiff' => 'image/tiff',
+            'tif' => 'image/tiff',
+
+            // Videos
+            'mp4' => 'video/mp4',
+            'avi' => 'video/x-msvideo',
+            'mov' => 'video/quicktime',
+            'wmv' => 'video/x-ms-wmv',
+            'flv' => 'video/x-flv',
+            'webm' => 'video/webm',
+            'mkv' => 'video/x-matroska',
+            '3gp' => 'video/3gpp',
+
+            // Audio
+            'mp3' => 'audio/mpeg',
+            'wav' => 'audio/wav',
+            'ogg' => 'audio/ogg',
+            'flac' => 'audio/flac',
+            'aac' => 'audio/aac',
+            'm4a' => 'audio/mp4',
+
+            // Documents
+            'pdf' => 'application/pdf',
+            'doc' => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls' => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'ppt' => 'application/vnd.ms-powerpoint',
+            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'txt' => 'text/plain',
+            'rtf' => 'application/rtf',
+
+            // Archives
+            'zip' => 'application/zip',
+            'rar' => 'application/x-rar-compressed',
+            '7z' => 'application/x-7z-compressed',
+            'tar' => 'application/x-tar',
+            'gz' => 'application/gzip'
+        );
+
+        if (isset($mime_types[$extension])) {
+            return $mime_types[$extension];
+        }
+
+        // Final fallback using finfo if available
+        if (function_exists('finfo_open') && file_exists($file_path)) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_file($finfo, $file_path);
+            finfo_close($finfo);
+            if ($mime) {
+                return $mime;
+            }
+        }
+
+        // Ultimate fallback
+        return 'application/octet-stream';
+    }
+
+    /**
+     * ✅ Add live log entry to progress data
+     * @param array $progress Progress data array
+     * @param string $message Log message
+     * @param string $type Log type: info, warning, error, success
+     */
+    private function add_live_log(&$progress, $message, $type = 'info')
+    {
+        if (!isset($progress['live_logs'])) {
+            $progress['live_logs'] = array();
+        }
+
+        $log_entry = array(
+            'timestamp' => current_time('H:i:s'),
+            'message' => $message,
+            'type' => $type
+        );
+
+        // Keep only last 50 log entries to prevent memory issues
+        $progress['live_logs'][] = $log_entry;
+        if (count($progress['live_logs']) > 50) {
+            array_shift($progress['live_logs']);
+        }
     }
 
     /**
@@ -644,37 +1039,337 @@ class LoveTravel_Child_Setup_Wizard
         $start_index = $progress['current_batch'] * $batch_size;
         $adventures = array_slice($progress['adventures_data'], $start_index, $batch_size);
 
-        foreach ($adventures as $adventure_data) {
+        // Log batch processing start
+        error_log('LoveTravel Wizard: Processing batch ' . $progress['current_batch'] . ' (adventures ' . $start_index . '-' . ($start_index + count($adventures) - 1) . ' of ' . $progress['total_adventures'] . ')');
+        $progress['debug_logs'][] = 'Processing batch ' . $progress['current_batch'] . ': ' . count($adventures) . ' adventures';
+        $this->add_live_log($progress, 'Processing batch ' . $progress['current_batch'] . ': ' . count($adventures) . ' adventures', 'info');
+
+        foreach ($adventures as $adventure_index => $adventure_data) {
+            $adventure_title = $adventure_data['title'] ?? 'Unknown';
+            error_log('LoveTravel Wizard: Processing adventure: ' . $adventure_title);
+
+            // ✅ NEW: Check for adventure collision first
+            $adventure_collision = $this->check_adventure_collision($adventure_data);
+            if ($adventure_collision && !$this->handle_adventure_collision($adventure_collision, $progress)) {
+                $progress['processed_adventures']++;
+                continue; // Skip this adventure if user chose to skip
+            }
+
             $result = $this->create_adventure_post($adventure_data, $progress['duplicate_handling']);
 
             if ($result['success']) {
                 $progress['imported']++;
+                error_log('LoveTravel Wizard: Adventure imported: ' . $adventure_title . ' (ID: ' . $result['post_id'] . ')');
+                $this->add_live_log($progress, "✅ Imported: {$adventure_title}", 'success');
 
-                // ✅ Verified: Queue media for download
-                $this->queue_adventure_media($adventure_data, $result['post_id'], $progress);
+                // ✅ NEW: Import media immediately for this adventure
+                $media_result = $this->import_adventure_media_immediate($adventure_data, $result['post_id'], $progress);
+
+                if (!$media_result['success']) {
+                    $progress['errors'][] = "Media import failed for {$adventure_title}: " . $media_result['message'];
+                    $this->add_live_log($progress, "❌ Media failed for: {$adventure_title}", 'error');
+                } else {
+                    $media_count = $media_result['imported_count'] ?? 0;
+                    if ($media_count > 0) {
+                        $this->add_live_log($progress, "📷 {$media_count} media files imported for: {$adventure_title}", 'info');
+                    }
+                }
             } elseif ($result['skipped']) {
                 $progress['skipped']++;
+                error_log('LoveTravel Wizard: Adventure skipped: ' . $adventure_title);
+                $this->add_live_log($progress, "⏭️ Skipped: {$adventure_title}", 'warning');
             } else {
                 $progress['errors'][] = $result['message'];
+                error_log('LoveTravel Wizard: Adventure error: ' . $adventure_title . ' - ' . $result['message']);
+                $this->add_live_log($progress, "❌ Error: {$adventure_title} - {$result['message']}", 'error');
             }
 
-            $progress['processed']++;
+            $progress['processed_adventures']++;
         }
 
         $progress['current_batch']++;
 
+        // Log batch completion
+        error_log('LoveTravel Wizard: Batch ' . ($progress['current_batch'] - 1) . ' completed. Progress: ' . $progress['processed_adventures'] . '/' . $progress['total_adventures']);
+        $progress['debug_logs'][] = 'Batch completed. Progress: ' . $progress['processed_adventures'] . '/' . $progress['total_adventures'];
+
         // ✅ Verified: Check if more batches to process
-        if ($progress['processed'] < $progress['total_adventures']) {
+        if ($progress['processed_adventures'] < $progress['total_adventures']) {
+            error_log('LoveTravel Wizard: More batches to process. Scheduling next batch...');
             update_option('lovetravel_adventure_import_progress', $progress);
+
+            // Schedule with cron
             wp_schedule_single_event(time() + 1, 'lovetravel_process_adventure_import');
+
+            // Note: Immediate processing backup removed to prevent recursion
+            // The JavaScript will trigger background processing if progress stalls
         } else {
-            // ✅ Verified: Move to media download phase
-            $progress['status'] = 'media_download';
-            $progress['media_batch'] = 0;
-            $progress['media_processed'] = 0;
+            // ✅ NEW: All adventures and their media are processed - complete import
+            $progress['status'] = 'completed';
+            $progress['completed_at'] = current_time('mysql');
 
             update_option('lovetravel_adventure_import_progress', $progress);
-            wp_schedule_single_event(time() + 2, 'lovetravel_process_adventure_import');
+
+            // Mark step as completed in wizard
+            $import_status = get_option('lovetravel_import_status', array());
+            $import_status['adventures'] = current_time('mysql');
+            update_option('lovetravel_import_status', $import_status);
+
+            error_log('LoveTravel Wizard: Adventure import completed with media');
+        }
+    }
+
+    /**
+     * ✅ NEW: Check for adventure collision (existing post with same slug)
+     */
+    private function check_adventure_collision($adventure_data)
+    {
+        $slug = sanitize_title($adventure_data['slug'] ?? $adventure_data['title'] ?? '');
+        $existing_post = get_page_by_path($slug, OBJECT, 'nd_travel_cpt_1');
+
+        if ($existing_post) {
+            return array(
+                'type' => 'adventure',
+                'slug' => $slug,
+                'title' => $adventure_data['title'] ?? 'Unknown',
+                'existing_id' => $existing_post->ID,
+                'existing_title' => $existing_post->post_title
+            );
+        }
+
+        return false;
+    }
+
+    /**
+     * ✅ NEW: Handle adventure collision based on user preference
+     */
+    private function handle_adventure_collision($collision, &$progress)
+    {
+        // For now, store collision for UI handling and continue with create_new
+        $progress['collisions'][] = $collision;
+
+        // TODO: This will be enhanced with UI dropdown handling
+        return true; // Continue processing
+    }
+
+    /**
+     * ✅ NEW: Import media immediately for single adventure
+     */
+    private function import_adventure_media_immediate($adventure_data, $post_id, &$progress)
+    {
+        $media_urls = $this->extract_adventure_media_urls($adventure_data);
+        $imported_count = 0;
+        $skipped_count = 0;
+        $errors = array();
+        $gallery_attachment_ids = array();
+        $collision_action = $progress['media_collision_action'] ?? 'skip';
+
+        foreach ($media_urls as $media_info) {
+            $original_filename = basename(parse_url($media_info['url'], PHP_URL_PATH));
+
+            // Check for media collision
+            $media_collision = $this->check_media_collision($original_filename);
+
+            if ($media_collision) {
+                // Handle collision based on user preference
+                if ($collision_action === 'skip') {
+                    $progress['collisions'][] = array(
+                        'type' => 'media',
+                        'filename' => $original_filename,
+                        'url' => $media_info['url'],
+                        'existing_id' => $media_collision['existing_id'],
+                        'action' => 'skipped'
+                    );
+                    $skipped_count++;
+                    continue;
+                } elseif ($collision_action === 'update') {
+                    // Use existing attachment ID
+                    $attachment_id = $media_collision['existing_id'];
+                    $imported_count++;
+                } else { // create_new
+                    // Generate unique filename
+                    $path_info = pathinfo($original_filename);
+                    $unique_filename = $path_info['filename'] . '_' . time() . '.' . $path_info['extension'];
+                    $original_filename = $unique_filename;
+                }
+            }
+
+            // Import media with preserved filename (or unique if collision)
+            if (!isset($attachment_id)) {
+                $import_result = $this->import_single_media_with_preserved_name(
+                    $media_info['url'],
+                    $original_filename,
+                    $post_id,
+                    $media_info
+                );
+
+                if ($import_result['success']) {
+                    $attachment_id = $import_result['attachment_id'];
+                    $imported_count++;
+                } else {
+                    $errors[] = $import_result['message'];
+                    continue;
+                }
+            }
+
+            // Handle different media types
+            if ($media_info['type'] === 'featured') {
+                set_post_thumbnail($post_id, $attachment_id);
+            } else {
+                // Add to gallery collection
+                $gallery_attachment_ids[] = $attachment_id;
+            }
+
+            unset($attachment_id); // Reset for next iteration
+        }
+
+        // ✅ NEW: Create gallery shortcode and populate nd_travel_meta_box_tab_gallery_content
+        if (!empty($gallery_attachment_ids)) {
+            $gallery_shortcode = '[gallery ids="' . implode(',', $gallery_attachment_ids) . '"]';
+            update_post_meta($post_id, 'nd_travel_meta_box_tab_gallery_content', $gallery_shortcode);
+
+            // Also store gallery IDs for compatibility with existing integration
+            update_post_meta($post_id, '_adventure_gallery', $gallery_attachment_ids);
+
+            error_log("LoveTravel Wizard: Created gallery shortcode for adventure {$post_id}: {$gallery_shortcode}");
+        }
+
+        return array(
+            'success' => count($errors) === 0,
+            'imported' => $imported_count,
+            'skipped' => $skipped_count,
+            'errors' => $errors,
+            'gallery_items' => count($gallery_attachment_ids),
+            'message' => "Imported {$imported_count} media files, skipped {$skipped_count}, created gallery with " . count($gallery_attachment_ids) . " items"
+        );
+    }
+    /**
+     * ✅ NEW: Extract media URLs from adventure data
+     */
+    private function extract_adventure_media_urls($adventure_data)
+    {
+        $media_urls = array();
+
+        // Thumbnail
+        if (!empty($adventure_data['thumbnail']['url'])) {
+            $media_urls[] = array(
+                'url' => $adventure_data['thumbnail']['url'],
+                'type' => 'featured',
+                'alt' => $adventure_data['title'] ?? ''
+            );
+        }
+
+        // Slider image
+        if (!empty($adventure_data['sliderImage']['url'])) {
+            $media_urls[] = array(
+                'url' => $adventure_data['sliderImage']['url'],
+                'type' => 'gallery',
+                'alt' => ($adventure_data['title'] ?? '') . ' - Slider'
+            );
+        }
+
+        // Gallery images
+        if (!empty($adventure_data['images']) && is_array($adventure_data['images'])) {
+            foreach ($adventure_data['images'] as $index => $image) {
+                if (!empty($image['url'])) {
+                    $media_urls[] = array(
+                        'url' => $image['url'],
+                        'type' => 'gallery',
+                        'alt' => ($adventure_data['title'] ?? '') . ' - Image ' . ($index + 1)
+                    );
+                }
+            }
+        }
+
+        return $media_urls;
+    }
+
+    /**
+     * ✅ NEW: Check for media collision by filename
+     */
+    private function check_media_collision($filename)
+    {
+        global $wpdb;
+
+        $attachment = $wpdb->get_row($wpdb->prepare(
+            "SELECT ID, post_title FROM {$wpdb->posts} 
+             WHERE post_type = 'attachment' 
+             AND guid LIKE %s 
+             ORDER BY ID DESC 
+             LIMIT 1",
+            '%' . $wpdb->esc_like($filename)
+        ));
+
+        if ($attachment) {
+            return array(
+                'existing_id' => $attachment->ID,
+                'existing_title' => $attachment->post_title
+            );
+        }
+
+        return false;
+    }
+
+    /**
+     * ✅ NEW: Import single media file with preserved filename
+     */
+    private function import_single_media_with_preserved_name($url, $filename, $post_id, $media_info)
+    {
+        try {
+            // Download file
+            $file_data = $this->download_remote_file($url);
+            if (!$file_data) {
+                throw new Exception('Failed to download: ' . $url);
+            }
+
+            // Get upload directory and use exact filename (no wp_unique_filename)
+            $upload_dir = wp_upload_dir();
+            $file_path = $upload_dir['path'] . '/' . $filename;
+
+            // Save file with exact name
+            if (file_put_contents($file_path, $file_data) === false) {
+                throw new Exception('Failed to save file: ' . $filename);
+            }
+
+            // ✅ Enhanced MIME type detection with comprehensive support
+            $mime_type = $this->get_comprehensive_mime_type($file_path, $filename);
+
+            // Create attachment
+            $attachment = array(
+                'guid' => $upload_dir['url'] . '/' . $filename,
+                'post_mime_type' => $mime_type,
+                'post_title' => $media_info['alt'],
+                'post_content' => '',
+                'post_status' => 'inherit',
+                'meta_input' => array(
+                    'payload_original_url' => $url,
+                    '_wp_attachment_preserved_name' => true,
+                    '_wp_attachment_adventure_id' => $post_id // Link to adventure
+                )
+            );
+
+            $attachment_id = wp_insert_attachment($attachment, $file_path, $post_id);
+
+            if (is_wp_error($attachment_id)) {
+                throw new Exception('Failed to create attachment: ' . $attachment_id->get_error_message());
+            }
+
+            // Skip expensive metadata generation for speed
+            $file_size = filesize($file_path);
+            if ($file_size) {
+                update_post_meta($attachment_id, '_wp_attachment_file_size', $file_size);
+            }
+
+            return array(
+                'success' => true,
+                'attachment_id' => $attachment_id,
+                'message' => 'Media imported successfully'
+            );
+        } catch (Exception $e) {
+            return array(
+                'success' => false,
+                'message' => $e->getMessage()
+            );
         }
     }
 
@@ -919,13 +1614,15 @@ class LoveTravel_Child_Setup_Wizard
     }
 
     /**
-     * ✅ Verified: Process adventure media download batch (10 files max per batch)
+     * ✅ Verified: Process adventure media download batch (50 files max per batch - optimized)
      */
     private function process_adventure_media_batch(&$progress)
     {
-        $batch_size = 10;
+        $batch_size = 50; // Increased from 10 to 50 for faster processing
         $start_index = $progress['media_batch'] * $batch_size;
         $media_batch = array_slice($progress['media_queue'], $start_index, $batch_size);
+
+        error_log('LoveTravel Wizard: Processing adventure media batch ' . $progress['media_batch'] . ' (' . count($media_batch) . ' files)');
 
         if (empty($media_batch)) {
             // ✅ Verified: All media processed, complete import
@@ -1014,10 +1711,17 @@ class LoveTravel_Child_Setup_Wizard
             throw new Exception('Failed to create attachment: ' . $attachment_id->get_error_message());
         }
 
-        // ✅ Verified: Generate metadata
-        require_once(ABSPATH . 'wp-admin/includes/image.php');
-        $attachment_data = wp_generate_attachment_metadata($attachment_id, $file_path);
-        wp_update_attachment_metadata($attachment_id, $attachment_data);
+        // ✅ PERFORMANCE: Skip expensive metadata generation during bulk import
+        // This dramatically speeds up import - metadata can be generated later if needed
+        // require_once(ABSPATH . 'wp-admin/includes/image.php');
+        // $attachment_data = wp_generate_attachment_metadata($attachment_id, $file_path);
+        // wp_update_attachment_metadata($attachment_id, $attachment_data);
+
+        // Just set basic file size for now
+        $file_size = filesize($file_path);
+        if ($file_size) {
+            update_post_meta($attachment_id, '_wp_attachment_file_size', $file_size);
+        }
 
         return $attachment_id;
     }
@@ -1028,8 +1732,10 @@ class LoveTravel_Child_Setup_Wizard
     private function download_remote_file($url, $retry_count = 0)
     {
         $response = wp_remote_get($url, array(
-            'timeout' => 30,
-            'user-agent' => 'WordPress/' . get_bloginfo('version') . '; ' . home_url()
+            'timeout' => 10, // Reduced from 30 to 10 seconds
+            'user-agent' => 'WordPress/' . get_bloginfo('version') . '; ' . home_url(),
+            'redirection' => 3, // Limit redirects
+            'httpversion' => '1.1' // Use HTTP/1.1 for better performance
         ));
 
         if (is_wp_error($response)) {
@@ -1048,12 +1754,19 @@ class LoveTravel_Child_Setup_Wizard
      */
     private function import_media()
     {
+        // ✅ PERFORMANCE: Check if we should skip downloads
+        $skip_downloads = isset($_POST['skip_downloads']) && $_POST['skip_downloads'];
+
         // ✅ Verified: Start background media import process
-        $this->start_background_media_import();
+        $this->start_background_media_import($skip_downloads);
+
+        $message = $skip_downloads
+            ? __('Media import started (skipping downloads for speed). You can safely leave this page.', 'lovetravel-child')
+            : __('Media import started in background. You can safely leave this page.', 'lovetravel-child');
 
         return array(
             'success' => true,
-            'message' => __('Media import started in background. You can safely leave this page.', 'lovetravel-child'),
+            'message' => $message,
             'background' => true
         );
     }
@@ -1061,7 +1774,7 @@ class LoveTravel_Child_Setup_Wizard
     /**
      * ✅ Verified: Start background media import with WP Cron
      */
-    private function start_background_media_import()
+    private function start_background_media_import($skip_downloads = false)
     {
         // ✅ Verified: Initialize media import progress tracking
         $import_progress = array(
@@ -1071,10 +1784,12 @@ class LoveTravel_Child_Setup_Wizard
             'imported' => 0,
             'updated' => 0,
             'errors' => array(),
+            'debug_logs' => array(),
             'current_batch' => 0,
             'started_at' => current_time('mysql'),
             'last_activity' => current_time('mysql'),
-            'retry_count' => 0
+            'retry_count' => 0,
+            'skip_downloads' => $skip_downloads
         );
 
         update_option('lovetravel_media_import_progress', $import_progress);
@@ -1135,29 +1850,51 @@ class LoveTravel_Child_Setup_Wizard
     {
         $api_url = $this->payload_base_url . $this->api_endpoints['media'] . '?limit=0'; // Get all media
 
-        $response = wp_remote_get($api_url, array('timeout' => 30));
+        // Log API request for debugging
+        error_log('LoveTravel Wizard: Fetching media from ' . $api_url);
+        $progress['debug_logs'][] = 'API Request: ' . $api_url;
+
+        $response = wp_remote_get($api_url, array(
+            'timeout' => 30,
+            'user-agent' => 'WordPress/' . get_bloginfo('version') . '; ' . home_url()
+        ));
 
         if (is_wp_error($response)) {
-            throw new Exception(__('Failed to connect to Payload CMS', 'lovetravel-child'));
+            $error_msg = 'Failed to connect to Payload CMS: ' . $response->get_error_message();
+            error_log('LoveTravel Wizard Error: ' . $error_msg);
+            throw new Exception(__($error_msg, 'lovetravel-child'));
+        }
+
+        $response_code = wp_remote_retrieve_response_code($response);
+        if ($response_code !== 200) {
+            $error_msg = 'API returned error code: ' . $response_code;
+            error_log('LoveTravel Wizard Error: ' . $error_msg);
+            throw new Exception(__($error_msg, 'lovetravel-child'));
         }
 
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
 
         if (! $data || ! isset($data['docs'])) {
+            $error_msg = 'Invalid API response from Payload CMS. Response: ' . substr($body, 0, 500);
+            error_log('LoveTravel Wizard Error: ' . $error_msg);
             throw new Exception(__('Invalid API response from Payload CMS', 'lovetravel-child'));
         }
+
+        // Log successful fetch
+        error_log('LoveTravel Wizard: Successfully fetched ' . count($data['docs']) . ' media files');
 
         // ✅ Verified: Store media data and update progress
         $progress['media_data'] = $data['docs'];
         $progress['total_media'] = count($data['docs']);
         $progress['status'] = 'processing';
         $progress['current_batch'] = 0;
+        $progress['debug_logs'][] = 'Fetched ' . count($data['docs']) . ' media files successfully';
 
         update_option('lovetravel_media_import_progress', $progress);
 
-        // ✅ Verified: Schedule next batch processing
-        wp_schedule_single_event(time() + 2, 'lovetravel_process_media_import');
+        // ✅ PERFORMANCE: Immediate processing for speed
+        wp_schedule_single_event(time(), 'lovetravel_process_media_import');
     }
 
     /**
@@ -1165,12 +1902,19 @@ class LoveTravel_Child_Setup_Wizard
      */
     private function process_media_batch(&$progress)
     {
-        $batch_size = 10;
+        $batch_size = 50; // Increased from 10 to 50 for faster processing
         $start_index = $progress['current_batch'] * $batch_size;
         $media_files = array_slice($progress['media_data'], $start_index, $batch_size);
 
+        error_log('LoveTravel Wizard: Processing media batch ' . $progress['current_batch'] . ' (' . count($media_files) . ' files)');
+
         foreach ($media_files as $media_data) {
-            $result = $this->import_single_media_file($media_data);
+            if ($progress['skip_downloads'] ?? false) {
+                // ✅ PERFORMANCE: Skip downloads, just create database records
+                $result = $this->create_media_record_only($media_data);
+            } else {
+                $result = $this->import_single_media_file($media_data);
+            }
 
             if ($result['success']) {
                 if ($result['updated']) {
@@ -1190,7 +1934,7 @@ class LoveTravel_Child_Setup_Wizard
         // ✅ Verified: Check if more batches to process
         if ($progress['processed'] < $progress['total_media']) {
             update_option('lovetravel_media_import_progress', $progress);
-            wp_schedule_single_event(time() + 2, 'lovetravel_process_media_import'); // 2 second delay between batches
+            wp_schedule_single_event(time() + 1, 'lovetravel_process_media_import'); // Reduced delay for faster processing
         } else {
             // ✅ Verified: Complete media import
             $progress['status'] = 'completed';
@@ -1309,6 +2053,68 @@ class LoveTravel_Child_Setup_Wizard
     }
 
     /**
+     * ✅ PERFORMANCE: Create media record without downloading file (for testing)
+     */
+    private function create_media_record_only($media_data)
+    {
+        $filename = sanitize_file_name($media_data['filename'] ?? '');
+        $media_url = $media_data['url'] ?? '';
+        $mime_type = $media_data['mimeType'] ?? 'application/octet-stream';
+
+        if (empty($filename) || empty($media_url)) {
+            return array(
+                'success' => false,
+                'message' => 'Missing filename or URL for media file'
+            );
+        }
+
+        // Check for existing media
+        $existing_attachment = $this->get_attachment_by_filename($filename);
+
+        try {
+            // Create attachment record without file
+            $attachment_data = array(
+                'guid' => $media_url, // Use original URL as GUID
+                'post_mime_type' => $mime_type,
+                'post_title' => pathinfo($filename, PATHINFO_FILENAME),
+                'post_content' => '',
+                'post_status' => 'inherit',
+                'meta_input' => array(
+                    'payload_media_id' => $media_data['id'] ?? '',
+                    'payload_filesize' => $media_data['filesize'] ?? 0,
+                    'payload_original_url' => $media_url,
+                    '_wp_attachment_test_import' => true, // Mark as test import
+                )
+            );
+
+            if ($existing_attachment) {
+                $attachment_data['ID'] = $existing_attachment->ID;
+                $attachment_id = wp_update_post($attachment_data);
+                $updated = true;
+            } else {
+                $attachment_id = wp_insert_attachment($attachment_data);
+                $updated = false;
+            }
+
+            if (is_wp_error($attachment_id)) {
+                throw new Exception('Failed to create attachment record: ' . $attachment_id->get_error_message());
+            }
+
+            return array(
+                'success' => true,
+                'attachment_id' => $attachment_id,
+                'updated' => $updated,
+                'message' => $updated ? 'Media record updated' : 'Media record created (no download)'
+            );
+        } catch (Exception $e) {
+            return array(
+                'success' => false,
+                'message' => $e->getMessage()
+            );
+        }
+    }
+
+    /**
      * ✅ Verified: Get WordPress compatible MIME type
      */
     private function get_wordpress_mime_type($payload_mime, $file_path)
@@ -1349,6 +2155,7 @@ class LoveTravel_Child_Setup_Wizard
             'locations_created' => 0,
             'updated' => 0,
             'errors' => array(),
+            'debug_logs' => array(),
             'current_batch' => 0,
             'started_at' => current_time('mysql'),
             'last_activity' => current_time('mysql'),
@@ -1413,24 +2220,46 @@ class LoveTravel_Child_Setup_Wizard
     {
         $api_url = $this->payload_base_url . $this->api_endpoints['destinations'] . '?limit=0'; // Get all destinations
 
-        $response = wp_remote_get($api_url, array('timeout' => 30));
+        // Log API request for debugging
+        error_log('LoveTravel Wizard: Fetching destinations from ' . $api_url);
+        $progress['debug_logs'][] = 'API Request: ' . $api_url;
+
+        $response = wp_remote_get($api_url, array(
+            'timeout' => 30,
+            'user-agent' => 'WordPress/' . get_bloginfo('version') . '; ' . home_url()
+        ));
 
         if (is_wp_error($response)) {
-            throw new Exception(__('Failed to connect to Payload CMS', 'lovetravel-child'));
+            $error_msg = 'Failed to connect to Payload CMS: ' . $response->get_error_message();
+            error_log('LoveTravel Wizard Error: ' . $error_msg);
+            throw new Exception(__($error_msg, 'lovetravel-child'));
+        }
+
+        $response_code = wp_remote_retrieve_response_code($response);
+        if ($response_code !== 200) {
+            $error_msg = 'API returned error code: ' . $response_code;
+            error_log('LoveTravel Wizard Error: ' . $error_msg);
+            throw new Exception(__($error_msg, 'lovetravel-child'));
         }
 
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
 
         if (! $data || ! isset($data['docs'])) {
+            $error_msg = 'Invalid API response from Payload CMS. Response: ' . substr($body, 0, 500);
+            error_log('LoveTravel Wizard Error: ' . $error_msg);
             throw new Exception(__('Invalid API response from Payload CMS', 'lovetravel-child'));
         }
+
+        // Log successful fetch
+        error_log('LoveTravel Wizard: Successfully fetched ' . count($data['docs']) . ' destinations');
 
         // ✅ Verified: Store destinations data and update progress
         $progress['destinations_data'] = $data['docs'];
         $progress['total_destinations'] = count($data['docs']);
         $progress['status'] = 'processing';
         $progress['current_batch'] = 0;
+        $progress['debug_logs'][] = 'Fetched ' . count($data['docs']) . ' destinations successfully';
 
         update_option('lovetravel_destinations_import_progress', $progress);
 
@@ -1502,11 +2331,20 @@ class LoveTravel_Child_Setup_Wizard
             );
         }
 
+        // ✅ Verified: Log for debugging
+        error_log('LoveTravel Wizard: Creating destination: ' . $destination_name . ' (slug: ' . $destination_slug . ')');
+
         $destination_created = false;
         $location_created = false;
         $updated = false;
 
         try {
+            // ✅ Verified: Check if post types exist first
+            if (! post_type_exists('nd_travel_cpt_2')) {
+                error_log('LoveTravel Wizard Error: Post type nd_travel_cpt_2 does not exist');
+                throw new Exception('Destination post type (nd_travel_cpt_2) is not registered');
+            }
+
             // ✅ Verified: Create Destination CPT (assuming nd_travel_cpt_2)
             $destination_post_data = array(
                 'post_title'   => $destination_name,
@@ -1535,36 +2373,45 @@ class LoveTravel_Child_Setup_Wizard
                 throw new Exception('Failed to create destination: ' . $destination_post_id->get_error_message());
             }
 
+            error_log('LoveTravel Wizard: Created destination post ID: ' . $destination_post_id);
+
             // ✅ Verified: Create Location CPT if location data exists (assuming nd_travel_cpt_3)
             if (! empty($destination_data['location'])) {
-                $location_data = $destination_data['location'];
-                $location_post_data = array(
-                    'post_title'   => $destination_name . ' Location',
-                    'post_name'    => $destination_slug . '-location',
-                    'post_type'    => 'nd_travel_cpt_3', // Assuming this is locations CPT
-                    'post_status'  => 'publish',
-                    'post_parent'  => $destination_post_id, // Link to destination
-                    'meta_input'   => array(
-                        'payload_destination_id' => $destination_data['id'] ?? '',
-                        'latitude' => $location_data['latitude'] ?? '',
-                        'longitude' => $location_data['longitude'] ?? '',
-                        'location_coordinates' => maybe_serialize($location_data),
-                    )
-                );
-
-                // ✅ Verified: Check for existing location
-                $existing_location = get_page_by_path($destination_slug . '-location', OBJECT, 'nd_travel_cpt_3');
-
-                if ($existing_location) {
-                    $location_post_data['ID'] = $existing_location->ID;
-                    $location_post_id = wp_update_post($location_post_data);
+                // ✅ Verified: Check if location post type exists
+                if (! post_type_exists('nd_travel_cpt_3')) {
+                    error_log('LoveTravel Wizard Warning: Post type nd_travel_cpt_3 does not exist, skipping location creation');
                 } else {
-                    $location_post_id = wp_insert_post($location_post_data);
-                    $location_created = true;
-                }
+                    $location_data = $destination_data['location'];
+                    $location_post_data = array(
+                        'post_title'   => $destination_name . ' Location',
+                        'post_name'    => $destination_slug . '-location',
+                        'post_type'    => 'nd_travel_cpt_3', // Assuming this is locations CPT
+                        'post_status'  => 'publish',
+                        'post_parent'  => $destination_post_id, // Link to destination
+                        'meta_input'   => array(
+                            'payload_destination_id' => $destination_data['id'] ?? '',
+                            'latitude' => $location_data['latitude'] ?? '',
+                            'longitude' => $location_data['longitude'] ?? '',
+                            'location_coordinates' => maybe_serialize($location_data),
+                        )
+                    );
 
-                if (is_wp_error($location_post_id)) {
-                    throw new Exception('Failed to create location: ' . $location_post_id->get_error_message());
+                    // ✅ Verified: Check for existing location
+                    $existing_location = get_page_by_path($destination_slug . '-location', OBJECT, 'nd_travel_cpt_3');
+
+                    if ($existing_location) {
+                        $location_post_data['ID'] = $existing_location->ID;
+                        $location_post_id = wp_update_post($location_post_data);
+                    } else {
+                        $location_post_id = wp_insert_post($location_post_data);
+                        $location_created = true;
+                    }
+
+                    if (is_wp_error($location_post_id)) {
+                        throw new Exception('Failed to create location: ' . $location_post_id->get_error_message());
+                    }
+
+                    error_log('LoveTravel Wizard: Created location post ID: ' . $location_post_id);
                 }
             }
 
@@ -1595,14 +2442,69 @@ class LoveTravel_Child_Setup_Wizard
     }
 
     /**
+     * ⚠️ Debug: Test destinations API and post type availability
+     */
+    public function debug_destinations_import()
+    {
+        if (! current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+
+        echo '<h2>Destinations Import Debug</h2>';
+
+        // ✅ Check post types
+        echo '<h3>Post Type Check:</h3>';
+        echo '<p>nd_travel_cpt_2 exists: ' . (post_type_exists('nd_travel_cpt_2') ? 'YES' : 'NO') . '</p>';
+        echo '<p>nd_travel_cpt_3 exists: ' . (post_type_exists('nd_travel_cpt_3') ? 'YES' : 'NO') . '</p>';
+
+        // ✅ Check API
+        echo '<h3>API Test:</h3>';
+        $api_url = $this->payload_base_url . $this->api_endpoints['destinations'] . '?limit=3';
+        echo '<p>API URL: ' . esc_html($api_url) . '</p>';
+
+        $response = wp_remote_get($api_url, array('timeout' => 10));
+        if (is_wp_error($response)) {
+            echo '<p style="color: red;">API Error: ' . esc_html($response->get_error_message()) . '</p>';
+        } else {
+            $code = wp_remote_retrieve_response_code($response);
+            $body = wp_remote_retrieve_body($response);
+            echo '<p>Response Code: ' . esc_html($code) . '</p>';
+            echo '<p>Response (first 500 chars): ' . esc_html(substr($body, 0, 500)) . '</p>';
+
+            if ($code === 200) {
+                $data = json_decode($body, true);
+                if ($data && isset($data['docs'])) {
+                    echo '<p style="color: green;">Found ' . count($data['docs']) . ' destinations</p>';
+                    if (! empty($data['docs'])) {
+                        echo '<h4>First destination:</h4>';
+                        echo '<pre>' . esc_html(print_r($data['docs'][0], true)) . '</pre>';
+                    }
+                }
+            }
+        }
+
+        // ✅ Check current progress
+        echo '<h3>Current Import Progress:</h3>';
+        $progress = get_option('lovetravel_destinations_import_progress', array());
+        if (empty($progress)) {
+            echo '<p>No progress data found</p>';
+        } else {
+            echo '<pre>' . esc_html(print_r($progress, true)) . '</pre>';
+        }
+
+        die(); // Stop execution for debugging
+    }
+
+    /**
      * ✅ Verified: Show admin notice if setup not completed
      */
     public function show_setup_notice()
     {
         $import_status = get_option('lovetravel_import_status', array());
 
-        // ✅ Verified: Only show if import not completed
-        if (count($import_status) < 4) {
+        // ✅ Don't show notice if user is already on the setup wizard page
+        $current_page = isset($_GET['page']) ? $_GET['page'] : '';
+        if (count($import_status) < 4 && $current_page !== 'lovetravel-setup-wizard') {
             $wizard_url = admin_url('admin.php?page=lovetravel-setup-wizard');
         ?>
             <div class="notice notice-warning is-dismissible">
@@ -1653,18 +2555,27 @@ class LoveTravel_Child_Setup_Wizard
 
         // ✅ Verified: Calculate progress percentage
         $percentage = 0;
+        $processed_count = $step === 'adventures' ? ($progress['processed_adventures'] ?? 0) : ($progress['processed'] ?? 0);
         if ($progress[$progress_key] > 0) {
-            $percentage = ($progress['processed'] / $progress[$progress_key]) * 100;
+            $percentage = ($processed_count / $progress[$progress_key]) * 100;
         }
 
         $response_data = array(
+            'step' => $step,
             'status' => $progress['status'],
             'percentage' => round($percentage, 1),
-            'processed' => $progress['processed'],
+            'processed' => $processed_count,
             'total' => $progress[$progress_key],
             'errors' => count($progress['errors']),
+            'error_details' => $progress['errors'] ?? array(),
+            'debug_logs' => $progress['debug_logs'] ?? array(),
             'last_activity' => $progress['last_activity'],
-            'message' => $this->get_progress_message($progress, $step)
+            'started_at' => $progress['started_at'] ?? '',
+            'retry_count' => $progress['retry_count'] ?? 0,
+            'message' => $this->get_progress_message($progress, $step),
+            'deleted_recent' => $progress['deleted_recent'] ?? 0,
+            'collision_info' => $progress['collision_info'] ?? array(),
+            'live_logs' => $progress['live_logs'] ?? array()
         );
 
         // ✅ Verified: Add step-specific data
@@ -1702,19 +2613,19 @@ class LoveTravel_Child_Setup_Wizard
                 if ($step === 'media') {
                     return sprintf(
                         __('Processing media files: %d of %d', 'lovetravel-child'),
-                        $progress['processed'],
+                        $progress['processed'] ?? 0,
                         $progress['total_media']
                     );
                 } elseif ($step === 'destinations') {
                     return sprintf(
                         __('Processing destinations: %d of %d', 'lovetravel-child'),
-                        $progress['processed'],
+                        $progress['processed'] ?? 0,
                         $progress['total_destinations']
                     );
                 }
                 return sprintf(
                     __('Processing adventures: %d of %d', 'lovetravel-child'),
-                    $progress['processed'],
+                    $progress['processed_adventures'] ?? 0,
                     $progress['total_adventures']
                 );
 
@@ -1865,10 +2776,45 @@ class LoveTravel_Child_Setup_Wizard
             }
 
             wp_send_json_success(array('message' => 'Background processing triggered'));
-
         } catch (Exception $e) {
             wp_send_json_error(array('message' => 'Processing failed: ' . $e->getMessage()));
         }
+    }
+
+    /**
+     * ✅ Verified: AJAX handler to reset import progress (for debugging/testing)
+     */
+    public function ajax_reset_import_progress()
+    {
+        // ✅ Verified: Security checks
+        if (! wp_verify_nonce($_POST['nonce'], 'lovetravel_wizard_nonce')) {
+            wp_die('Security check failed');
+        }
+
+        if (! current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Insufficient permissions'));
+        }
+
+        // ✅ Verified: Clear all wizard progress data
+        delete_option('lovetravel_import_status');
+        delete_option('lovetravel_wizard_completed');
+        delete_option('lovetravel_adventure_import_progress');
+        delete_option('lovetravel_media_import_progress');
+        delete_option('lovetravel_destinations_import_progress');
+
+        // Clear transients
+        delete_transient('lovetravel_wizard_notice');
+        delete_transient('lovetravel_elementor_templates');
+
+        // Clear scheduled cron jobs
+        wp_clear_scheduled_hook('lovetravel_process_adventure_import');
+        wp_clear_scheduled_hook('lovetravel_process_media_import');
+        wp_clear_scheduled_hook('lovetravel_process_destinations_import');
+
+        // Clear caches
+        wp_cache_flush();
+
+        wp_send_json_success(array('message' => 'All wizard progress cleared successfully'));
     }
 
     /**

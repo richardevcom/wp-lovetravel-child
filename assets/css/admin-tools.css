@@ -104,4 +104,253 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
+/* ✅ Enhanced Collision Display Styles */
+#collision-preview {
+  background: #fff3cd;
+  border: 1px solid #ffecb5;
+  border-radius: 4px;
+  padding: 15px;
+  margin: 15px 0;
+  display: none;
+}
+
+#collision-preview h4 {
+  margin: 0 0 10px 0;
+  color: #664d03;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.collision-group {
+  margin-bottom: 20px;
+  border-left: 3px solid #ffc107;
+  padding-left: 15px;
+}
+
+.collision-group h4 {
+  color: #495057;
+  font-size: 13px;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.collision-item {
+  background: rgba(255, 193, 7, 0.1);
+  padding: 8px 12px;
+  margin: 5px 0;
+  border-radius: 3px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.adventure-collision {
+  border-left: 3px solid #dc3545;
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.media-collision {
+  border-left: 3px solid #fd7e14;
+  background: rgba(253, 126, 20, 0.1);
+  margin-left: 15px;
+}
+
+.media-collisions {
+  margin-top: 8px;
+}
+
+.collision-item em {
+  color: #28a745;
+  font-weight: 600;
+}
+
+/* Collision action dropdowns */
+#adventure-collision-action,
+#media-collision-action {
+  margin: 10px 5px;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+/* ✅ Live Logs Display */
+.live-logs-wrapper {
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 4px;
+  padding: 15px;
+  margin: 15px 0;
+  max-width: 100%;
+}
+
+.live-logs-wrapper h4 {
+  margin: 0 0 10px 0;
+  color: #495057;
+  font-size: 14px;
+  font-weight: 600;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 8px;
+}
+
+.live-logs-list {
+  max-height: 200px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+  padding: 8px;
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.live-log-entry {
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  word-wrap: break-word;
+}
+
+.live-log-entry:last-child {
+  border-bottom: none;
+}
+
+.log-time {
+  color: #6c757d;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.log-message {
+  color: #212529;
+}
+
+.log-info .log-message {
+  color: #0066cc;
+}
+
+.log-success .log-message {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.log-warning .log-message {
+  color: #ffc107;
+  font-weight: 600;
+}
+
+.log-error .log-message {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+/* ✅ Unified Import Options Styling */
+.import-options-section {
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 4px;
+  padding: 15px;
+  margin: 15px 0;
+}
+
+.import-options-section h4 {
+  margin: 0 0 15px 0;
+  color: #495057;
+  font-size: 14px;
+  font-weight: 600;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 8px;
+}
+
+.import-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.option-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.option-group label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 13px;
+}
+
+.option-group select {
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: white;
+  font-size: 13px;
+  color: #495057;
+}
+
+.option-group select:focus {
+  border-color: #0073aa;
+  box-shadow: 0 0 0 1px #0073aa;
+  outline: none;
+}
+
+/* Enhanced Progress Display */
+.wizard-progress-details {
+  font-size: 14px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: #f1f3f4;
+  border-left: 4px solid #0073aa;
+  border-radius: 0 3px 3px 0;
+}
+
+/* ✅ Minimal Wizard Step Status Indicators */
+.wizard-step-status {
+  display: inline-flex;
+  align-items: center;
+  margin: 8px 0;
+  padding: 4px 0;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.wizard-step-status .dashicons {
+  margin-right: 4px;
+  width: 16px;
+  height: 16px;
+  font-size: 16px !important;
+}
+
+.wizard-step-completed .dashicons {
+  color: #00a32a; /* WordPress success green */
+}
+
+.wizard-step-pending .dashicons {
+  color: #f56e28; /* WordPress warning orange */
+}
+
+.wizard-step-status span:not(.dashicons) {
+  vertical-align: middle;
+}
+
+/* Compact success/pending text */
+.wizard-step-completed span:not(.dashicons):first-of-type {
+  color: #00a32a;
+  font-weight: 600;
+}
+
+.wizard-step-pending span:not(.dashicons):first-of-type {
+  color: #f56e28;
+  font-weight: 600;
+}
+
+/* Additional info text (like "4 templates imported") */
+.wizard-step-status span:last-child {
+  color: #666;
+  font-size: 12px;
+  margin-left: 8px;
+  font-weight: normal;
+}
+
 /* Download link now uses WP .button styles */

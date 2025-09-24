@@ -50,6 +50,12 @@
 			e.preventDefault();
 			completeWizard();
 		});
+		
+		// ✅ Verified: Handle wizard reset
+		$('#reset-wizard-progress').on('click', function(e) {
+			e.preventDefault();
+			resetWizardProgress();
+		});
 	}
 
 	/**
@@ -67,10 +73,22 @@
 			nonce: loveTravelWizard.nonce
 		};
 
-		// ✅ Verified: Add duplicate handling for adventures
+		// ✅ NEW: Add collision handling preferences for adventures
 		if (step === 'adventures') {
-			var duplicateHandling = $('input[name="duplicate_handling"]:checked').val();
-			requestData.duplicate_handling = duplicateHandling;
+			var adventureAction = $('#adventure-collision-action').val();
+			var mediaAction = $('#media-collision-action').val();
+			requestData.adventure_collision_action = adventureAction;
+			requestData.media_collision_action = mediaAction;
+			requestData.duplicate_handling = adventureAction; // Backward compatibility
+		}
+		
+		// ✅ PERFORMANCE: Add skip media downloads option
+		if (step === 'media') {
+			var skipDownloads = $('#skip-media-downloads').is(':checked');
+			requestData.skip_downloads = skipDownloads;
+			if (skipDownloads) {
+				console.log('Media import will skip downloads for faster processing');
+			}
 		}
 
 		// ✅ Verified: WordPress AJAX request
@@ -138,6 +156,12 @@
 		setTimeout(function() {
 			checkProgressOnce(step);
 		}, 1000);
+		
+		// ✅ Verified: Trigger background processing immediately to bypass cron issues
+		setTimeout(function() {
+			console.log('Triggering immediate background processing for', step, 'to bypass cron');
+			triggerBackgroundProcessing(step);
+		}, 2000);
 	}
 
 	/**
@@ -162,20 +186,29 @@
 						updateProgressDisplay(response.data, step);
 						
 						// ✅ Verified: Check for stalled progress (WordPress cron not working)
-						if (response.data.status === 'processing' || response.data.status === 'media_download') {
+						if (response.data.status === 'fetching' || response.data.status === 'processing' || response.data.status === 'media_download') {
+							// Check if progress is stalled (no change in processed count)
 							if (response.data.processed === lastProcessed) {
 								stallCount++;
-								console.log('Progress stalled, count:', stallCount);
+								console.log('Progress stalled at', response.data.processed + '/' + response.data.total, 'count:', stallCount);
 								
-								// Trigger background processing if stalled
+								// Trigger background processing if stalled for too long
 								if (stallCount >= maxStallCount) {
-									console.log('Triggering background processing for', step);
+									console.log('Triggering background processing for', step, 'due to stall at', response.data.status);
 									triggerBackgroundProcessing(step);
 									stallCount = 0; // Reset counter
 								}
-							} else {
+							} else if (response.data.processed > lastProcessed) {
 								lastProcessed = response.data.processed;
 								stallCount = 0; // Reset counter on progress
+								console.log('Progress detected:', response.data.processed, '/', response.data.total);
+							}
+							
+							// Special case: if we have total but no progress for too long, trigger processing
+							if (response.data.total > 0 && response.data.processed === 0 && stallCount >= 2) {
+								console.log('No progress despite having total items, triggering processing');
+								triggerBackgroundProcessing(step);
+								stallCount = 0;
 							}
 						}
 						
@@ -225,20 +258,54 @@
 	function updateProgressDisplay(progressData, step) {
 		step = step || 'adventures';
 		
-		var $progressBar, $status, $details;
+		// Log debug information to console
+		if (progressData.debug_logs && progressData.debug_logs.length > 0) {
+			console.log('Progress Debug Logs for ' + step + ':', progressData.debug_logs);
+		}
 		
-		if (step === 'media') {
-			$progressBar = $('#media-import-progress .progress-fill');
+		// Log errors to console
+		if (progressData.error_details && progressData.error_details.length > 0) {
+			console.warn('Progress Errors for ' + step + ':', progressData.error_details);
+		}
+		
+		// Log full progress data for debugging
+		console.log('Progress Update for ' + step + ':', {
+			status: progressData.status,
+			percentage: progressData.percentage,
+			processed: progressData.processed,
+			total: progressData.total,
+			retry_count: progressData.retry_count,
+			last_activity: progressData.last_activity
+		});
+		
+		var $progressBar, $status, $details, $progressContainer;
+		
+		if (step === 'elementor_templates') {
+			$progressContainer = $('#elementor-import-progress');
+			$progressBar = $progressContainer.find('.progress-fill');
+			$status = $('#elementor-progress-status');
+			$details = $('#elementor-progress-details');
+		} else if (step === 'media') {
+			$progressContainer = $('#media-import-progress');
+			$progressBar = $progressContainer.find('.progress-fill');
 			$status = $('#media-progress-status');
 			$details = $('#media-progress-details');
 		} else if (step === 'destinations') {
-			$progressBar = $('#destinations-import-progress .progress-fill');
+			$progressContainer = $('#destinations-import-progress');
+			$progressBar = $progressContainer.find('.progress-fill');
 			$status = $('#destinations-progress-status');
 			$details = $('#destinations-progress-details');
 		} else {
-			$progressBar = $('.progress-fill');
+			// Adventures (default)
+			$progressContainer = $('#adventure-import-progress');
+			$progressBar = $progressContainer.find('.progress-fill');
 			$status = $('#progress-status');
 			$details = $('#progress-details');
+		}
+		
+		// Show progress container when processing starts
+		if (progressData.status === 'processing' && $progressContainer.length > 0) {
+			$progressContainer.show();
 		}
 		
 		// ✅ Verified: Update progress bar
@@ -261,13 +328,44 @@
 					details += ' (' + progressData.destinations_created + ' destinations, ' + progressData.locations_created + ' locations, ' + progressData.updated + ' updated)';
 				}
 			} else {
-				details = progressData.processed + '/' + progressData.total + ' adventures';
+				// For adventures, don't duplicate the count if message already contains it
+				if (progressData.message && progressData.message.includes(progressData.processed + ' of ' + progressData.total)) {
+					details = ''; // Message already contains the progress info
+				} else {
+					details = progressData.processed + '/' + progressData.total + ' adventures';
+				}
 				if (progressData.media_total > 0) {
-					details += ', ' + progressData.media_processed + '/' + progressData.media_total + ' media files';
+					if (details) details += ', ';
+					details += progressData.media_processed + '/' + progressData.media_total + ' media files';
 				}
 			}
+		} else if (progressData.status === 'fetching') {
+			details = 'Connecting to Payload CMS...';
 		}
+		
+		// Add error indicator if there are errors
+		if (progressData.errors > 0) {
+			details += ' (' + progressData.errors + ' errors)';
+		}
+		
+		// ✅ Show collision information from new structure
+		if (progressData.collision_info && Object.keys(progressData.collision_info).length > 0) {
+			var collisionCount = Object.keys(progressData.collision_info).length;
+			details += ' (' + collisionCount + ' adventures with collisions)';
+			updateCollisionDisplay(progressData.collision_info);
+		}
+		
+		// Show cleanup information
+		if (progressData.deleted_recent > 0) {
+			details += ' (cleaned ' + progressData.deleted_recent + ' recent files)';
+		}
+		
 		$details.text(details);
+		
+		// ✅ Enhanced: Update live logs display for current step
+		if (progressData.live_logs && progressData.live_logs.length > 0) {
+			updateLiveLogsDisplay(progressData.live_logs, step);
+		}
 	}
 
 	/**
@@ -302,6 +400,7 @@
 		step = step || 'adventures';
 		
 		var $stopButton, $startButton, $progressContainer, $statusElement, $progressBar;
+		var buttonText = 'Start ';
 		
 		if (step === 'media') {
 			$stopButton = $('#stop-media-import');
@@ -309,26 +408,30 @@
 			$progressContainer = $('#media-import-progress');
 			$statusElement = $('#media-progress-status');
 			$progressBar = $('#media-import-progress .progress-fill');
+			buttonText += 'Media Import';
 		} else if (step === 'destinations') {
 			$stopButton = $('#stop-destinations-import');
 			$startButton = $('[data-step="destinations"]');
 			$progressContainer = $('#destinations-import-progress');
 			$statusElement = $('#destinations-progress-status');
 			$progressBar = $('#destinations-import-progress .progress-fill');
+			buttonText += 'Destinations Import';
 		} else {
 			$stopButton = $('#stop-adventure-import');
 			$startButton = $('[data-step="adventures"]');
 			$progressContainer = $('#adventure-import-progress');
 			$statusElement = $('#progress-status');
 			$progressBar = $('.progress-fill');
+			buttonText += 'Adventure Import';
 		}
 		
 		// ✅ Verified: Confirm with user
-		if (!confirm('Are you sure you want to stop the import? Progress will be lost.')) {
+		if (!confirm('Are you sure you want to stop the import? Current progress will be preserved, but the import will need to be restarted.')) {
 			return;
 		}
 		
 		$stopButton.prop('disabled', true).text('Stopping...');
+		console.log('Stopping import for step:', step);
 		
 		$.ajax({
 			url: loveTravelWizard.ajaxUrl,
@@ -339,9 +442,14 @@
 				nonce: loveTravelWizard.nonce
 			},
 			success: function(response) {
+				console.log('Stop import response:', response);
+				
 				if (response.success) {
-					// ✅ Verified: Reset UI state
-					$startButton.prop('disabled', false).removeClass('importing').text('Start Import');
+					// ✅ Verified: Reset UI state but keep button available
+					$startButton.prop('disabled', false)
+							   .removeClass('importing button-secondary')
+							   .addClass('button-primary')
+							   .text(buttonText);
 					$stopButton.hide().prop('disabled', false).text('Stop Import');
 					
 					// ✅ Verified: Update progress display
@@ -350,18 +458,19 @@
 					
 					showAdminNotice('warning', response.data.message);
 					
-					// ✅ Verified: Hide progress after delay
+					// ✅ Verified: Hide progress after delay but keep button enabled
 					setTimeout(function() {
 						$progressContainer.fadeOut();
-					}, 3000);
+					}, 5000);
 				} else {
 					$stopButton.prop('disabled', false).text('Stop Import');
 					showAdminNotice('error', response.data.message);
 				}
 			},
-			error: function() {
+			error: function(xhr, status, error) {
+				console.error('Stop import failed:', {xhr, status, error});
 				$stopButton.prop('disabled', false).text('Stop Import');
-				showAdminNotice('error', 'Failed to stop import');
+				showAdminNotice('error', 'Failed to stop import: ' + error);
 			}
 		});
 	}
@@ -443,6 +552,43 @@
 	}
 
 	/**
+	 * ✅ Verified: Reset wizard progress (for testing/debugging)
+	 */
+	function resetWizardProgress() {
+		if (!confirm('Are you sure you want to reset ALL wizard progress? This will clear all import data and cannot be undone.')) {
+			return;
+		}
+		
+		var $button = $('#reset-wizard-progress');
+		$button.prop('disabled', true).text('Resetting...');
+		
+		$.ajax({
+			url: loveTravelWizard.ajaxUrl,
+			type: 'POST',
+			data: {
+				action: 'lovetravel_wizard_reset_progress',
+				nonce: loveTravelWizard.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					showAdminNotice('success', response.data.message);
+					// Reload page after short delay
+					setTimeout(function() {
+						location.reload();
+					}, 1500);
+				} else {
+					showAdminNotice('error', response.data.message);
+					$button.prop('disabled', false).text('Reset All Progress');
+				}
+			},
+			error: function() {
+				showAdminNotice('error', 'Failed to reset wizard progress');
+				$button.prop('disabled', false).text('Reset All Progress');
+			}
+		});
+	}
+
+	/**
 	 * ✅ Verified: Complete wizard and redirect
 	 */
 	function completeWizard() {
@@ -494,6 +640,145 @@
 								 .removeClass('button-secondary')
 								 .addClass('button-primary');
 		}
+	}
+
+	/**
+	 * ✅ Enhanced: Update collision display in UI with new structure
+	 */
+	function updateCollisionDisplay(collisionInfo) {
+		var $collisionPreview = $('#collision-preview');
+		var $collisionList = $('#collision-list');
+		
+		if (collisionInfo && Object.keys(collisionInfo).length > 0) {
+			$collisionPreview.show();
+			$collisionList.empty();
+			
+			// Process each adventure's collision info
+			Object.keys(collisionInfo).forEach(function(adventureId) {
+				var adventureCollisions = collisionInfo[adventureId];
+				var collisionHtml = '<div class="collision-group">';
+				collisionHtml += '<h4>Adventure ID: ' + adventureId + '</h4>';
+				
+				// Adventure collision
+				if (adventureCollisions.adventure_collision) {
+					var adventureInfo = adventureCollisions.adventure_collision;
+					collisionHtml += '<div class="collision-item adventure-collision">';
+					collisionHtml += '<strong>Adventure Collision:</strong> ';
+					collisionHtml += adventureInfo.type + ' (Existing ID: ' + adventureInfo.existing_id + ')';
+					if (adventureInfo.user_choice) {
+						collisionHtml += ' - <em>Action: ' + adventureInfo.user_choice + '</em>';
+					}
+					collisionHtml += '</div>';
+				}
+				
+				// Media collisions
+				if (adventureCollisions.media_collisions && adventureCollisions.media_collisions.length > 0) {
+					collisionHtml += '<div class="media-collisions">';
+					collisionHtml += '<strong>Media Collisions (' + adventureCollisions.media_collisions.length + '):</strong>';
+					adventureCollisions.media_collisions.forEach(function(mediaCollision) {
+						collisionHtml += '<div class="collision-item media-collision">';
+						collisionHtml += '• ' + mediaCollision.filename;
+						if (mediaCollision.existing_id) {
+							collisionHtml += ' (conflicts with ID: ' + mediaCollision.existing_id + ')';
+						}
+						if (mediaCollision.user_choice) {
+							collisionHtml += ' - <em>Action: ' + mediaCollision.user_choice + '</em>';
+						}
+						collisionHtml += '</div>';
+					});
+					collisionHtml += '</div>';
+				}
+				
+				collisionHtml += '</div>';
+				$collisionList.append(collisionHtml);
+			});
+		} else {
+			$collisionPreview.hide();
+		}
+	}
+	
+	/**
+	 * ✅ Enhanced: Update live logs display for specific step
+	 */
+	function updateLiveLogsDisplay(liveLogs, step) {
+		step = step || 'adventures'; // Default to adventures for backward compatibility
+		
+		var containerIds = {
+			'elementor_templates': 'elementor-live-logs-container',
+			'adventures': 'adventure-live-logs-container', 
+			'media': 'media-live-logs-container',
+			'destinations': 'destinations-live-logs-container'
+		};
+		
+		var listIds = {
+			'elementor_templates': 'elementor-live-logs-list',
+			'adventures': 'adventure-live-logs-list',
+			'media': 'media-live-logs-list', 
+			'destinations': 'destinations-live-logs-list'
+		};
+		
+		var $liveLogsContainer = $('#' + containerIds[step]);
+		var $logsList = $('#' + listIds[step]);
+		
+		if ($liveLogsContainer.length === 0 || $logsList.length === 0) {
+			return; // Container doesn't exist for this step
+		}
+		
+		// Show container and populate logs
+		if (liveLogs && liveLogs.length > 0) {
+			$liveLogsContainer.show();
+			$logsList.empty();
+			
+			// Show last 10 logs
+			var recentLogs = liveLogs.slice(-10);
+			recentLogs.forEach(function(log) {
+				var logClass = 'log-' + log.type;
+				var logHtml = '<div class="live-log-entry ' + logClass + '">' +
+					'<span class="log-time">' + log.timestamp + '</span> ' +
+					'<span class="log-message">' + log.message + '</span>' +
+					'</div>';
+				$logsList.append(logHtml);
+			});
+			
+			// Auto-scroll to bottom
+			$logsList.scrollTop($logsList[0].scrollHeight);
+		}
+	}
+	
+	/**
+	 * ✅ Enhanced: Check if step is truly completed (all media imported per adventure)
+	 */
+	function isStepTrulyCompleted(progressData, step) {
+		if (step === 'adventures') {
+			// Adventure step is complete when all adventures AND their media are processed
+			if (progressData.status !== 'completed') {
+				return false;
+			}
+			
+			// Check if all adventures have been processed
+			if (progressData.processed_adventures < progressData.total_adventures) {
+				return false;
+			}
+			
+			// ✅ NEW: Check media import status for each adventure
+			if (progressData.media_import_status) {
+				var allMediaComplete = true;
+				Object.keys(progressData.media_import_status).forEach(function(adventureId) {
+					var mediaStatus = progressData.media_import_status[adventureId];
+					if (mediaStatus.status !== 'completed') {
+						allMediaComplete = false;
+					}
+				});
+				return allMediaComplete;
+			}
+			
+			return progressData.processed_adventures > 0;
+		}
+		
+		// Other steps use standard completion check
+		return progressData.status === 'completed' && 
+			   progressData.processed === progressData.total &&
+			   progressData.processed > 0;
 	}
 
 	/**
