@@ -169,24 +169,32 @@ class LoveTravel_Child_Setup_Wizard
                         </div>
 
                         <div class="wizard-step-actions">
-                            <button type="button" class="button button-primary"
-                                data-step="elementor_templates"
-                                id="start-elementor-import"
-                                <?php echo isset($import_status['elementor_templates']) ? 'disabled' : ''; ?>>
-                                <?php esc_html_e('Import Default Templates', 'lovetravel-child'); ?>
-                            </button>
-                            <button type="button" class="button button-secondary"
-                                id="stop-elementor-import"
-                                style="display: none;">
-                                <?php esc_html_e('Stop Import', 'lovetravel-child'); ?>
-                            </button>
+                            <?php if (!isset($import_status['elementor_templates'])): ?>
+                                <button type="button" class="button button-primary"
+                                    data-step="elementor_templates"
+                                    id="start-elementor-import">
+                                    <?php esc_html_e('Start Templates Import', 'lovetravel-child'); ?>
+                                </button>
+                                <button type="button" class="button button-secondary"
+                                    id="stop-elementor-import"
+                                    style="display: none;">
+                                    <?php esc_html_e('Stop Import', 'lovetravel-child'); ?>
+                                </button>
+                            <?php else: ?>
+                                <button type="button" class="button button-secondary button-danger"
+                                    data-step="elementor_templates"
+                                    id="remove-elementor-import">
+                                    <?php esc_html_e('Remove Imports', 'lovetravel-child'); ?>
+                                </button>
+                            <?php endif; ?>
                             <a href="<?php echo esc_url(admin_url('edit.php?post_type=elementor_library')); ?>"
                                 class="button button-secondary" target="_blank">
                                 <?php esc_html_e('Manage Templates', 'lovetravel-child'); ?>
                             </a>
                         </div>
-                        <p class="description">
-                            <?php esc_html_e('Use "Import Default Templates" to install theme templates, or "Manage Templates" to import custom templates manually.', 'lovetravel-child'); ?>
+                        <p class="description wizard-hint">
+                            <span class="dashicons dashicons-editor-help"></span>
+                            <?php esc_html_e('Install pre-built Elementor templates for Adventures or manage templates manually.', 'lovetravel-child'); ?>
                         </p>
                     </div>
                 </div>
@@ -231,17 +239,24 @@ class LoveTravel_Child_Setup_Wizard
                         </div>
 
                         <div class="wizard-step-actions">
-                            <button type="button" class="button button-primary"
-                                data-step="adventures"
-                                id="start-adventure-import"
-                                <?php echo isset($import_status['adventures']) ? 'disabled' : ''; ?>>
-                                <?php esc_html_e('Start Adventure Import', 'lovetravel-child'); ?>
-                            </button>
-                            <button type="button" class="button button-secondary"
-                                id="stop-adventure-import"
-                                style="display: none;">
-                                <?php esc_html_e('Stop Import', 'lovetravel-child'); ?>
-                            </button>
+                            <?php if (!isset($import_status['adventures'])): ?>
+                                <button type="button" class="button button-primary"
+                                    data-step="adventures"
+                                    id="start-adventure-import">
+                                    <?php esc_html_e('Start Adventure Import', 'lovetravel-child'); ?>
+                                </button>
+                                <button type="button" class="button button-secondary"
+                                    id="stop-adventure-import"
+                                    style="display: none;">
+                                    <?php esc_html_e('Stop Import', 'lovetravel-child'); ?>
+                                </button>
+                            <?php else: ?>
+                                <button type="button" class="button button-secondary button-danger"
+                                    data-step="adventures"
+                                    id="remove-adventure-import">
+                                    <?php esc_html_e('Remove Imports', 'lovetravel-child'); ?>
+                                </button>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Progress Display -->
@@ -264,7 +279,8 @@ class LoveTravel_Child_Setup_Wizard
                             </div>
                         </div>
 
-                        <p class="description">
+                        <p class="description wizard-hint">
+                            <span class="dashicons dashicons-editor-help"></span>
                             <?php esc_html_e('Import runs in background with live progress updates. You can safely leave this page and return later to check status.', 'lovetravel-child'); ?>
                         </p>
                     </div>
@@ -303,17 +319,24 @@ class LoveTravel_Child_Setup_Wizard
                         </div>
 
                         <div class="wizard-step-actions">
-                            <button type="button" class="button button-primary"
-                                data-step="media"
-                                id="start-media-import"
-                                <?php echo isset($import_status['media']) ? 'disabled' : ''; ?>>
-                                <?php esc_html_e('Start Media Import', 'lovetravel-child'); ?>
-                            </button>
-                            <button type="button" class="button button-secondary"
-                                id="stop-media-import"
-                                style="display: none;">
-                                <?php esc_html_e('Stop Import', 'lovetravel-child'); ?>
-                            </button>
+                            <?php if (!isset($import_status['media'])): ?>
+                                <button type="button" class="button button-primary"
+                                    data-step="media"
+                                    id="start-media-import">
+                                    <?php esc_html_e('Start Media Import', 'lovetravel-child'); ?>
+                                </button>
+                                <button type="button" class="button button-secondary"
+                                    id="stop-media-import"
+                                    style="display: none;">
+                                    <?php esc_html_e('Stop Import', 'lovetravel-child'); ?>
+                                </button>
+                            <?php else: ?>
+                                <button type="button" class="button button-secondary button-danger"
+                                    data-step="media"
+                                    id="remove-media-import">
+                                    <?php esc_html_e('Remove Imports', 'lovetravel-child'); ?>
+                                </button>
+                            <?php endif; ?>
                         </div>
 
                         <div id="media-import-progress" style="display: none;">
@@ -367,17 +390,24 @@ class LoveTravel_Child_Setup_Wizard
                         </div>
 
                         <div class="wizard-step-actions">
-                            <button type="button" class="button button-primary"
-                                data-step="destinations"
-                                id="start-destinations-import"
-                                <?php echo isset($import_status['destinations']) ? 'disabled' : ''; ?>>
-                                <?php esc_html_e('Start Destinations Import', 'lovetravel-child'); ?>
-                            </button>
-                            <button type="button" class="button button-secondary"
-                                id="stop-destinations-import"
-                                style="display: none;">
-                                <?php esc_html_e('Stop Import', 'lovetravel-child'); ?>
-                            </button>
+                            <?php if (!isset($import_status['destinations'])): ?>
+                                <button type="button" class="button button-primary"
+                                    data-step="destinations"
+                                    id="start-destinations-import">
+                                    <?php esc_html_e('Start Destinations Import', 'lovetravel-child'); ?>
+                                </button>
+                                <button type="button" class="button button-secondary"
+                                    id="stop-destinations-import"
+                                    style="display: none;">
+                                    <?php esc_html_e('Stop Import', 'lovetravel-child'); ?>
+                                </button>
+                            <?php else: ?>
+                                <button type="button" class="button button-secondary button-danger"
+                                    data-step="destinations"
+                                    id="remove-destinations-import">
+                                    <?php esc_html_e('Remove Imports', 'lovetravel-child'); ?>
+                                </button>
+                            <?php endif; ?>
                         </div>
 
                         <div id="destinations-import-progress" style="display: none;">
@@ -405,23 +435,7 @@ class LoveTravel_Child_Setup_Wizard
                     </div>
                 </div>
 
-                <!-- Final Step: Complete -->
-                <div class="postbox">
-                    <div class="postbox-header">
-                        <h2 class="hndle">
-                            <span><?php esc_html_e('Setup Complete', 'lovetravel-child'); ?></span>
-                        </h2>
-                    </div>
-                    <div class="inside">
-                        <p><?php esc_html_e('All content has been imported successfully.', 'lovetravel-child'); ?></p>
-                        <button type="button" class="button button-secondary" id="complete-wizard">
-                            <?php esc_html_e('Complete Setup & Remove Wizard', 'lovetravel-child'); ?>
-                        </button>
-                        <button type="button" class="button button-secondary" id="reset-wizard-progress" style="margin-left: 10px; background: #dc3232; border-color: #dc3232; color: white;">
-                            <?php esc_html_e('Reset All Progress', 'lovetravel-child'); ?>
-                        </button>
-                    </div>
-                </div>
+                <!-- Setup Complete section removed - individual Remove Import buttons provide better UX -->
 
             </div>
         </div>
@@ -434,18 +448,13 @@ class LoveTravel_Child_Setup_Wizard
     private function render_step_status($step, $import_status)
     {
         if (isset($import_status[$step])) {
-            // Success - minimal green checkmark with text
+            // Success - minimal green checkmark with 'Imported' text
             echo '<span class="wizard-step-status wizard-step-completed">';
             echo '<span class="dashicons dashicons-yes-alt"></span>';
-            echo '<span>' . esc_html__('Done', 'lovetravel-child') . '</span>';
-            echo '</span>';
-        } else {
-            // Pending - minimal orange clock with text  
-            echo '<span class="wizard-step-status wizard-step-pending">';
-            echo '<span class="dashicons dashicons-clock"></span>';
-            echo '<span>' . esc_html__('Pending', 'lovetravel-child') . '</span>';
+            echo '<span>' . esc_html__('Imported', 'lovetravel-child') . '</span>';
             echo '</span>';
         }
+        // No pending badge shown - cleaner UI
     }
 
     /**

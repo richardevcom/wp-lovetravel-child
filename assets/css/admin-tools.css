@@ -44,7 +44,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .mc4wp-export-card {
   background: #fff;
   border: 1px solid #c3c4c7;
-  border-radius: 4px;
+  border-radius: 3px;
   padding: 20px;
   margin: 20px 0;
   box-shadow: 0 1px 1px rgba(0,0,0,.04);
@@ -59,7 +59,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .mc4wp-export-results {
   margin-top: 20px;
   padding: 15px;
-  border-radius: 4px;
+  border-radius: 3px;
   display: none;
 }
 .mc4wp-export-results.success {
@@ -81,7 +81,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .mc4wp-stat-box {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 3px;
   text-align: center;
   border: 1px solid #dee2e6;
   transition: transform 0.2s ease;
@@ -109,7 +109,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 #collision-preview {
   background: #fff3cd;
   border: 1px solid #ffecb5;
-  border-radius: 4px;
+  border-radius: 3px;
   padding: 15px;
   margin: 15px 0;
   display: none;
@@ -178,7 +178,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .live-logs-wrapper {
   background: #f8f9fa;
   border: 1px solid #e1e5e9;
-  border-radius: 4px;
+  border-radius: 3px;
   padding: 15px;
   margin: 15px 0;
   max-width: 100%;
@@ -248,7 +248,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .import-options-section {
   background: #f8f9fa;
   border: 1px solid #e1e5e9;
-  border-radius: 4px;
+  border-radius: 3px;
   padding: 15px;
   margin: 15px 0;
 }
@@ -283,7 +283,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .option-group select {
   padding: 8px 12px;
   border: 1px solid #ced4da;
-  border-radius: 4px;
+  border-radius: 3px;
   background: white;
   font-size: 13px;
   color: #495057;
@@ -302,7 +302,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   padding: 10px 12px;
   background: #f1f3f4;
   border-left: 4px solid #0073aa;
-  border-radius: 0 3px 3px 0;
+  border-radius: 3px;
 }
 
 /* ✅ Minimal Wizard Step Status Indicators */
@@ -320,10 +320,9 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   margin: 0 0 0 12px;
   padding: 2px 8px;
   background: rgba(255, 255, 255, 0.9);
-  border-radius: 12px;
+  border-radius: 3px;
   font-size: 12px;
   font-weight: 500;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .postbox-header .wizard-step-status .dashicons {
@@ -339,11 +338,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   border: 1px solid rgba(0, 163, 42, 0.3);
 }
 
-/* Pending badge styling */
-.postbox-header .wizard-step-pending {
-  background: rgba(245, 110, 40, 0.1);
-  border: 1px solid rgba(245, 110, 40, 0.3);
-}
+/* Remove pending badge styling - no longer needed */
 
 .wizard-step-status .dashicons {
   margin-right: 4px;
@@ -356,22 +351,13 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   color: #00a32a; /* WordPress success green */
 }
 
-.wizard-step-pending .dashicons {
-  color: #f56e28; /* WordPress warning orange */
-}
-
 .wizard-step-status span:not(.dashicons) {
   vertical-align: middle;
 }
 
-/* Compact success/pending text */
+/* Success badge text styling */
 .wizard-step-completed span:not(.dashicons):first-of-type {
   color: #00a32a;
-  font-weight: 600;
-}
-
-.wizard-step-pending span:not(.dashicons):first-of-type {
-  color: #f56e28;
   font-weight: 600;
 }
 
@@ -383,4 +369,38 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   font-weight: normal;
 }
 
-/* Download link now uses WP .button styles */
+/* ✅ Remove Import Button Styling */
+.button-danger {
+  background: #dc3232 !important;
+  border-color: #dc3232 !important;
+  color: #fff !important;
+}
+
+.button-danger:hover {
+  background: #c62d2d !important;
+  border-color: #c62d2d !important;
+  color: #fff !important;
+}
+
+/* ✅ Wizard Hint Text with Icons */
+.wizard-hint {
+  font-size: 12px !important;
+  color: #666 !important;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.wizard-hint .dashicons {
+  width: 16px;
+  height: 16px;
+  font-size: 16px !important;
+  color: #0073aa;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.wizard-hint span:not(.dashicons) {
+  line-height: 1.4;
+}
