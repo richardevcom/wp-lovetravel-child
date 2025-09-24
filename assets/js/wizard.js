@@ -584,10 +584,13 @@
 			   .find('p')
 			   .text(data.message || loveTravelWizard.strings.complete);
 		
-		// ✅ Verified: Add "Imported" badge to step title
-		var $stepTitle = $postbox.find('.hndle span').first();
-		if (!$stepTitle.find('.step-status.imported').length) {
-			$stepTitle.append('<span class="step-status imported">Imported</span>');
+		// ✅ Add "Imported" badge to step title
+		var $stepTitle = $postbox.find('.hndle').first();
+		if (!$stepTitle.find('.wizard-step-status').length) {
+			$stepTitle.append('<span class="wizard-step-status wizard-step-completed">' +
+				'<span class="dashicons dashicons-yes-alt"></span>' +
+				'<span>Imported</span>' +
+				'</span>');
 		}
 		
 		// ✅ Verified: Show completion message
@@ -892,26 +895,22 @@
 			},
 			success: function(response) {
 				if (response.success) {
-					// ✅ Verified: Update UI to reflect removal
+					// ✅ Show success message
 					showAdminNotice('success', response.data.message);
 					
-					// Update button text and re-enable
-					$button.prop('disabled', false)
-						   .removeClass('importing')
-						   .text(originalText);
-					
-					// Hide the Remove button and show Import button
+					// ✅ Hide the Remove button
 					$button.hide();
-					$button.siblings('.button[data-step="' + step + '"]').show();
 					
-					// Remove the status badge
+					// ✅ Show the Start Import button
+					var $startButton = $('#start-' + step.replace('_', '-') + '-import');
+					$startButton.show().prop('disabled', false).removeClass('importing');
+					
+					// ✅ Remove the "Imported" status badge
 					var $stepHeader = $button.closest('.postbox').find('.postbox-header h2');
 					$stepHeader.find('.wizard-step-status').remove();
 					
-					// Reload the page to reflect changes
-					setTimeout(function() {
-						location.reload();
-					}, 2000);
+					// ✅ Update any progress indicators to show reset state
+					resetProgressIndicators(step);
 					
 				} else {
 					handleRemoveError($button, originalText, response.data);

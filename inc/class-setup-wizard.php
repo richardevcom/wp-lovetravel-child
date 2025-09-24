@@ -2942,9 +2942,9 @@ class LoveTravel_Child_Setup_Wizard
         }
 
         if ($result['success']) {
-            // Update import status to reflect removal
+            // ✅ Clear import status to reflect removal
             $import_status = get_option('lovetravel_import_status', array());
-            $import_status[$step] = false;
+            unset($import_status[$step]); // Remove the key entirely instead of setting to false
             update_option('lovetravel_import_status', $import_status);
             
             wp_send_json_success($result);
