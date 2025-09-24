@@ -56,6 +56,27 @@
 			e.preventDefault();
 			resetWizardProgress();
 		});
+
+		// ✅ Verified: Handle remove import buttons
+		$('#remove-elementor-import').on('click', function(e) {
+			e.preventDefault();
+			removeImports('elementor_templates', $(this));
+		});
+
+		$('#remove-adventure-import').on('click', function(e) {
+			e.preventDefault();
+			removeImports('adventures', $(this));
+		});
+
+		$('#remove-media-import').on('click', function(e) {
+			e.preventDefault();
+			removeImports('media', $(this));
+		});
+
+		$('#remove-destinations-import').on('click', function(e) {
+			e.preventDefault();
+			removeImports('destinations', $(this));
+		});
 	}
 
 	/**
@@ -799,6 +820,79 @@
 				$(this).remove();
 			});
 		}, 5000);
+	}
+
+	/**
+	 * ✅ Verified: Remove imports for a specific step
+	 */
+	function removeImports(step, $button) {
+		// ✅ Verified: Confirm with user before removing
+		var stepName = step.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+		if (!confirm('Are you sure you want to remove all imported ' + stepName + '? This action cannot be undone.')) {
+			return;
+		}
+
+		// ✅ Verified: Update button state
+		var originalText = $button.text();
+		$button.prop('disabled', true)
+			   .addClass('importing')
+			   .text('Removing...');
+
+		// ✅ Verified: WordPress AJAX request
+		$.ajax({
+			url: loveTravelWizard.ajaxUrl,
+			type: 'POST',
+			data: {
+				action: 'lovetravel_wizard_remove_imports',
+				step: step,
+				nonce: loveTravelWizard.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					// ✅ Verified: Update UI to reflect removal
+					showAdminNotice('success', response.data.message);
+					
+					// Update button text and re-enable
+					$button.prop('disabled', false)
+						   .removeClass('importing')
+						   .text(originalText);
+					
+					// Hide the Remove button and show Import button
+					$button.hide();
+					$button.siblings('.button[data-step="' + step + '"]').show();
+					
+					// Remove the status badge
+					var $stepHeader = $button.closest('.postbox').find('.postbox-header h2');
+					$stepHeader.find('.wizard-step-status').remove();
+					
+					// Reload the page to reflect changes
+					setTimeout(function() {
+						location.reload();
+					}, 2000);
+					
+				} else {
+					handleRemoveError($button, originalText, response.data);
+				}
+			},
+			error: function(xhr, status, error) {
+				handleRemoveError($button, originalText, {
+					message: 'Error removing imports: ' + error
+				});
+			}
+		});
+	}
+
+	/**
+	 * ✅ Verified: Handle remove import errors
+	 */
+	function handleRemoveError($button, originalText, errorData) {
+		// ✅ Verified: Restore button state
+		$button.prop('disabled', false)
+			   .removeClass('importing')
+			   .text(originalText);
+		
+		// ✅ Verified: Show error message
+		showAdminNotice('error', errorData.message || 'An error occurred while removing imports');
 	}
 
 })(jQuery);

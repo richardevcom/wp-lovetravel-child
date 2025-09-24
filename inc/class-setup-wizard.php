@@ -48,6 +48,9 @@ class LoveTravel_Child_Setup_Wizard
         add_action('wp_ajax_lovetravel_wizard_trigger_processing', array($this, 'ajax_trigger_background_processing'));
         add_action('wp_ajax_lovetravel_wizard_reset_progress', array($this, 'ajax_reset_import_progress'));
 
+        // ✅ Verified: AJAX handlers for removing imports
+        add_action('wp_ajax_lovetravel_wizard_remove_imports', array($this, 'ajax_remove_imports'));
+
         // ✅ Verified: Background import cron hooks
         add_action('lovetravel_process_adventure_import', array($this, 'process_background_adventure_import'));
         add_action('lovetravel_process_media_import', array($this, 'process_background_media_import'));
@@ -358,7 +361,8 @@ class LoveTravel_Child_Setup_Wizard
                             </div>
                         </div>
 
-                        <p class="description">
+                        <p class="description wizard-hint">
+                            <span class="dashicons dashicons-editor-help"></span>
                             <?php esc_html_e('Imports all media files including images, PDFs, and documents. Updates existing files. Import runs in background with live progress updates.', 'lovetravel-child'); ?>
                         </p>
                     </div>
@@ -429,7 +433,8 @@ class LoveTravel_Child_Setup_Wizard
                             </div>
                         </div>
 
-                        <p class="description">
+                        <p class="description wizard-hint">
+                            <span class="dashicons dashicons-editor-help"></span>
                             <?php esc_html_e('Creates both Destinations and Locations custom post types from Payload CMS data. Import runs in background with live progress updates.', 'lovetravel-child'); ?>
                         </p>
                     </div>
@@ -669,7 +674,14 @@ class LoveTravel_Child_Setup_Wizard
             $post_id = wp_insert_post($post_data);
         }
 
-        return ! is_wp_error($post_id) && $post_id > 0;
+        if (! is_wp_error($post_id) && $post_id > 0) {
+            // ✅ Verified: Mark as imported by our wizard for later removal
+            update_post_meta($post_id, '_lovetravel_imported', '1');
+            update_post_meta($post_id, '_lovetravel_import_date', current_time('mysql'));
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -1335,6 +1347,10 @@ class LoveTravel_Child_Setup_Wizard
                 update_post_meta($attachment_id, '_wp_attachment_file_size', $file_size);
             }
 
+            // ✅ Verified: Mark as imported by our wizard for later removal
+            update_post_meta($attachment_id, '_lovetravel_imported', '1');
+            update_post_meta($attachment_id, '_lovetravel_import_date', current_time('mysql'));
+
             return array(
                 'success' => true,
                 'attachment_id' => $attachment_id,
@@ -1428,6 +1444,10 @@ class LoveTravel_Child_Setup_Wizard
 
         // ✅ Verified: Set taxonomies
         $this->set_adventure_taxonomies($post_id, $adventure_data);
+
+        // ✅ Verified: Mark as imported by our wizard for later removal
+        update_post_meta($post_id, '_lovetravel_imported', '1');
+        update_post_meta($post_id, '_lovetravel_import_date', current_time('mysql'));
 
         return array('success' => true, 'post_id' => $post_id, 'message' => 'Adventure imported successfully');
     }
@@ -2352,6 +2372,10 @@ class LoveTravel_Child_Setup_Wizard
 
             error_log('LoveTravel Wizard: Created destination post ID: ' . $destination_post_id);
 
+            // ✅ Verified: Mark destination as imported by our wizard for later removal
+            update_post_meta($destination_post_id, '_lovetravel_imported', '1');
+            update_post_meta($destination_post_id, '_lovetravel_import_date', current_time('mysql'));
+
             // ✅ Verified: Create Location CPT if location data exists
             if (! empty($destination_data['location'])) {
                 $location_post_type = $this->get_location_post_type();
@@ -2392,6 +2416,10 @@ class LoveTravel_Child_Setup_Wizard
                     }
 
                     error_log('LoveTravel Wizard: Created location post ID: ' . $location_post_id);
+
+                    // ✅ Verified: Mark location as imported by our wizard for later removal
+                    update_post_meta($location_post_id, '_lovetravel_imported', '1');
+                    update_post_meta($location_post_id, '_lovetravel_import_date', current_time('mysql'));
                 }
             }
 
@@ -2867,5 +2895,269 @@ class LoveTravel_Child_Setup_Wizard
             'message' => __('Setup completed successfully', 'lovetravel-child'),
             'redirect' => admin_url('edit.php?post_type=nd_travel_cpt_1')
         ));
+    }
+
+    /**
+     * ✅ Verified: AJAX handler for removing imports
+     */
+    public function ajax_remove_imports()
+    {
+        // ✅ Verified: Security checks
+        if (! wp_verify_nonce($_POST['nonce'], 'lovetravel_wizard_nonce')) {
+            wp_die('Security check failed');
+        }
+
+        if (! current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Insufficient permissions'));
+        }
+
+        $step = sanitize_text_field($_POST['step']);
+        
+        switch ($step) {
+            case 'elementor_templates':
+                $result = $this->remove_elementor_templates();
+                break;
+                
+            case 'adventures':
+                $result = $this->remove_adventures();
+                break;
+                
+            case 'media':
+                $result = $this->remove_media_files();
+                break;
+                
+            case 'destinations':
+                $result = $this->remove_destinations();
+                break;
+                
+            default:
+                wp_send_json_error(array('message' => 'Invalid step specified'));
+                return;
+        }
+
+        if ($result['success']) {
+            // Update import status to reflect removal
+            $import_status = get_option('lovetravel_import_status', array());
+            $import_status[$step] = false;
+            update_option('lovetravel_import_status', $import_status);
+            
+            wp_send_json_success($result);
+        } else {
+            wp_send_json_error($result);
+        }
+    }
+
+    /**
+     * ✅ Verified: Remove Elementor templates imported by the wizard
+     */
+    private function remove_elementor_templates()
+    {
+        $removed_count = 0;
+        $errors = array();
+
+        try {
+            // Query for Elementor templates that were imported by our wizard
+            $templates = get_posts(array(
+                'post_type' => 'elementor_library',
+                'posts_per_page' => -1,
+                'meta_query' => array(
+                    array(
+                        'key' => '_lovetravel_imported',
+                        'value' => '1',
+                        'compare' => '='
+                    )
+                )
+            ));
+
+            foreach ($templates as $template) {
+                if (wp_delete_post($template->ID, true)) {
+                    $removed_count++;
+                } else {
+                    $errors[] = sprintf('Failed to delete template: %s (ID: %d)', $template->post_title, $template->ID);
+                }
+            }
+
+            return array(
+                'success' => true,
+                'message' => sprintf('Successfully removed %d Elementor templates', $removed_count),
+                'removed_count' => $removed_count,
+                'errors' => $errors
+            );
+
+        } catch (Exception $e) {
+            return array(
+                'success' => false,
+                'message' => 'Error removing Elementor templates: ' . $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     * ✅ Verified: Remove adventures imported by the wizard
+     */
+    private function remove_adventures()
+    {
+        $removed_count = 0;
+        $errors = array();
+
+        try {
+            // Query for adventures that were imported by our wizard
+            $adventures = get_posts(array(
+                'post_type' => 'nd_travel_cpt_1',
+                'posts_per_page' => -1,
+                'meta_query' => array(
+                    array(
+                        'key' => '_lovetravel_imported',
+                        'value' => '1',
+                        'compare' => '='
+                    )
+                )
+            ));
+
+            foreach ($adventures as $adventure) {
+                // Delete associated media files first
+                $this->delete_adventure_media($adventure->ID);
+                
+                if (wp_delete_post($adventure->ID, true)) {
+                    $removed_count++;
+                } else {
+                    $errors[] = sprintf('Failed to delete adventure: %s (ID: %d)', $adventure->post_title, $adventure->ID);
+                }
+            }
+
+            return array(
+                'success' => true,
+                'message' => sprintf('Successfully removed %d adventures', $removed_count),
+                'removed_count' => $removed_count,
+                'errors' => $errors
+            );
+
+        } catch (Exception $e) {
+            return array(
+                'success' => false,
+                'message' => 'Error removing adventures: ' . $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     * ✅ Verified: Remove media files imported by the wizard
+     */
+    private function remove_media_files()
+    {
+        $removed_count = 0;
+        $errors = array();
+
+        try {
+            // Query for media files that were imported by our wizard
+            $media_files = get_posts(array(
+                'post_type' => 'attachment',
+                'posts_per_page' => -1,
+                'meta_query' => array(
+                    array(
+                        'key' => '_lovetravel_imported',
+                        'value' => '1',
+                        'compare' => '='
+                    )
+                )
+            ));
+
+            foreach ($media_files as $media) {
+                if (wp_delete_attachment($media->ID, true)) {
+                    $removed_count++;
+                } else {
+                    $errors[] = sprintf('Failed to delete media: %s (ID: %d)', $media->post_title, $media->ID);
+                }
+            }
+
+            return array(
+                'success' => true,
+                'message' => sprintf('Successfully removed %d media files', $removed_count),
+                'removed_count' => $removed_count,
+                'errors' => $errors
+            );
+
+        } catch (Exception $e) {
+            return array(
+                'success' => false,
+                'message' => 'Error removing media files: ' . $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     * ✅ Verified: Remove destinations imported by the wizard
+     */
+    private function remove_destinations()
+    {
+        $removed_count = 0;
+        $errors = array();
+
+        try {
+            // Query for destinations that were imported by our wizard
+            $destinations = get_posts(array(
+                'post_type' => 'nd_travel_cpt_3',
+                'posts_per_page' => -1,
+                'meta_query' => array(
+                    array(
+                        'key' => '_lovetravel_imported',
+                        'value' => '1',
+                        'compare' => '='
+                    )
+                )
+            ));
+
+            foreach ($destinations as $destination) {
+                if (wp_delete_post($destination->ID, true)) {
+                    $removed_count++;
+                } else {
+                    $errors[] = sprintf('Failed to delete destination: %s (ID: %d)', $destination->post_title, $destination->ID);
+                }
+            }
+
+            return array(
+                'success' => true,
+                'message' => sprintf('Successfully removed %d destinations', $removed_count),
+                'removed_count' => $removed_count,
+                'errors' => $errors
+            );
+
+        } catch (Exception $e) {
+            return array(
+                'success' => false,
+                'message' => 'Error removing destinations: ' . $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     * ✅ Verified: Delete media files associated with an adventure
+     */
+    private function delete_adventure_media($adventure_id)
+    {
+        // Get featured image
+        $featured_image_id = get_post_thumbnail_id($adventure_id);
+        if ($featured_image_id) {
+            wp_delete_attachment($featured_image_id, true);
+        }
+
+        // Get gallery images (if stored in meta)
+        $gallery_ids = get_post_meta($adventure_id, '_adventure_gallery', true);
+        if (!empty($gallery_ids) && is_array($gallery_ids)) {
+            foreach ($gallery_ids as $image_id) {
+                wp_delete_attachment($image_id, true);
+            }
+        }
+
+        // Also check for any other attached media
+        $attachments = get_posts(array(
+            'post_type' => 'attachment',
+            'posts_per_page' => -1,
+            'post_parent' => $adventure_id
+        ));
+
+        foreach ($attachments as $attachment) {
+            wp_delete_attachment($attachment->ID, true);
+        }
     }
 }
