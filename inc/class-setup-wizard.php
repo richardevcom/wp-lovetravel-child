@@ -2339,17 +2339,19 @@ class LoveTravel_Child_Setup_Wizard
         $updated = false;
 
         try {
-            // ✅ Verified: Check if post types exist first
-            if (! post_type_exists('nd_travel_cpt_2')) {
-                error_log('LoveTravel Wizard Error: Post type nd_travel_cpt_2 does not exist');
-                throw new Exception('Destination post type (nd_travel_cpt_2) is not registered');
+            // ✅ Verified: Determine destination post type with fallback
+            $destination_post_type = $this->get_destination_post_type();
+            if (! $destination_post_type) {
+                throw new Exception('No suitable post type found for destinations');
             }
 
-            // ✅ Verified: Create Destination CPT (assuming nd_travel_cpt_2)
+            error_log('LoveTravel Wizard: Using post type: ' . $destination_post_type . ' for destinations');
+
+            // ✅ Verified: Create Destination CPT
             $destination_post_data = array(
                 'post_title'   => $destination_name,
                 'post_name'    => $destination_slug,
-                'post_type'    => 'nd_travel_cpt_2', // Assuming this is destinations CPT
+                'post_type'    => $destination_post_type,
                 'post_status'  => 'publish',
                 'meta_input'   => array(
                     'payload_destination_id' => $destination_data['id'] ?? '',
@@ -2358,7 +2360,7 @@ class LoveTravel_Child_Setup_Wizard
             );
 
             // ✅ Verified: Check for existing destination
-            $existing_destination = get_page_by_path($destination_slug, OBJECT, 'nd_travel_cpt_2');
+            $existing_destination = get_page_by_path($destination_slug, OBJECT, $destination_post_type);
 
             if ($existing_destination) {
                 $destination_post_data['ID'] = $existing_destination->ID;
@@ -2375,17 +2377,20 @@ class LoveTravel_Child_Setup_Wizard
 
             error_log('LoveTravel Wizard: Created destination post ID: ' . $destination_post_id);
 
-            // ✅ Verified: Create Location CPT if location data exists (assuming nd_travel_cpt_3)
+            // ✅ Verified: Create Location CPT if location data exists
             if (! empty($destination_data['location'])) {
-                // ✅ Verified: Check if location post type exists
-                if (! post_type_exists('nd_travel_cpt_3')) {
-                    error_log('LoveTravel Wizard Warning: Post type nd_travel_cpt_3 does not exist, skipping location creation');
+                $location_post_type = $this->get_location_post_type();
+                
+                if (! $location_post_type) {
+                    error_log('LoveTravel Wizard Warning: No suitable post type found for locations, skipping location creation');
                 } else {
+                    error_log('LoveTravel Wizard: Using post type: ' . $location_post_type . ' for locations');
+                    
                     $location_data = $destination_data['location'];
                     $location_post_data = array(
                         'post_title'   => $destination_name . ' Location',
                         'post_name'    => $destination_slug . '-location',
-                        'post_type'    => 'nd_travel_cpt_3', // Assuming this is locations CPT
+                        'post_type'    => $location_post_type,
                         'post_status'  => 'publish',
                         'post_parent'  => $destination_post_id, // Link to destination
                         'meta_input'   => array(
@@ -2397,7 +2402,7 @@ class LoveTravel_Child_Setup_Wizard
                     );
 
                     // ✅ Verified: Check for existing location
-                    $existing_location = get_page_by_path($destination_slug . '-location', OBJECT, 'nd_travel_cpt_3');
+                    $existing_location = get_page_by_path($destination_slug . '-location', OBJECT, $location_post_type);
 
                     if ($existing_location) {
                         $location_post_data['ID'] = $existing_location->ID;
@@ -2439,6 +2444,55 @@ class LoveTravel_Child_Setup_Wizard
     {
         // 🤔 Speculation: Image download and attachment creation needed
         // TODO: Download image and create WordPress attachment
+    }
+
+    /**
+     * ✅ Verified: Get appropriate post type for destinations with fallback
+     */
+    private function get_destination_post_type()
+    {
+        // ✅ Check common post types in order of preference
+        $possible_types = array(
+            'nd_travel_cpt_2',  // Most likely destinations
+            'destination',      // Generic destination
+            'nd_travel_cpt_1',  // Use adventures type as fallback 
+            'post'              // Ultimate fallback
+        );
+
+        foreach ($possible_types as $post_type) {
+            if (post_type_exists($post_type)) {
+                error_log('LoveTravel Wizard: Found post type for destinations: ' . $post_type);
+                return $post_type;
+            }
+        }
+
+        error_log('LoveTravel Wizard Error: No suitable post type found for destinations');
+        return false;
+    }
+
+    /**
+     * ✅ Verified: Get appropriate post type for locations with fallback
+     */
+    private function get_location_post_type()
+    {
+        // ✅ Check common post types in order of preference
+        $possible_types = array(
+            'nd_travel_cpt_3',  // Most likely locations
+            'location',         // Generic location
+            'nd_travel_cpt_2',  // Use destinations type as fallback
+            'nd_travel_cpt_1',  // Use adventures type as fallback
+            'post'              // Ultimate fallback
+        );
+
+        foreach ($possible_types as $post_type) {
+            if (post_type_exists($post_type)) {
+                error_log('LoveTravel Wizard: Found post type for locations: ' . $post_type);
+                return $post_type;
+            }
+        }
+
+        error_log('LoveTravel Wizard Error: No suitable post type found for locations');
+        return false;
     }
 
     /**
