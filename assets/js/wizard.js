@@ -12,6 +12,14 @@
 	});
 
 	/**
+	 * ✅ NEW: Helper function to get button ID for a given step and action
+	 */
+	function getButtonId(step, action) {
+		var stepId = step === 'elementor_templates' ? 'elementor' : step.replace('_', '-');
+		return '#' + action + '-' + stepId + '-import';
+	}
+
+	/**
 	 * ✅ Verified: Initialize setup wizard functionality
 	 */
 	function initSetupWizard() {
@@ -110,8 +118,7 @@
 			   .text(loveTravelWizard.strings.importing);
 
 		// ✅ NEW: Show stop button and hide start button
-		var stopButtonId = '#stop-' + (step === 'elementor_templates' ? 'elementor' : step.replace('_', '-')) + '-import';
-		var $stopButton = $(stopButtonId);
+		var $stopButton = $(getButtonId(step, 'stop'));
 		$button.hide();
 		$stopButton.show();
 
@@ -566,14 +573,12 @@
 	 */
 	function handleStepSuccess(step, $button, data) {
 		// ✅ NEW: Hide stop button and show remove button
-		var stopButtonId = '#stop-' + (step === 'elementor_templates' ? 'elementor' : step.replace('_', '-')) + '-import';
-		var $stopButton = $(stopButtonId);
+		var $stopButton = $(getButtonId(step, 'stop'));
 		$stopButton.hide();
 		$button.hide(); // Hide start button
 		
 		// ✅ NEW: Show remove imports button
-		var removeButtonId = '#remove-' + (step === 'elementor_templates' ? 'elementor' : step.replace('_', '-')) + '-import';
-		var $removeButton = $(removeButtonId);
+		var $removeButton = $(getButtonId(step, 'remove'));
 		if ($removeButton.length) {
 			$removeButton.show();
 		}
@@ -608,8 +613,7 @@
 	 */
 	function handleStepError(step, $button, data) {
 		// ✅ NEW: Hide stop button and show start button
-		var stopButtonId = '#stop-' + (step === 'elementor_templates' ? 'elementor' : step.replace('_', '-')) + '-import';
-		var $stopButton = $(stopButtonId);
+		var $stopButton = $(getButtonId(step, 'stop'));
 		$stopButton.hide();
 		$button.show();
 		
@@ -906,8 +910,7 @@
 					$button.hide();
 					
 					// ✅ Show the Start Import button
-					var startButtonId = '#start-' + (step === 'elementor_templates' ? 'elementor' : step.replace('_', '-')) + '-import';
-					var $startButton = $(startButtonId);
+					var $startButton = $(getButtonId(step, 'start'));
 					$startButton.show().prop('disabled', false).removeClass('importing');
 					
 					// ✅ Remove the "Imported" status badge
@@ -971,8 +974,7 @@
 				if (response.success) {
 					// ✅ Update UI to reflect stopped state
 					$button.hide();
-					var startButtonId = '#start-' + (step === 'elementor_templates' ? 'elementor' : step.replace('_', '-')) + '-import';
-					var $startButton = $(startButtonId);
+					var $startButton = $(getButtonId(step, 'start'));
 					$startButton.show().prop('disabled', false).removeClass('importing').text($startButton.data('original-text') || 'Start Import');
 					
 					// ✅ Show success message
@@ -1007,9 +1009,9 @@
 	 * ✅ NEW: Reset progress indicators for a step
 	 */
 	function resetProgressIndicators(step) {
-		var progressId = step === 'elementor_templates' ? 'elementor' : step.replace('_', '-');
-		var progressSelector = '#' + progressId + '-progress';
-		var logSelector = '#' + progressId + '-log';
+		var stepId = step === 'elementor_templates' ? 'elementor' : step.replace('_', '-');
+		var progressSelector = '#' + stepId + '-progress';
+		var logSelector = '#' + stepId + '-log';
 		
 		$(progressSelector + ' .progress-fill').css('width', '0%');
 		$(progressSelector + ' .progress-text').text('0%');
