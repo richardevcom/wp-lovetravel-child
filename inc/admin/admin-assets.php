@@ -113,7 +113,7 @@ class LoveTravel_Admin_Assets
         }
 
         // ✅ Adventures Import page  
-        if ($hook_suffix === 'love-travel-theme_page_lovetravel-adventures-import') {
+        if ($hook_suffix === 'nd_travel_cpt_1_page_payload-adventures-import') {
             wp_enqueue_style('lovetravel-admin-tools');
             wp_enqueue_script('lovetravel-adventures-import');
             
@@ -124,8 +124,8 @@ class LoveTravel_Admin_Assets
             ));
         }
 
-        // ✅ Media Import page
-        if ($hook_suffix === 'love-travel-theme_page_lovetravel-media-import') {
+        // ✅ Media Import page (under Media menu)
+        if ($hook_suffix === 'media_page_payload-media-import') {
             wp_enqueue_style('lovetravel-admin-tools');
             wp_enqueue_script('lovetravel-payload-import');
             
@@ -136,8 +136,8 @@ class LoveTravel_Admin_Assets
             ));
         }
 
-        // ✅ Mailchimp Export page
-        if ($hook_suffix === 'love-travel-theme_page_lovetravel-mailchimp-export') {
+        // ✅ Mailchimp Export page (under Tools menu)
+        if ($hook_suffix === 'tools_page_payload-subscribers-export') {
             wp_enqueue_style('lovetravel-admin-tools');
             wp_enqueue_script('lovetravel-mailchimp-export');
             

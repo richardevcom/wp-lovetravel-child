@@ -142,7 +142,6 @@ class LoveTravel_Child_Setup_Wizard
 
                         <!-- Import Options -->
                         <div class="import-options-section">
-                            <h4><?php esc_html_e('Import Options', 'lovetravel-child'); ?></h4>
                             <div class="import-controls">
                                 <div class="option-group">
                                     <label for="template-collision-action"><?php esc_html_e('If template exists:', 'lovetravel-child'); ?></label>
@@ -205,7 +204,6 @@ class LoveTravel_Child_Setup_Wizard
 
                         <!-- Import Options -->
                         <div class="import-options-section">
-                            <h4><?php esc_html_e('Import Options', 'lovetravel-child'); ?></h4>
                             <div class="import-controls">
                                 <div class="option-group">
                                     <label for="adventure-collision-action"><?php esc_html_e('If adventure exists:', 'lovetravel-child'); ?></label>
@@ -285,7 +283,6 @@ class LoveTravel_Child_Setup_Wizard
 
                         <!-- Import Options -->
                         <div class="import-options-section">
-                            <h4><?php esc_html_e('Import Options', 'lovetravel-child'); ?></h4>
                             <div class="import-controls">
                                 <div class="option-group">
                                     <label for="media-file-collision-action"><?php esc_html_e('If media file exists:', 'lovetravel-child'); ?></label>
@@ -357,7 +354,6 @@ class LoveTravel_Child_Setup_Wizard
 
                         <!-- Import Options -->
                         <div class="import-options-section">
-                            <h4><?php esc_html_e('Import Options', 'lovetravel-child'); ?></h4>
                             <div class="import-controls">
                                 <div class="option-group">
                                     <label for="destination-collision-action"><?php esc_html_e('If destination exists:', 'lovetravel-child'); ?></label>
@@ -2350,12 +2346,12 @@ class LoveTravel_Child_Setup_Wizard
             // ✅ Verified: Create Location CPT if location data exists
             if (! empty($destination_data['location'])) {
                 $location_post_type = $this->get_location_post_type();
-                
+
                 if (! $location_post_type) {
                     error_log('LoveTravel Wizard Warning: No suitable post type found for locations, skipping location creation');
                 } else {
                     error_log('LoveTravel Wizard: Using post type: ' . $location_post_type . ' for locations');
-                    
+
                     $location_data = $destination_data['location'];
                     $location_post_data = array(
                         'post_title'   => $destination_name . ' Location',
