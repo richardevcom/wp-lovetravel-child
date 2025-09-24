@@ -158,11 +158,11 @@ class LoveTravel_Child_Setup_Wizard
                     <div class="postbox-header">
                         <h2 class="hndle">
                             <span><?php esc_html_e('Step 1: Import Elementor Templates', 'lovetravel-child'); ?></span>
+                            <?php $this->render_step_status('elementor_templates', $import_status); ?>
                         </h2>
                     </div>
                     <div class="inside">
                         <p><?php esc_html_e('Import pre-built Elementor templates for Adventures.', 'lovetravel-child'); ?></p>
-                        <?php $this->render_step_status('elementor_templates', $import_status); ?>
 
                         <!-- Import Options -->
                         <div class="import-options-section">
@@ -221,11 +221,11 @@ class LoveTravel_Child_Setup_Wizard
                     <div class="postbox-header">
                         <h2 class="hndle">
                             <span><?php esc_html_e('Step 2: Import Adventures', 'lovetravel-child'); ?></span>
+                            <?php $this->render_step_status('adventures', $import_status); ?>
                         </h2>
                     </div>
                     <div class="inside">
                         <p><?php esc_html_e('Import adventure content from Payload CMS with media files.', 'lovetravel-child'); ?></p>
-                        <?php $this->render_step_status('adventures', $import_status); ?>
 
                         <!-- Import Options -->
                         <div class="import-options-section">
@@ -301,11 +301,11 @@ class LoveTravel_Child_Setup_Wizard
                     <div class="postbox-header">
                         <h2 class="hndle">
                             <span><?php esc_html_e('Step 3: Import Media Files', 'lovetravel-child'); ?></span>
+                            <?php $this->render_step_status('media', $import_status); ?>
                         </h2>
                     </div>
                     <div class="inside">
                         <p><?php esc_html_e('Import all media files (images, PDFs, documents) from Payload CMS.', 'lovetravel-child'); ?></p>
-                        <?php $this->render_step_status('media', $import_status); ?>
 
                         <!-- Import Options -->
                         <div class="import-options-section">
@@ -373,11 +373,11 @@ class LoveTravel_Child_Setup_Wizard
                     <div class="postbox-header">
                         <h2 class="hndle">
                             <span><?php esc_html_e('Step 4: Import Destinations', 'lovetravel-child'); ?></span>
+                            <?php $this->render_step_status('destinations', $import_status); ?>
                         </h2>
                     </div>
                     <div class="inside">
                         <p><?php esc_html_e('Import destinations and locations from Payload CMS to WordPress CPTs.', 'lovetravel-child'); ?></p>
-                        <?php $this->render_step_status('destinations', $import_status); ?>
 
                         <!-- Import Options -->
                         <div class="import-options-section">
@@ -465,13 +465,7 @@ class LoveTravel_Child_Setup_Wizard
             // Success - minimal green checkmark with text
             echo '<span class="wizard-step-status wizard-step-completed">';
             echo '<span class="dashicons dashicons-yes-alt"></span>';
-            echo '<span>' . esc_html__('Completed', 'lovetravel-child') . '</span>';
-            
-            // Add step-specific completion info
-            $completion_info = $this->get_step_completion_info($step);
-            if ($completion_info) {
-                echo '<span>' . esc_html($completion_info) . '</span>';
-            }
+            echo '<span>' . esc_html__('Done', 'lovetravel-child') . '</span>';
             echo '</span>';
         } else {
             // Pending - minimal orange clock with text  

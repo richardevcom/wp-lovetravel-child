@@ -315,6 +315,36 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   line-height: 1.2;
 }
 
+/* ✅ Status badges when positioned in headers */
+.postbox-header .wizard-step-status {
+  margin: 0 0 0 12px;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.postbox-header .wizard-step-status .dashicons {
+  width: 14px;
+  height: 14px;
+  font-size: 14px !important;
+  margin-right: 3px;
+}
+
+/* Success badge styling */
+.postbox-header .wizard-step-completed {
+  background: rgba(0, 163, 42, 0.1);
+  border: 1px solid rgba(0, 163, 42, 0.3);
+}
+
+/* Pending badge styling */
+.postbox-header .wizard-step-pending {
+  background: rgba(245, 110, 40, 0.1);
+  border: 1px solid rgba(245, 110, 40, 0.3);
+}
+
 .wizard-step-status .dashicons {
   margin-right: 4px;
   width: 16px;
