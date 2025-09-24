@@ -579,7 +579,13 @@ class LoveTravel_Child_Setup_Wizard
             );
         }
 
-        $templates_path = LOVETRAVEL_CHILD_PATH . '/inc/templates/elementor/';
+        // Use the same directory as the helper class for consistency
+        if (class_exists('Lovetravel_Elementor_Templates_Helper')) {
+            $templates_path = Lovetravel_Elementor_Templates_Helper::template_dir();
+        } else {
+            $templates_path = LOVETRAVEL_CHILD_PATH . '/inc/templates/elementor/';
+        }
+        
         $imported_count = 0;
         $errors = array();
 
@@ -2954,9 +2960,10 @@ class LoveTravel_Child_Setup_Wizard
     {
         $removed_count = 0;
         $errors = array();
+        $debug_info = array();
 
         try {
-            // Query for Elementor templates that were imported by our wizard
+            // ✅ First try to find templates by our import meta
             $templates = get_posts(array(
                 'post_type' => 'elementor_library',
                 'posts_per_page' => -1,
@@ -2968,18 +2975,47 @@ class LoveTravel_Child_Setup_Wizard
                     )
                 )
             ));
+            
+            $debug_info[] = sprintf('Found %d templates with _lovetravel_imported meta', count($templates));
+
+            // ✅ If no templates found with meta, try to find by title matching our known templates
+            if (empty($templates)) {
+                $template_titles = array(
+                    'Adventure About Section',
+                    'Adventure Day Plan Program Section', 
+                    'Adventure Description Section',
+                    'Include Exclude Info Section'
+                );
+                
+                foreach ($template_titles as $title) {
+                    $found = get_posts(array(
+                        'post_type' => 'elementor_library',
+                        'title' => $title,
+                        'posts_per_page' => -1
+                    ));
+                    $templates = array_merge($templates, $found);
+                }
+                
+                $debug_info[] = sprintf('Found %d templates by title matching', count($templates));
+            }
 
             foreach ($templates as $template) {
                 if (wp_delete_post($template->ID, true)) {
                     $removed_count++;
+                    $debug_info[] = sprintf('Deleted: %s (ID: %d)', $template->post_title, $template->ID);
                 } else {
                     $errors[] = sprintf('Failed to delete template: %s (ID: %d)', $template->post_title, $template->ID);
                 }
             }
 
+            $message = sprintf('Successfully removed %d Elementor templates', $removed_count);
+            if (!empty($debug_info)) {
+                $message .= '. Debug: ' . implode('; ', $debug_info);
+            }
+
             return array(
                 'success' => true,
-                'message' => sprintf('Successfully removed %d Elementor templates', $removed_count),
+                'message' => $message,
                 'removed_count' => $removed_count,
                 'errors' => $errors
             );

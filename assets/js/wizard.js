@@ -77,6 +77,27 @@
 			e.preventDefault();
 			removeImports('destinations', $(this));
 		});
+
+		// ✅ NEW: Handle stop import buttons
+		$('#stop-elementor-import').on('click', function(e) {
+			e.preventDefault();
+			stopImport('elementor_templates', $(this));
+		});
+
+		$('#stop-adventure-import').on('click', function(e) {
+			e.preventDefault();
+			stopImport('adventures', $(this));
+		});
+
+		$('#stop-media-import').on('click', function(e) {
+			e.preventDefault();
+			stopImport('media', $(this));
+		});
+
+		$('#stop-destinations-import').on('click', function(e) {
+			e.preventDefault();
+			stopImport('destinations', $(this));
+		});
 	}
 
 	/**
@@ -87,6 +108,11 @@
 		$button.prop('disabled', true)
 			   .addClass('importing')
 			   .text(loveTravelWizard.strings.importing);
+
+		// ✅ NEW: Show stop button and hide start button
+		var $stopButton = $('#stop-' + step.replace('_', '-') + '-import');
+		$button.hide();
+		$stopButton.show();
 
 		var requestData = {
 			action: 'lovetravel_wizard_import_step',
@@ -538,10 +564,16 @@
 	 * ✅ Verified: Handle successful step completion
 	 */
 	function handleStepSuccess(step, $button, data) {
-		// ✅ Verified: Update UI
-		$button.removeClass('importing')
-			   .addClass('button-secondary')
-			   .text(loveTravelWizard.strings.complete);
+		// ✅ NEW: Hide stop button and show remove button
+		var $stopButton = $('#stop-' + step.replace('_', '-') + '-import');
+		$stopButton.hide();
+		$button.hide(); // Hide start button
+		
+		// ✅ NEW: Show remove imports button
+		var $removeButton = $('#remove-' + step.replace('_', '-') + '-import');
+		if ($removeButton.length) {
+			$removeButton.show();
+		}
 		
 		// ✅ Verified: Update status notice
 		var $postbox = $button.closest('.postbox');
@@ -551,6 +583,12 @@
 			   .addClass('notice-success')
 			   .find('p')
 			   .text(data.message || loveTravelWizard.strings.complete);
+		
+		// ✅ Verified: Add "Imported" badge to step title
+		var $stepTitle = $postbox.find('.hndle span').first();
+		if (!$stepTitle.find('.step-status.imported').length) {
+			$stepTitle.append('<span class="step-status imported">Imported</span>');
+		}
 		
 		// ✅ Verified: Show completion message
 		showAdminNotice('success', data.message);
@@ -563,6 +601,11 @@
 	 * ✅ Verified: Handle step error
 	 */
 	function handleStepError(step, $button, data) {
+		// ✅ NEW: Hide stop button and show start button
+		var $stopButton = $('#stop-' + step.replace('_', '-') + '-import');
+		$stopButton.hide();
+		$button.show();
+		
 		// ✅ Verified: Reset button state
 		$button.prop('disabled', false)
 			   .removeClass('importing')
@@ -893,6 +936,78 @@
 		
 		// ✅ Verified: Show error message
 		showAdminNotice('error', errorData.message || 'An error occurred while removing imports');
+	}
+
+	/**
+	 * ✅ NEW: Stop import process for a specific step
+	 */
+	function stopImport(step, $button) {
+		// ✅ Confirm with user before stopping
+		var stepName = step.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+		if (!confirm('Are you sure you want to stop the ' + stepName + ' import? This will cancel the current process.')) {
+			return;
+		}
+
+		// ✅ Update button state
+		var originalText = $button.text();
+		$button.prop('disabled', true)
+			   .addClass('stopping')
+			   .text('Stopping...');
+
+		// ✅ WordPress AJAX request
+		$.ajax({
+			url: loveTravelWizard.ajaxUrl,
+			type: 'POST',
+			data: {
+				action: 'lovetravel_wizard_stop_import',
+				step: step,
+				nonce: loveTravelWizard.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					// ✅ Update UI to reflect stopped state
+					$button.hide();
+					var $startButton = $('#start-' + step.replace('_', '-') + '-import');
+					$startButton.show().prop('disabled', false).removeClass('importing').text($startButton.data('original-text') || 'Start Import');
+					
+					// ✅ Show success message
+					showAdminNotice('success', response.data.message || stepName + ' import stopped successfully');
+					
+					// ✅ Clear any progress indicators
+					resetProgressIndicators(step);
+				} else {
+					handleStopError($button, originalText, response.data);
+				}
+			},
+			error: function(xhr, status, error) {
+				handleStopError($button, originalText, {message: 'Network error: ' + error});
+			}
+		});
+	}
+
+	/**
+	 * ✅ NEW: Handle stop import errors
+	 */
+	function handleStopError($button, originalText, errorData) {
+		// ✅ Restore button state
+		$button.prop('disabled', false)
+			   .removeClass('stopping')
+			   .text(originalText);
+		
+		// ✅ Show error message
+		showAdminNotice('error', errorData.message || 'An error occurred while stopping import');
+	}
+
+	/**
+	 * ✅ NEW: Reset progress indicators for a step
+	 */
+	function resetProgressIndicators(step) {
+		var progressSelector = '#' + step.replace('_', '-') + '-progress';
+		var logSelector = '#' + step.replace('_', '-') + '-log';
+		
+		$(progressSelector + ' .progress-fill').css('width', '0%');
+		$(progressSelector + ' .progress-text').text('0%');
+		$(logSelector).empty();
 	}
 
 })(jQuery);
