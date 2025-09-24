@@ -29,6 +29,7 @@ define('LOVETRAVEL_CHILD_URI', get_stylesheet_directory_uri());
 require_once LOVETRAVEL_CHILD_DIR . '/inc/class-theme-setup.php';
 require_once LOVETRAVEL_CHILD_DIR . '/inc/class-setup-wizard.php';
 require_once LOVETRAVEL_CHILD_DIR . '/inc/class-elementor-integration.php';
+require_once LOVETRAVEL_CHILD_DIR . '/inc/admin/admin-assets.php';
 
 /**
  * ✅ Verified: Initialize child theme

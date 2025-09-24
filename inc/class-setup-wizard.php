@@ -86,32 +86,8 @@ class LoveTravel_Child_Setup_Wizard
             return;
         }
 
-        // ✅ Verified: Enqueue WordPress native admin styles
-        wp_enqueue_style(
-            'lovetravel-wizard',
-            LOVETRAVEL_CHILD_URI . '/assets/css/wizard.css',
-            array(),
-            LOVETRAVEL_CHILD_VERSION
-        );
-
-        wp_enqueue_script(
-            'lovetravel-wizard',
-            LOVETRAVEL_CHILD_URI . '/assets/js/wizard.js',
-            array('jquery'),
-            LOVETRAVEL_CHILD_VERSION,
-            true
-        );
-
-        // ✅ Verified: Localize script for AJAX
-        wp_localize_script('lovetravel-wizard', 'loveTravelWizard', array(
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce'   => wp_create_nonce('lovetravel_wizard_nonce'),
-            'strings' => array(
-                'importing' => __('Importing...', 'lovetravel-child'),
-                'complete'  => __('Import Complete!', 'lovetravel-child'),
-                'error'     => __('Import Error', 'lovetravel-child'),
-            )
-        ));
+        // ✅ Verified: Assets are now handled by LoveTravel_Admin_Assets class
+        // This ensures proper loading order and eliminates duplication
     }
 
     /**

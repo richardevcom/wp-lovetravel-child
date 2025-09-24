@@ -3,8 +3,7 @@
 /**
  * Mailchimp Subscriber Export Tool
  *
- * This file handles exporting newsletter subscribers from Payload CMS API 
- * and preparing them for Mailchimp import.
+ * This file handles exporting newsletter subscribers from P        // ✅ Script loading and localization now handled by LoveTravel_Admin_Assets class and preparing them for Mailchimp import.
  * 
  * @package LoveTravel_Child
  * @version 1.0.0
@@ -106,15 +105,7 @@ class LoveTravel_Mailchimp_Subscriber_Export
             return;
         }
 
-        // Enqueue shared admin styles
-        if (file_exists(LOVETRAVEL_CHILD_DIR . '/assets/css/admin-tools.css')) {
-            wp_enqueue_style(
-                'lovetravel-admin-tools',
-                LOVETRAVEL_CHILD_URI . '/assets/css/admin-tools.css',
-                [],
-                LOVETRAVEL_CHILD_VERSION
-            );
-        }
+        // ✅ Assets are now handled by LoveTravel_Admin_Assets class
 
         // Enqueue externalized JS and localize config
         if (file_exists(LOVETRAVEL_CHILD_DIR . '/assets/js/admin-mailchimp-export.js')) {
