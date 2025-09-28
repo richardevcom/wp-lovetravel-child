@@ -185,7 +185,6 @@ class LoveTravel_Child_Setup_Wizard
                                 </button>
                             <?php else: ?>
                                 <button type="button" class="button button-secondary button-danger"
-                                    data-step="elementor_templates"
                                     id="remove-elementor-import">
                                     <?php esc_html_e('Remove Imports', 'lovetravel-child'); ?>
                                 </button>
@@ -255,7 +254,6 @@ class LoveTravel_Child_Setup_Wizard
                                 </button>
                             <?php else: ?>
                                 <button type="button" class="button button-secondary button-danger"
-                                    data-step="adventures"
                                     id="remove-adventure-import">
                                     <?php esc_html_e('Remove Imports', 'lovetravel-child'); ?>
                                 </button>
@@ -335,7 +333,6 @@ class LoveTravel_Child_Setup_Wizard
                                 </button>
                             <?php else: ?>
                                 <button type="button" class="button button-secondary button-danger"
-                                    data-step="media"
                                     id="remove-media-import">
                                     <?php esc_html_e('Remove Imports', 'lovetravel-child'); ?>
                                 </button>
@@ -407,7 +404,6 @@ class LoveTravel_Child_Setup_Wizard
                                 </button>
                             <?php else: ?>
                                 <button type="button" class="button button-secondary button-danger"
-                                    data-step="destinations"
                                     id="remove-destinations-import">
                                     <?php esc_html_e('Remove Imports', 'lovetravel-child'); ?>
                                 </button>

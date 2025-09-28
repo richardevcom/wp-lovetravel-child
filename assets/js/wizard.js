@@ -86,26 +86,7 @@
 			removeImports('destinations', $(this));
 		});
 
-		// ✅ NEW: Handle stop import buttons
-		$('#stop-elementor-import').on('click', function(e) {
-			e.preventDefault();
-			stopImport('elementor_templates', $(this));
-		});
-
-		$('#stop-adventure-import').on('click', function(e) {
-			e.preventDefault();
-			stopImport('adventures', $(this));
-		});
-
-		$('#stop-media-import').on('click', function(e) {
-			e.preventDefault();
-			stopImport('media', $(this));
-		});
-
-		$('#stop-destinations-import').on('click', function(e) {
-			e.preventDefault();
-			stopImport('destinations', $(this));
-		});
+		// ✅ REMOVED: Duplicate stop import handlers (already registered above)
 	}
 
 	/**
@@ -880,11 +861,17 @@
 	 * ✅ Verified: Remove imports for a specific step
 	 */
 	function removeImports(step, $button) {
+		// ✅ DEBUG: Log function call to ensure it's being triggered
+		console.log('removeImports called with step:', step, 'button:', $button);
+		
 		// ✅ Verified: Confirm with user before removing
 		var stepName = step.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
 		if (!confirm('Are you sure you want to remove all imported ' + stepName + '? This action cannot be undone.')) {
+			console.log('User cancelled removal');
 			return;
 		}
+		
+		console.log('User confirmed removal, proceeding with AJAX call');
 
 		// ✅ Verified: Update button state
 		var originalText = $button.text();
