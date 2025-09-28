@@ -1751,11 +1751,16 @@ class LoveTravel_Child_Setup_Wizard
      */
     private function import_media()
     {
+        // ✅ DEBUG: Log media import start
+        error_log('LoveTravel: Media import method called');
+        
         // ✅ PERFORMANCE: Check if we should skip downloads
         $skip_downloads = isset($_POST['skip_downloads']) && $_POST['skip_downloads'];
+        error_log('LoveTravel: Skip downloads = ' . ($skip_downloads ? 'true' : 'false'));
 
         // ✅ Verified: Start background media import process
         $this->start_background_media_import($skip_downloads);
+        error_log('LoveTravel: Background media import started');
 
         $message = $skip_downloads
             ? __('Media import started (skipping downloads for speed). You can safely leave this page.', 'lovetravel-child')
@@ -1805,8 +1810,12 @@ class LoveTravel_Child_Setup_Wizard
      */
     public function process_background_media_import()
     {
+        // ✅ DEBUG: Log background processing start
+        error_log('LoveTravel: Media background processing called');
+        
         // ✅ Verified: Get current progress
         $progress = get_option('lovetravel_media_import_progress', array());
+        error_log('LoveTravel: Media progress status = ' . ($progress['status'] ?? 'none'));
 
         if (empty($progress) || $progress['status'] === 'completed' || $progress['status'] === 'stopped') {
             return;
@@ -2128,8 +2137,12 @@ class LoveTravel_Child_Setup_Wizard
      */
     private function import_destinations()
     {
+        // ✅ DEBUG: Log destinations import start
+        error_log('LoveTravel: Destinations import method called');
+        
         // ✅ Verified: Start background destinations import process
         $this->start_background_destinations_import();
+        error_log('LoveTravel: Background destinations import started');
 
         return array(
             'success' => true,
@@ -2175,8 +2188,12 @@ class LoveTravel_Child_Setup_Wizard
      */
     public function process_background_destinations_import()
     {
+        // ✅ DEBUG: Log background processing start  
+        error_log('LoveTravel: Destinations background processing called');
+        
         // ✅ Verified: Get current progress
         $progress = get_option('lovetravel_destinations_import_progress', array());
+        error_log('LoveTravel: Destinations progress status = ' . ($progress['status'] ?? 'none'));
 
         if (empty($progress) || $progress['status'] === 'completed' || $progress['status'] === 'stopped') {
             return;

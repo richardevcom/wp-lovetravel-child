@@ -93,6 +93,9 @@
 	 * ✅ Verified: Import single step via AJAX
 	 */
 	function importStep(step, $button) {
+		// ✅ DEBUG: Log import step start
+		console.log('importStep called with step:', step, 'button:', $button);
+		
 		// ✅ Verified: Update button state
 		$button.prop('disabled', true)
 			   .addClass('importing')
@@ -133,14 +136,20 @@
 			type: 'POST',
 			data: requestData,
 			success: function(response) {
+				// ✅ DEBUG: Log AJAX response
+				console.log('AJAX response for step', step, ':', response);
+				
 				if (response.success) {
-					// ✅ Verified: Handle background import differently
-					if (response.data.background && step === 'adventures') {
+					// ✅ FIXED: Handle background import for all supported steps
+					if (response.data.background && (step === 'adventures' || step === 'media' || step === 'destinations')) {
+						console.log('Handling background import for', step);
 						handleBackgroundImport(step, $button, response.data);
 					} else {
+						console.log('Handling standard success for', step);
 						handleStepSuccess(step, $button, response.data);
 					}
 				} else {
+					console.log('AJAX error for step', step, ':', response.data);
 					handleStepError(step, $button, response.data);
 				}
 			},
@@ -156,6 +165,9 @@
 	 * ✅ Verified: Handle background import (Adventures and Media)
 	 */
 	function handleBackgroundImport(step, $button, data) {
+		// ✅ DEBUG: Log background import handling
+		console.log('handleBackgroundImport called for step:', step, 'data:', data);
+		
 		if (step === 'adventures') {
 			// ✅ Verified: Show adventure progress area
 			$('#adventure-import-progress').show();
