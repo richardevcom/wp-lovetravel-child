@@ -850,23 +850,37 @@
 	}
 
 	/**
-	 * ✅ Verified: Show WordPress admin notice (native styling)
+	 * ✅ FIXED: Show WordPress admin notice without auto-dismiss
 	 */
 	function showAdminNotice(type, message) {
+		// Use unified ImportUIManager if available
+		if (window.importUIManager) {
+			return window.importUIManager.showNotice(type, message);
+		}
+		
+		// Fallback for backward compatibility
 		var noticeClass = 'notice-' + type;
 		var $notice = $('<div class="notice ' + noticeClass + ' is-dismissible">' +
 						'<p>' + message + '</p>' +
+						'<button type="button" class="notice-dismiss">' +
+						'<span class="screen-reader-text">Dismiss this notice.</span>' +
+						'</button>' +
 						'</div>');
 		
 		// ✅ Verified: Insert after page title
 		$('.wp-heading-inline').after($notice);
 		
-		// ✅ Verified: Auto-dismiss after 5 seconds
-		setTimeout(function() {
-			$notice.fadeOut(500, function() {
+		// ✅ FIXED: Manual dismiss only - NO auto-dismiss timer
+		$notice.find('.notice-dismiss').on('click', function() {
+			$notice.fadeOut(300, function() {
 				$(this).remove();
 			});
-		}, 5000);
+		});
+		
+		// Accessibility: Announce to screen readers
+		$notice.attr('role', 'alert').attr('aria-live', 'polite');
+		
+		return $notice;
 	}
 
 	/**

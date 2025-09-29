@@ -47,12 +47,23 @@ class LoveTravel_Admin_Assets
             );
         }
 
+        // ✅ Verified: Register unified import UI manager (loads first)
+        if (!wp_script_is('lovetravel-import-ui', 'registered')) {
+            wp_register_script(
+                'lovetravel-import-ui',
+                LOVETRAVEL_CHILD_URI . '/assets/js/import-ui.js',
+                array('jquery'),
+                LOVETRAVEL_CHILD_VERSION,
+                true
+            );
+        }
+
         // ✅ Verified: Register admin JavaScript files
         if (!wp_script_is('lovetravel-wizard', 'registered')) {
             wp_register_script(
                 'lovetravel-wizard',
                 LOVETRAVEL_CHILD_URI . '/assets/js/wizard.js',
-                array('jquery'),
+                array('jquery', 'lovetravel-import-ui'), // Depends on ImportUIManager
                 LOVETRAVEL_CHILD_VERSION,
                 true
             );
@@ -62,7 +73,7 @@ class LoveTravel_Admin_Assets
             wp_register_script(
                 'lovetravel-adventures-import',
                 LOVETRAVEL_CHILD_URI . '/assets/js/admin-adventures-import.js',
-                array('jquery'),
+                array('jquery', 'lovetravel-import-ui'), // Depends on ImportUIManager
                 LOVETRAVEL_CHILD_VERSION,
                 true
             );
@@ -72,7 +83,7 @@ class LoveTravel_Admin_Assets
             wp_register_script(
                 'lovetravel-payload-import',
                 LOVETRAVEL_CHILD_URI . '/assets/js/admin-payload-import.js',
-                array('jquery'),
+                array('jquery', 'lovetravel-import-ui'), // Depends on ImportUIManager
                 LOVETRAVEL_CHILD_VERSION,
                 true
             );
@@ -98,6 +109,7 @@ class LoveTravel_Admin_Assets
         if ($hook_suffix === 'love-travel-theme_page_lovetravel-setup-wizard') {
             wp_enqueue_style('lovetravel-admin-tools');
             wp_enqueue_style('lovetravel-wizard');
+            wp_enqueue_script('lovetravel-import-ui'); // Load ImportUIManager first
             wp_enqueue_script('lovetravel-wizard');
             
             // Localize wizard script
@@ -115,6 +127,7 @@ class LoveTravel_Admin_Assets
         // ✅ Adventures Import page  
         if ($hook_suffix === 'nd_travel_cpt_1_page_payload-adventures-import') {
             wp_enqueue_style('lovetravel-admin-tools');
+            wp_enqueue_script('lovetravel-import-ui'); // Load ImportUIManager first
             wp_enqueue_script('lovetravel-adventures-import');
             
             // Localize adventures import script
@@ -127,6 +140,7 @@ class LoveTravel_Admin_Assets
         // ✅ Media Import page (under Media menu)
         if ($hook_suffix === 'media_page_payload-media-import') {
             wp_enqueue_style('lovetravel-admin-tools');
+            wp_enqueue_script('lovetravel-import-ui'); // Load ImportUIManager first
             wp_enqueue_script('lovetravel-payload-import');
             
             // Localize payload import script
