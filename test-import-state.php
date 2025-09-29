@@ -14,12 +14,26 @@ if (!current_user_can('manage_options')) {
     wp_die('Access denied');
 }
 
+// Load WordPress admin scripts for testing
+wp_enqueue_script('jquery');
+
+// Load our ImportUIManager
+wp_register_script(
+    'lovetravel-import-ui-test',
+    get_stylesheet_directory_uri() . '/assets/js/import-ui.js',
+    array('jquery'),
+    '1.0.0',
+    true
+);
+wp_enqueue_script('lovetravel-import-ui-test');
+
 // Header
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <title>Import Tool State Test</title>
+    <?php wp_head(); ?>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 40px; }
         .test-section { border: 1px solid #ccc; padding: 20px; margin: 20px 0; }
@@ -105,18 +119,29 @@ if (!current_user_can('manage_options')) {
     }
     echo '</div>';
     
-    // Test 3: Notice Display Test
+    // Test 3: ImportUIManager Integration Test
     echo '<div class="test-section">';
-    echo '<h2>Test 3: Notice Behavior Test</h2>';
-    echo '<button onclick="showTestNotice(\'success\', \'This is a success notice - should NOT auto-dismiss\')">Show Success Notice</button>';
-    echo '<button onclick="showTestNotice(\'error\', \'This is an error notice - should NOT auto-dismiss\')">Show Error Notice</button>';
-    echo '<button onclick="showTestNotice(\'warning\', \'This is a warning notice - should NOT auto-dismiss\')">Show Warning Notice</button>';
+    echo '<h2>Test 3: ImportUIManager Integration</h2>';
+    echo '<p><strong>Fixed:</strong> Auto-dismiss notices replaced with manual dismiss</p>';
+    echo '<button onclick="testImportUIManager(\'success\', \'ImportUIManager success - should NOT auto-dismiss\')">Test Success Notice</button>';
+    echo '<button onclick="testImportUIManager(\'error\', \'ImportUIManager error - should NOT auto-dismiss\')">Test Error Notice</button>';
+    echo '<button onclick="testImportUIManager(\'warning\', \'ImportUIManager warning - should NOT auto-dismiss\')">Test Warning Notice</button>';
+    echo '<button onclick="testLegacyNotice()">Test Legacy Function (showAdminNotice)</button>';
+    echo '<div id="importui-status"></div>';
+    echo '</div>';
+
+    // Test 4: Notice Display Test (Legacy)
+    echo '<div class="test-section">';
+    echo '<h2>Test 4: Notice Behavior Test (Fallback)</h2>';
+    echo '<button onclick="showTestNotice(\'success\', \'Fallback success notice - should NOT auto-dismiss\')">Show Success Notice</button>';
+    echo '<button onclick="showTestNotice(\'error\', \'Fallback error notice - should NOT auto-dismiss\')">Show Error Notice</button>';
+    echo '<button onclick="showTestNotice(\'warning\', \'Fallback warning notice - should NOT auto-dismiss\')">Show Warning Notice</button>';
     echo '<div id="notice-container"></div>';
     echo '</div>';
     
-    // Test 4: API Endpoint Test
+    // Test 5: API Endpoint Test
     echo '<div class="test-section">';
-    echo '<h2>Test 4: API Connectivity</h2>';
+    echo '<h2>Test 5: API Connectivity</h2>';
     echo '<button onclick="testAPIEndpoint(\'adventures\')">Test Adventures API</button>';
     echo '<button onclick="testAPIEndpoint(\'media\')">Test Media API</button>';
     echo '<button onclick="testAPIEndpoint(\'destinations\')">Test Destinations API</button>';
@@ -210,12 +235,59 @@ if (!current_user_can('manage_options')) {
                 });
         }
         
+        function testImportUIManager(type, message) {
+            const statusDiv = document.getElementById('importui-status');
+            
+            if (window.importUIManager) {
+                statusDiv.innerHTML = '<div class="status success">✅ ImportUIManager available</div>';
+                console.log('✅ ImportUIManager found:', window.importUIManager);
+                
+                // Use ImportUIManager
+                window.importUIManager.showNotice(type, message);
+                console.log('ImportUIManager showNotice called:', type, message);
+            } else {
+                statusDiv.innerHTML = '<div class="status error">❌ ImportUIManager not available</div>';
+                console.error('❌ ImportUIManager not found');
+                console.log('Available objects:', Object.keys(window).filter(k => k.includes('import') || k.includes('Import')));
+                
+                // Fallback to regular notice
+                showTestNotice(type, 'FALLBACK: ' + message);
+            }
+        }
+        
+        function testLegacyNotice() {
+            if (typeof showAdminNotice === 'function') {
+                console.log('✅ Testing legacy showAdminNotice function');
+                showAdminNotice('info', 'Legacy showAdminNotice test - should use ImportUIManager internally');
+            } else {
+                console.log('❌ showAdminNotice function not available');
+                showTestNotice('error', 'Legacy showAdminNotice function not found');
+            }
+        }
+        
+        // Enhanced logging for debugging
+        console.log('🔍 Import Tool State Test loaded');
+        console.log('Available window objects:', Object.keys(window).filter(k => 
+            k.includes('import') || k.includes('Import') || k.includes('Admin') || k.includes('Notice')
+        ));
+        
         // Log current setup wizard JavaScript if loaded
         if (typeof loveTravelWizard !== 'undefined') {
             console.log('Setup Wizard JS loaded:', loveTravelWizard);
         } else {
             console.log('Setup Wizard JS not loaded on this page');
         }
+        
+        // Check for ImportUIManager on page load
+        setTimeout(() => {
+            if (window.importUIManager) {
+                console.log('✅ ImportUIManager loaded successfully');
+                document.getElementById('importui-status').innerHTML = '<div class="status success">✅ ImportUIManager ready</div>';
+            } else {
+                console.log('❌ ImportUIManager not found after load');
+                document.getElementById('importui-status').innerHTML = '<div class="status warning">⚠️ ImportUIManager not loaded</div>';
+            }
+        }, 1000);
     </script>
 
     <div style="margin-top: 40px; padding: 20px; background: #fff3cd; border: 1px solid #ffeaa7;">

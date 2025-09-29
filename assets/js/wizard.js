@@ -565,15 +565,31 @@
 	 * ✅ Verified: Handle successful step completion
 	 */
 	function handleStepSuccess(step, $button, data) {
-		// ✅ NEW: Hide stop button and show remove button
+		// ✅ NEW: Hide stop button and start button
 		var $stopButton = $(getButtonId(step, 'stop'));
 		$stopButton.hide();
 		$button.hide(); // Hide start button
 		
-		// ✅ NEW: Show remove imports button
+		// ✅ FIXED: Create remove button if it doesn't exist, or show existing one
 		var $removeButton = $(getButtonId(step, 'remove'));
 		if ($removeButton.length) {
+			// Button already exists, just show it
 			$removeButton.show();
+		} else {
+			// Button doesn't exist, create it dynamically
+			var stepDisplayName = step.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+			var stepId = step === 'elementor_templates' ? 'elementor' : step.replace('_', '-');
+			var removeButtonId = 'remove-' + stepId + '-import';
+			
+			$removeButton = $('<button type="button" class="button button-secondary button-danger" id="' + removeButtonId + '">')
+				.text('Remove Imports')
+				.on('click', function(e) {
+					e.preventDefault();
+					removeImports(step, $(this));
+				});
+			
+			// Insert the remove button after the start button
+			$button.after($removeButton);
 		}
 		
 		// ✅ Verified: Update status notice
