@@ -1,0 +1,177 @@
+14:56:14.842 JQMIGRATE: Migrate is installed, version 3.4.1 load-scripts.php:5:981
+14:56:18.754 JQMIGRATE: Migrate is installed, version 3.4.1 jquery-migrate.min.js:2:981
+14:56:26.558 downloadable font: font-display timeout, webfont not used (font-family: "Inter" style:normal weight:300..900 stretch:100 src index:0) source: http://localhost:8080/wp-content/plugins/woocommerce/assets/fonts/Inter-VariableFont_slnt,wght.woff2
+14:56:35.122 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-02.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.122 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-02.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.122 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-02.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.123 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-02.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.124 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-02.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.124 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-03.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.124 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-03.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.124 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-03.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.124 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-03.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.124 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-03.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.125 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-03.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.125 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-03.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.125 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-03.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.125 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-03.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.125 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://travel.nicdark.com/city-tour/wp-content/uploads/sites/3/2023/04/icon-03.svg. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 200.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:35.152 Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+14:56:41.761 Uncaught TypeError: $(...).dialog is not a function
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:11
+    jQuery 14
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:7
+    jQuery 10
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:4
+    jQuery 3
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 5
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 2
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 14
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 6
+localhost:8080:11:58
+14:56:41.761 Uncaught TypeError: $(...).dialog is not a function
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:11
+    jQuery 14
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:7
+    jQuery 10
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:4
+    jQuery 3
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 5
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 2
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 14
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 6
+localhost:8080:11:62
+14:56:41.761 Uncaught TypeError: $(...).dialog is not a function
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:11
+    jQuery 14
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:7
+    jQuery 10
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:4
+    jQuery 3
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 5
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 2
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 14
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 6
+localhost:8080:11:58
+14:56:41.761 Uncaught TypeError: $(...).dialog is not a function
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:11
+    jQuery 14
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:7
+    jQuery 10
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:4
+    jQuery 3
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 5
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 2
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 14
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 6
+localhost:8080:11:62
+14:56:41.762 Uncaught TypeError: $(...).dialog is not a function
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:11
+    jQuery 14
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:7
+    jQuery 10
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:4
+    jQuery 3
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 5
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 2
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 14
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 6
+localhost:8080:11:58
+14:56:41.762 Uncaught TypeError: $(...).dialog is not a function
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:11
+    jQuery 14
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:7
+    jQuery 10
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:4
+    jQuery 3
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 5
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 2
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 14
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 6
+localhost:8080:11:62
+14:56:41.762 Uncaught TypeError: $(...).dialog is not a function
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:11
+    jQuery 14
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:7
+    jQuery 10
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:4
+    jQuery 3
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 5
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 2
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 14
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 6
+localhost:8080:11:58
+14:56:41.762 Uncaught TypeError: $(...).dialog is not a function
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:11
+    jQuery 14
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:7
+    jQuery 10
+    <anonymous> http://localhost:8080/?elementor-preview=4247&ver=1761306973 line 2 > injectedScript:4
+    jQuery 3
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 5
+    attachElContent http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 2
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 14
+    render http://localhost:8080/wp-content/plugins/elementor/assets/js/editor.min.js?ver=3.32.4:3
+    Backbone 6
+localhost:8080:11:62
+14:56:45.488 Cookie “__Secure-YEC” has been rejected because it is in a cross-site context and its “SameSite” is “Lax” or “Strict”. iframe_api
+14:56:49.921 Failed to execute ‘postMessage’ on ‘DOMWindow’: The target origin provided (‘https://www.youtube.com’) does not match the recipient window’s origin (‘http://localhost:8080’). localhost:8080
+14:56:50.167 Cookie “__Secure-YEC” has been rejected because it is in a cross-site context and its “SameSite” is “Lax” or “Strict”. 8Bm_nC3h3uI
+14:56:55.359 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://googleads.g.doubleclick.net/pagead/id. (Reason: CORS request did not succeed). Status code: (null).
+14:56:58.907 XHRPOST
+http://localhost:8080/wp-admin/admin-ajax.php
+[HTTP/1.1 500 Internal Server Error 408ms]
+

@@ -4,32 +4,12 @@ Description: Child theme of LoveTravel - A professional travel theme with custom
 Author: richardevcom
 Author URI: https://github.com/richardevcom
 Template: lovetravel
-Version: 1.0.0
-License: GPL v2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Version: 2.0.0
+License: To be determined
+License URI: 
 Tags: travel, tourism, business, one-column, two-columns, right-sidebar, custom-header, custom-menu, editor-style, featured-images, microformats, post-formats, rtl-language-support, sticky-post, translation-ready, accessibility-ready
 Text Domain: lovetravel-child
 */
-
-/**
- * ========================================
- * LoveTravel Child Theme Styles
- * ========================================
- * 
- * This stylesheet contains customizations for the LoveTravel child theme.
- * 
- * Table of Contents:
- * 1. Theme Variables
- * 2. Base Styles
- * 3. Typography
- * 4. Layout & Structure
- * 5. Components
- * 6. Responsive Design
- * 7. Custom Additions
- * 
- * @package LoveTravel_Child
- * @version 1.0.0
- */
 
 /* ===== 1. THEME VARIABLES ===== */
 :root {

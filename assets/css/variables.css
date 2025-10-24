@@ -1,0 +1,19 @@
+/**
+ * Shared CSS Variables
+ *
+ * CSS custom properties used across both admin and public contexts.
+ *
+ * @package LoveTravelChild
+ * @since   2.0.0
+ */
+
+:root {
+	/* Brand Colors */
+	--lovetravel-child-primary: #ea5b10;
+	--lovetravel-child-primary-hover: #d14f0a;
+	--lovetravel-child-background: #ffffff;
+	--lovetravel-child-text-primary: #000000;
+	--lovetravel-child-text-secondary: #363635;
+	--lovetravel-child-text-muted: #6e6e6e;
+	--lovetravel-child-border-light: #e8e6e1;
+}

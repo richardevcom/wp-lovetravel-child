@@ -1,0 +1,16 @@
+/**
+ * Public Scripts
+ *
+ * Frontend-specific JavaScript for LoveTravel Child Theme.
+ * Loaded at priority 20 to override parent theme and plugins.
+ *
+ * @package LoveTravelChild
+ * @since   2.0.0
+ */
+
+(function($) {
+	'use strict';
+
+	// Frontend scripts will be added here as needed
+
+})(jQuery);

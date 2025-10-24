@@ -8,6 +8,24 @@
 		},
 		{
 			"path": "../twentytwentyfive"
+		},
+		{
+			"path": "../../plugins/elementor-pro"
+		},
+		{
+			"path": "../../plugins/nd-elements"
+		},
+		{
+			"path": "../../plugins/nd-travel"
+		},
+		{
+			"path": "../../plugins/nd-shortcodes"
+		},
+		{
+			"path": "../../../../wordpress"
+		},
+		{
+			"path": "../../plugins/plugin-boilerplate"
 		}
 	],
 	"settings": {}

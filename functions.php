@@ -1,53 +1,40 @@
 <?php
-
 /**
- * LoveTravel Child Theme - Clean Bootstrap
- * ✅ Verified: WordPress 6.5+ coding standards, class-based architecture
- * 
- * @package LoveTravel_Child
+ * LoveTravel Child Theme
+ *
+ * Clean OOP bootstrap for child theme functionality.
+ * Architecture based on WordPress Plugin Boilerplate pattern.
+ *
+ * @package LoveTravelChild
  * @version 2.0.0
- * @author richardevcom
+ * @author  richardevcom
+ * @link    https://github.com/richardevcom
  */
 
-// ✅ Verified: Prevent direct access
-if (! defined('ABSPATH')) {
-    exit;
+// Prevent direct access
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /**
- * ✅ Verified: Child theme constants
+ * Theme constants
  */
-define('LOVETRAVEL_CHILD_VERSION', '2.0.0');
-define('LOVETRAVEL_CHILD_DIR', get_stylesheet_directory());
-define('LOVETRAVEL_CHILD_PATH', get_stylesheet_directory());
-define('LOVETRAVEL_CHILD_URI', get_stylesheet_directory_uri());
+define( 'LOVETRAVEL_CHILD_VERSION', '2.0.0' );
+define( 'LOVETRAVEL_CHILD_PATH', get_stylesheet_directory() );
+define( 'LOVETRAVEL_CHILD_URI', get_stylesheet_directory_uri() );
 
 /**
- * ✅ Verified: Load core theme functionality
- * Uses WordPress 6.5+ best practices with class-based architecture
+ * Load core theme class
  */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/class-theme-setup.php';
-require_once LOVETRAVEL_CHILD_DIR . '/inc/class-setup-wizard.php';
-require_once LOVETRAVEL_CHILD_DIR . '/inc/class-elementor-integration.php';
-require_once LOVETRAVEL_CHILD_DIR . '/inc/admin/admin-assets.php';
+require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child.php';
 
 /**
- * ✅ Verified: Initialize child theme
- * Modern WordPress architecture with proper instantiation
+ * Initialize and run the theme
+ *
+ * @since 2.0.0
  */
-function lovetravel_child_init()
-{
-    // Initialize core theme setup
-    new LoveTravel_Child_Theme_Setup();
-
-    // Initialize setup wizard (admin only)
-    if (is_admin()) {
-        new LoveTravel_Child_Setup_Wizard();
-    }
-
-    // Initialize Elementor integration (admin only)  
-    if (is_admin() && class_exists('\Elementor\Plugin')) {
-        new LoveTravel_Child_Elementor_Integration();
-    }
+function lovetravelChildRun() {
+	$theme = new LoveTravelChild();
+	$theme->run();
 }
-add_action('init', 'lovetravel_child_init');
+lovetravelChildRun();
