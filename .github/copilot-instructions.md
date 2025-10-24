@@ -544,9 +544,9 @@ elementor/
 ## CURRENT PROJECT STATE
 
 WordPress child theme extending LoveTravel parent theme with:
-- **Version**: 2.0.0
+- **Version**: 2.1.0 (Phase 1 migration complete)
 - **Base Architecture**: OOP structure (plugin-boilerplate pattern)
-- **Clean slate**: Previous temporary tools removed
+- **Folder Structure**: NEW - All Elementor code in dedicated `elementor/` folder
 - **Admin Settings**: Settings page under Appearance menu with template management
 - **i18n Ready**: Full translation support
 
@@ -557,41 +557,67 @@ WordPress child theme extending LoveTravel parent theme with:
 - ✅ Favicon system with Customizer integration
 - ✅ Taxonomy Manager class (modular, reusable)
 - ✅ Month taxonomy registered with all 12 months
-- ✅ Elementor Search widget extension (Month taxonomy integrated)
-- ✅ **Admin Notices framework (OOP, reusable)** ✅
-- ✅ **Elementor Template Importer (auto-import, dependency validation)** ✅
-- ⏳ CPT terminology overrides (to be added - currently NOT implemented in v2.0.0)
-- ⏳ Feature integrations (on-demand basis)
+- ✅ **PHASE 1 COMPLETE: Folder structure migration** ✅
+  - ✅ New `elementor/` folder with 6 subdirectories
+  - ✅ Elementor Manager class (centralized orchestrator)
+  - ✅ Widgets moved to `elementor/widgets/`
+  - ✅ Metaboxes moved to `elementor/metaboxes/`
+  - ✅ Templates moved to `elementor/templates/`
+  - ✅ JSON library moved to `elementor/library/`
+  - ✅ Old files backed up to `backup/deprecated-2025-10-25/`
+- ✅ Admin Notices framework (OOP, reusable)
+- ✅ Elementor Template Importer (auto-import, dependency validation)
+- ⏳ **PHASE 2 PENDING: Widget migration**
+  - ⏳ Replace Search extension with standalone widget
+  - ⏳ Replace Packages extension with standalone widget
+  - ⏳ Implement Dynamic Tags system
+  - ⏳ Implement Post Meta Manager
+- ⏳ CPT terminology overrides (to be added)
 
 **Known nd-travel Plugin Taxonomies**:
 - `nd_travel_cpt_1` - Main CPT (labeled "Packages" in plugin, should be "Adventures")
 - `nd_travel_cpt_1_tax_1` - Durations taxonomy (child theme overrides labels)
 - `nd_travel_cpt_1_tax_2` - Difficulty taxonomy (child theme overrides labels)
 - `nd_travel_cpt_1_tax_3` - Min Age taxonomy (child theme overrides labels)
-- `nd_travel_cpt_1_tax_4` - **Month taxonomy (NEW - registered by child theme, integrated into Elementor Search widget)** ✅
+- `nd_travel_cpt_1_tax_4` - **Month taxonomy (registered by child theme)** ✅
+- `nd_travel_cpt_2` - Typologies CPT (has custom Card Settings metabox)
 
 **Elementor Integration**:
-- Search widget extended via `elementor/element/Search/content_section_minages/after_section_end` hook
-- Month taxonomy controls injected (show/hide toggle, label, icon)
-- Widget render filter modifies output to include Month dropdown
-- Pattern: LoveTravelChildElementorSearchWidgetExtension class handles all Search widget modifications
-- **Template management system:**
-  - Auto-imports JSON templates from `/elementor-templates/` on theme activation
-  - Validates dependencies (parent theme, Elementor, Elementor Pro, nd-travel)
-  - Tracks imports to avoid duplicates
-  - Admin UI shows import status table
-  - Admin notices for import success/errors
+
+**NEW STRUCTURE (Phase 1 - October 25, 2025)**:
+- Centralized Elementor Manager (`elementor/class-lovetravel-child-elementor-manager.php`)
+- Custom widgets: Typology Card, Typology Cards (grid)
+- Metaboxes: Typology Card Settings (injected tab)
+- Template system: Auto-import JSON templates from `elementor/library/`
+- Admin UI: Import status table under Appearance → Child Theme
+
+**LEGACY (Phase 2 migration pending)**:
+- Search widget extension (hook-based, Month taxonomy integration)
+- Packages widget extension (hook-based, custom layout)
+- Located in `backup/deprecated-2025-10-25/` (still loaded for backwards compatibility)
+
+**Migration Notes**:
+- Git commit: c4f083f (October 25, 2025)
+- Backup folder: `backup/deprecated-2025-10-25/`
+- All PHP syntax validated
+- No breaking changes for existing pages (legacy extensions still work)
+- Future: Phase 2 will replace extensions with standalone widgets
 
 ---
 
 ## ELEMENTOR TEMPLATE MANAGEMENT (mandatory workflow)
 
-**Directory Structure**:
+**Directory Structure** (NEW - Phase 1):
 ```
-/elementor-templates/
+elementor/library/
 ├── sections/          # Reusable sections (hero sliders, search forms, CTAs)
-└── pages/             # Full page layouts
+│   ├── 01-hero-slider.json
+│   └── 02-search.json
+└── pages/             # Full page layouts (empty - add as needed)
 ```
+
+**OLD LOCATION** (deprecated):
+- `/elementor-templates/` → migrated to `/elementor/library/` (October 25, 2025)
 
 **Adding New Templates**:
 1. Export from Elementor UI (Tools → Export Template)
