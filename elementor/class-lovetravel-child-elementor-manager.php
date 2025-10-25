@@ -207,32 +207,45 @@ class LoveTravelChild_Elementor_Manager {
 				array(),
 				filemtime( $nd_travel_css )
 			);
-		}
 
-		// Add inline CSS to fix masonry layout in editor (float-based grid)
-		$inline_css = '
-			.elementor-editor-active .nd_travel_masonry_content {
-				display: block;
-				width: 100%;
-			}
-			.elementor-editor-active .nd_travel_masonry_item {
-				display: inline-block;
-				vertical-align: top;
-			}
-			.elementor-editor-active .nd_travel_width_25_percentage {
-				width: 25% !important;
-			}
-			.elementor-editor-active .nd_travel_width_33_percentage {
-				width: 33.33% !important;
-			}
-			.elementor-editor-active .nd_travel_width_50_percentage {
-				width: 50% !important;
-			}
-			.elementor-editor-active .nd_travel_width_100_percentage {
-				width: 100% !important;
-			}
-		';
-		wp_add_inline_style( 'nd-travel-editor', $inline_css );
+			// Add inline CSS to fix masonry layout in editor (float-based grid)
+			// Must be added AFTER the style is enqueued
+			$inline_css = '
+/* Elementor Editor Grid Fix for Packages Widget */
+.elementor-editor-active .nd_travel_masonry_content {
+	display: block !important;
+	width: 100% !important;
+}
+.elementor-editor-active .nd_travel_masonry_item {
+	display: inline-block !important;
+	vertical-align: top !important;
+	float: left !important;
+}
+.elementor-editor-active .nd_travel_width_25_percentage {
+	width: 25% !important;
+	max-width: 25% !important;
+}
+.elementor-editor-active .nd_travel_width_33_percentage {
+	width: 33.33% !important;
+	max-width: 33.33% !important;
+}
+.elementor-editor-active .nd_travel_width_50_percentage {
+	width: 50% !important;
+	max-width: 50% !important;
+}
+.elementor-editor-active .nd_travel_width_100_percentage {
+	width: 100% !important;
+	max-width: 100% !important;
+}
+/* Clear floats */
+.elementor-editor-active .nd_travel_masonry_content::after {
+	content: "";
+	display: table;
+	clear: both;
+}
+			';
+			wp_add_inline_style( 'nd-travel-editor', $inline_css );
+		}
 	}
 
 	/**
