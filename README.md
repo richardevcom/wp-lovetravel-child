@@ -1,53 +1,293 @@
-# LoveTravel Child Theme
+# LoveTravel Child Theme v2.2.0
 
-[![WordPress](https://img.shields.io/badge/WordPress-6.4+-blue.svg)](https://wordpress.org/)
+[![WordPress](https://img.shields.io/badge/WordPress-6.8+-blue.svg)](https://wordpress.org/)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-purple.svg)](https://php.net/)
+[![Version](https://img.shields.io/badge/Version-2.2.0-green.svg)]()
 
-A professional WordPress child theme extending the LoveTravel theme with custom enhancements for tribetravel.eu. This theme provides advanced integration with Payload CMS, Elementor page builder, and specialized travel industry tools.
+A professional WordPress child theme extending the LoveTravel parent theme with custom Elementor widgets, Dynamic Tags, and enhanced travel functionality for tribetravel.eu.
 
-## 🌟 Features
+## 🎯 Overview
 
-### Core Functionality
+This child theme provides **standalone custom Elementor widgets** that replace and enhance the parent theme's functionality. Built using **WordPress Plugin Boilerplate architecture** for maintainability and scalability.
 
-- **WordPress Child Theme**: Proper inheritance from LoveTravel parent theme
-- **Travel Industry Focus**: Custom post type overrides for "Adventures" (instead of generic "Travel")
-- **Translation Ready**: Full i18n support with `lovetravel-child` text domain
-- **Accessibility Ready**: Follows WordPress accessibility standards
-- **Modern PHP**: Compatible with PHP 7.4+ and follows WordPress coding standards
+### Key Features
 
-### Content Management
+- ✅ **Standalone Elementor Widgets** (no dependencies on parent widgets)
+- ✅ **Dynamic Tags System** for WordPress ↔ Elementor sync
+- ✅ **AJAX Load More** pagination with masonry support
+- ✅ **Month Taxonomy** integration for travel seasons
+- ✅ **Admin Settings Panel** for template management
+- ✅ **Auto-import Elementor Templates** on theme activation
 
-- **Adventure Management**: Enhanced CPT labels and taxonomy overrides
-  - Custom post type: `nd_travel_cpt_1` → "Adventures"
-  - Taxonomy overrides: Duration, Difficulty, Month
-  - Automatic permalink structure updates
-- **Elementor Integration**: Pre-built templates and import utilities
-- **Custom Meta Fields**: Adventure pricing, availability, and booking details
+---
 
-### Admin Tools & Integrations
+## 📁 Project Structure
 
-#### 🎨 Elementor Templates
+### Architecture Pattern: WordPress Plugin Boilerplate
 
-- **Pre-built Sections**: Ready-to-use adventure page sections
-  - Include/Exclude info section
-  - Adventure About section
-  - Adventure Description section
-  - Day Plan/Program section (toggle itinerary)
-- **Template Importer**: Easy import via WP Admin interface
-- **Library Integration**: Seamless Elementor Library compatibility
+```
+lovetravel-child/
+├── functions.php                    # Bootstrap (loads main class)
+├── style.css                        # Theme header + CSS variables
+├── includes/                        # Core functionality
+│   ├── class-lovetravel-child.php   # Main orchestrator class
+│   ├── class-lovetravel-child-loader.php  # Hook manager
+│   ├── class-lovetravel-child-i18n.php    # Internationalization
+│   ├── class-lovetravel-child-taxonomy-manager.php  # Custom taxonomies
+│   └── helpers.php                  # Utility functions
+├── admin/                           # Admin-only functionality
+│   ├── class-lovetravel-child-admin.php           # Admin hooks/pages
+│   ├── partials/settings-page.php  # Settings page template
+│   └── assets/                      # Admin CSS/JS
+├── public/                          # Frontend-only functionality
+│   ├── class-lovetravel-child-public.php          # Frontend hooks
+│   └── assets/                      # Frontend CSS/JS
+├── elementor/                       # Elementor integration (CORE)
+│   ├── class-lovetravel-child-elementor-manager.php  # Elementor orchestrator
+│   ├── widgets/                     # Custom Elementor widgets
+│   ├── dynamic-tags/                # Dynamic Tags for WP ↔ Elementor sync
+│   ├── post-meta/                   # Post meta registration
+│   ├── metaboxes/                   # WordPress admin metaboxes
+│   ├── templates/                   # Widget layout templates
+│   └── library/                     # JSON templates (auto-import)
+└── assets/                          # Shared assets (admin + public)
+    ├── css/variables.css            # CSS custom properties
+    ├── js/common.js                 # Shared JavaScript
+    └── favicon/                     # Favicon files
+```
 
-#### 📧 Mailchimp Integration
+---
 
-- **Subscriber Export**: Export newsletter subscribers from Payload CMS
-- **Mailchimp Compatible**: CSV format optimized for Mailchimp import
-- **Advanced Filtering**: Date ranges, subscription status, batch processing
-- **Real-time Statistics**: Live subscriber counts and analytics
-- **AJAX Interface**: Smooth, non-blocking export process
-- **Admin Menu**: Integrated under Mailchimp for WP plugin
+## 🧩 Custom Elementor Widgets
 
-#### 🔄 Payload CMS Sync Tools
+### Standalone Widgets (No Parent Dependencies)
 
-##### Media Import
+| Widget | Purpose | Key Features |
+|--------|---------|-------------|
+| **Adventure Search** | Travel search form | 8 content sections, 6 style sections, Month taxonomy |
+| **Adventure Packages** | Package listings | Load More pagination, masonry grid, nd-travel 1:1 controls |
+| **Typology Card** | Single adventure type card | Dynamic Tags integration, custom meta fields |
+| **Typology Cards** | Grid of adventure types | Responsive grid, custom styling options |
+
+### Advanced Features
+
+#### AJAX Load More (Packages Widget)
+- **Nonce Security**: `lovetravel_load_more_nonce` verification
+- **Masonry Re-init**: Proper grid layout after loading
+- **Editor Support**: Context detection for Elementor preview
+- **Error Handling**: User-friendly error messages
+
+#### Dynamic Tags System
+- **WordPress ↔ Elementor Sync**: Edit in WordPress admin OR Elementor
+- **REST API Integration**: `show_in_rest: true` for modern compatibility
+- **Tag Types**: Text, Image, Color, URL
+- **Use Case**: Typology card icons, colors, descriptions
+
+---
+
+## 🛠️ Installation & Setup
+
+### Prerequisites
+
+- WordPress 6.8+
+- PHP 8.2+
+- **LoveTravel parent theme** (active)
+- **Elementor** + **Elementor Pro**
+- **nd-travel plugin** (for travel functionality)
+
+### Installation
+
+1. **Upload child theme** to `/wp-content/themes/lovetravel-child/`
+2. **Activate child theme** in WordPress admin
+3. **Auto-import runs**: Elementor templates imported automatically
+4. **Check import status**: Go to **Appearance → Child Theme**
+
+### First Use
+
+1. **Add widgets**: Go to Elementor editor, find "LoveTravel Child" category
+2. **Replace old widgets**: Replace any nd-travel widgets with child theme versions
+3. **Configure settings**: Visit **Appearance → Child Theme** for options
+4. **Test Load More**: Add Packages widget, enable Load More, test functionality
+
+---
+
+## 📋 Usage Guide
+
+### Adding Widgets in Elementor
+
+1. **Open Elementor editor** on any page/post
+2. **Find category**: Look for "LoveTravel Child" in widget panel
+3. **Drag & drop**: Add widgets to your layout
+4. **Configure**: Use controls panel to customize
+
+### Widget-Specific Guides
+
+#### Adventure Search Widget
+- **Content Controls**: 8 sections (Main Options, Keyword, Destinations, etc.)
+- **Style Controls**: 6 sections (Content, Label, Fields, Submit, Columns, Icons)
+- **Month Integration**: Automatically shows months if Month taxonomy has terms
+
+#### Adventure Packages Widget
+- **Layout Options**: 1-4 columns, various layouts
+- **Load More**: Enable via switcher, customize button text and posts per load
+- **Filtering**: By destination, typology, or specific package IDs
+
+#### Typology Widgets
+- **Meta Integration**: Use WordPress metaboxes OR Dynamic Tags
+- **Card Settings**: Icon URL, color, description (syncs between WP and Elementor)
+
+### Admin Settings
+
+**Location**: Appearance → Child Theme
+
+- **Template Status**: View Elementor template import status
+- **Dependencies**: Check if required plugins are active
+- **Documentation**: Links to Elementor Library
+
+---
+
+## 🎨 Customization
+
+### CSS Variables
+
+**File**: `assets/css/variables.css`
+
+```css
+:root {
+    --primary-color: #EA5B10;    /* Adventure Orange */
+    --secondary-color: #2E5BBA;  /* Adventure Blue */
+    --accent-color: #28A745;     /* Success Green */
+    /* Add custom properties here */
+}
+```
+
+### Adding Custom Widgets
+
+1. **Create widget class** in `elementor/widgets/`
+2. **Follow naming**: `class-widget-name-widget.php`
+3. **Register in manager**: Add to `register_widgets()` method
+4. **Create templates**: Add layout files in `elementor/templates/`
+
+### Extending Dynamic Tags
+
+1. **Create tag class** in `elementor/dynamic-tags/`
+2. **Register meta field** in `post-meta/class-post-meta-manager.php`
+3. **Add to tags manager**: Register in `register_tags()` method
+
+---
+
+## 🧪 Development
+
+### Local Development Setup
+
+```bash
+# Clone repository
+git clone [repository-url] lovetravel-child
+cd lovetravel-child
+
+# Activate theme (via WordPress admin)
+# Check debug.log for errors
+tail -f /path/to/wp-content/debug.log
+```
+
+### Debugging
+
+1. **Enable WordPress debugging** in `wp-config.php`:
+   ```php
+   define('WP_DEBUG', true);
+   define('WP_DEBUG_LOG', true);
+   ```
+
+2. **Check logs**: Monitor `/wp-content/debug.log`
+
+3. **Test widgets**: Use Elementor editor preview and frontend
+
+4. **AJAX testing**: Check browser Network tab for Load More requests
+
+### Code Standards
+
+- **WordPress Coding Standards** (WPCS)
+- **Plugin Boilerplate architecture**
+- **Security**: Nonce verification, sanitization, escaping
+- **Accessibility**: ARIA labels, keyboard navigation
+
+---
+
+## 📚 Changelog
+
+### v2.2.0 (October 25, 2025) - Current
+
+#### ✨ New Features
+- **Load More pagination** for Packages widget with AJAX
+- **Masonry re-initialization** for proper grid layouts
+- **Editor context detection** for Elementor preview
+
+#### 🐛 Bug Fixes
+- Fixed grid layout in Elementor editor
+- Fixed modal rendering in editor preview
+- Removed gray background overlay on widgets
+
+#### � Improvements
+- Complete legacy code cleanup
+- Updated documentation
+- Performance optimizations
+
+### v2.1.0 (October 25, 2025)
+
+#### 🏗️ Architecture
+- **Folder structure migration** to plugin-boilerplate pattern
+- **Dynamic Tags system** implementation
+- **Post Meta Manager** with REST API integration
+
+### v2.0.0 (October 25, 2025)
+
+#### 🎯 Major Refactor
+- **Standalone widgets** replacing hook-based extensions
+- **Search widget** with complete style controls
+- **Packages widget** with nd-travel 1:1 feature parity
+- **OOP architecture** using WordPress Plugin Boilerplate
+
+---
+
+## 🆘 Support
+
+### Common Issues
+
+**Q: Widgets not appearing in Elementor**
+A: Check if Elementor and parent theme are active. Visit Appearance → Child Theme to verify dependencies.
+
+**Q: Load More not working**
+A: Check browser console for JavaScript errors. Verify AJAX URL and nonce in Network tab.
+
+**Q: Templates not imported**
+A: Deactivate and reactivate the child theme to trigger auto-import.
+
+### Getting Help
+
+1. **Check debug.log** for PHP errors
+2. **Test with default theme** to isolate issues
+3. **Disable other plugins** to check for conflicts
+4. **Review documentation** in `.github/copilot-instructions.md`
+
+---
+
+## 📄 License
+
+This project follows the same license as the parent LoveTravel theme.
+
+---
+
+## 🔗 Links
+
+- **WordPress Codex**: [Child Themes](https://developer.wordpress.org/themes/advanced-topics/child-themes/)
+- **Elementor Developers**: [Custom Widgets](https://developers.elementor.com/docs/widgets/)
+- **Plugin Boilerplate**: [WordPress Plugin Boilerplate](https://github.com/DevinVinson/WordPress-Plugin-Boilerplate)
+
+---
+
+**Last Updated**: October 25, 2025  
+**Version**: 2.2.0  
+**Compatibility**: WordPress 6.8+, Elementor 3.0+
 
 - **Bulk Media Import**: Import media files from Payload CMS to WordPress
 - **Background Processing**: Non-blocking batch import with progress tracking
