@@ -98,129 +98,133 @@ if ( $nd_travel_terms_tax != null ) {
 $nd_travel_gallery_icon = '';
 $nd_travel_map_icon = '';
 
+// Only render modals and scripts on frontend (not in Elementor editor)
+if ( ! isset( $is_edit_mode ) || ! $is_edit_mode ) {
+
+	//galllery icon and dialog
+	if ( $nd_travel_meta_box_featured_image_replace != '' ) { 
+	  $nd_travel_gallery_icon = '
+
+	  <script type="text/javascript">
+	    //<![CDATA[
+	    
+	    jQuery(document).ready(function() {
+
+	      //START masonry
+	      jQuery(function ($) {
+	        
+
+	        //dialog
+	        $( "#nd_travel_search_page_l3_contact_dialog_'.$nd_travel_id.'" ).dialog({
+	          
+	          autoOpen: false,
+	          dialogClass: "no-close",
+	          height: "auto",
+	          width: 900,
+	          classes: {
+	            "ui-dialog": "nd_travel_search_page_l3_contact_dialog nd_travel_max_width_100_percentage nd_travel_position_absolute"
+	          }
+	        });
+
+	        //show on click
+	        $( ".nd_travel_search_page_l3_contact_icon_'.$nd_travel_id.'" ).on( "click", function() {
+	          
+	          $( "body" ).addClass( "nd_travel_dialog_filter" );
+	          $("#nd_travel_search_page_l3_contact_dialog_'.$nd_travel_id.' .nd_travel_dialog_form_package_field").val("'.$nd_travel_title.' - '.__('ID','nd-travel').' : '.$nd_travel_id.'");
+	          $( "#nd_travel_search_page_l3_contact_dialog_'.$nd_travel_id.'" ).dialog( "open" );
+
+	        });
+
+	        $( "#nd_travel_dialog_contact_close_'.$nd_travel_id.'" ).on( "click", function() {
+				$( "#nd_travel_search_page_l3_contact_dialog_'.$nd_travel_id.'" ).dialog( "close" );
+				$( "body" ).removeClass( "nd_travel_dialog_filter" );
+			});
 
 
-//galllery icon and dialog
-if ( $nd_travel_meta_box_featured_image_replace != '' ) { 
-  $nd_travel_gallery_icon = '
+	      });
+	      //END masonry
 
-  <script type="text/javascript">
-    //<![CDATA[
-    
-    jQuery(document).ready(function() {
+	    });
 
-      //START masonry
-      jQuery(function ($) {
-        
-
-        //dialog
-        $( "#nd_travel_search_page_l3_contact_dialog_'.$nd_travel_id.'" ).dialog({
-          
-          autoOpen: false,
-          dialogClass: "no-close",
-          height: "auto",
-          width: 900,
-          classes: {
-            "ui-dialog": "nd_travel_search_page_l3_contact_dialog nd_travel_max_width_100_percentage nd_travel_position_absolute"
-          }
-        });
-
-        //show on click
-        $( ".nd_travel_search_page_l3_contact_icon_'.$nd_travel_id.'" ).on( "click", function() {
-          
-          $( "body" ).addClass( "nd_travel_dialog_filter" );
-          $("#nd_travel_search_page_l3_contact_dialog_'.$nd_travel_id.' .nd_travel_dialog_form_package_field").val("'.$nd_travel_title.' - '.__('ID','nd-travel').' : '.$nd_travel_id.'");
-          $( "#nd_travel_search_page_l3_contact_dialog_'.$nd_travel_id.'" ).dialog( "open" );
-
-        });
-
-        $( "#nd_travel_dialog_contact_close_'.$nd_travel_id.'" ).on( "click", function() {
-			$( "#nd_travel_search_page_l3_contact_dialog_'.$nd_travel_id.'" ).dialog( "close" );
-			$( "body" ).removeClass( "nd_travel_dialog_filter" );
-		});
+	    //]]>
+	  </script>
 
 
-      });
-      //END masonry
+	  <i style="color:'.$nd_travel_meta_box_color.'" class="fas fa-envelope nd_travel_font_size_15 nd_travel_float_right nd_travel_margin_top_6 nd_travel_margin_left_15 nd_travel_margin_0 nd_travel_cursor_pointer nd_travel_search_page_l3_contact_icon_'.$nd_travel_id.'"></i>
 
-    });
+	  <div id="nd_travel_search_page_l3_contact_dialog_'.$nd_travel_id.'">
+	    
+	  '.do_shortcode($nd_travel_meta_box_featured_image_replace).'  
 
-    //]]>
-  </script>
+	  <i class="fas fa-times nd_travel_dialog_close" style="background-color:'.$nd_travel_meta_box_color.'" id="nd_travel_dialog_contact_close_'.$nd_travel_id.'""></i>
 
+	  </div>
 
-  <i style="color:'.$nd_travel_meta_box_color.'" class="fas fa-envelope nd_travel_font_size_15 nd_travel_float_right nd_travel_margin_top_6 nd_travel_margin_left_15 nd_travel_margin_0 nd_travel_cursor_pointer nd_travel_search_page_l3_contact_icon_'.$nd_travel_id.'"></i>
-
-  <div id="nd_travel_search_page_l3_contact_dialog_'.$nd_travel_id.'">
-    
-  '.do_shortcode($nd_travel_meta_box_featured_image_replace).'  
-
-  <i class="fas fa-times nd_travel_dialog_close" style="background-color:'.$nd_travel_meta_box_color.'" id="nd_travel_dialog_contact_close_'.$nd_travel_id.'""></i>
-
-  </div>
-
-  '; 
-}
+	  '; 
+	}
 
 
-//map icon and dialog
-if ( $nd_travel_meta_box_tab_map_content != '' ) { 
-  $nd_travel_map_icon = '
-  <script type="text/javascript">
-    //<![CDATA[
-    
-    jQuery(document).ready(function() {
+	//map icon and dialog
+	if ( $nd_travel_meta_box_tab_map_content != '' ) { 
+	  $nd_travel_map_icon = '
 
-      //START masonry
-      jQuery(function ($) {
-        
+	  <script type="text/javascript">
+	    //<![CDATA[
+	    
+	    jQuery(document).ready(function() {
 
-        //dialog
-        $( "#nd_travel_search_page_l3_map_dialog_'.$nd_travel_id.'" ).dialog({
-          
-          autoOpen: false,
-          dialogClass: "no-close",
-          height: "auto",
-          width: 900,
-          classes: {
-            "ui-dialog": "nd_travel_search_page_l3_map_dialog nd_travel_max_width_100_percentage nd_travel_position_absolute"
-          }
-        });
+	      //START masonry
+	      jQuery(function ($) {
+	        
 
-        //show on click
-        $( ".nd_travel_search_page_l3_map_icon_'.$nd_travel_id.'" ).on( "click", function() {
-          $( "body" ).addClass( "nd_travel_dialog_filter" );
-          $( "#nd_travel_search_page_l3_map_dialog_'.$nd_travel_id.'" ).dialog( "open" );
-        });
+	        //dialog
+	        $( "#nd_travel_search_page_l3_map_dialog_'.$nd_travel_id.'" ).dialog({
+	          
+	          autoOpen: false,
+	          dialogClass: "no-close",
+	          height: "auto",
+	          width: 900,
+	          classes: {
+	            "ui-dialog": "nd_travel_search_page_l3_map_dialog nd_travel_max_width_100_percentage nd_travel_position_absolute"
+	          }
+	        });
 
-        $( "#nd_travel_dialog_map_close_'.$nd_travel_id.'" ).on( "click", function() {
-			$( "#nd_travel_search_page_l3_map_dialog_'.$nd_travel_id.'" ).dialog( "close" );
-			$( "body" ).removeClass( "nd_travel_dialog_filter" );
-		});
+	        //show on click
+	        $( ".nd_travel_search_page_l3_map_icon_'.$nd_travel_id.'" ).on( "click", function() {
+	          $( "body" ).addClass( "nd_travel_dialog_filter" );
+	          $( "#nd_travel_search_page_l3_map_dialog_'.$nd_travel_id.'" ).dialog( "open" );
+	        });
 
-
-      });
-      //END masonry
-
-    });
-
-    //]]>
-  </script>
+	        $( "#nd_travel_dialog_map_close_'.$nd_travel_id.'" ).on( "click", function() {
+				$( "#nd_travel_search_page_l3_map_dialog_'.$nd_travel_id.'" ).dialog( "close" );
+				$( "body" ).removeClass( "nd_travel_dialog_filter" );
+			});
 
 
-  <i style="color:'.$nd_travel_meta_box_color.'" class="fas fa-route nd_travel_font_size_15 nd_travel_float_right nd_travel_margin_top_6 nd_travel_margin_left_15 nd_travel_margin_0 nd_travel_cursor_pointer nd_travel_search_page_l3_map_icon_'.$nd_travel_id.'"></i>
+	      });
+	      //END masonry
 
-  <div id="nd_travel_search_page_l3_map_dialog_'.$nd_travel_id.'">
-    
-  '.$nd_travel_meta_box_tab_map_content.' 
+	    });
 
-  <i class="fas fa-times nd_travel_dialog_close" style="background-color:'.$nd_travel_meta_box_color.'" id="nd_travel_dialog_map_close_'.$nd_travel_id.'""></i>
-
-  </div>
+	    //]]>
+	  </script>
 
 
-  '; 
-}
+	  <i style="color:'.$nd_travel_meta_box_color.'" class="fas fa-route nd_travel_font_size_15 nd_travel_float_right nd_travel_margin_top_6 nd_travel_margin_left_15 nd_travel_margin_0 nd_travel_cursor_pointer nd_travel_search_page_l3_map_icon_'.$nd_travel_id.'"></i>
+
+	  <div id="nd_travel_search_page_l3_map_dialog_'.$nd_travel_id.'">
+	    
+	  '.$nd_travel_meta_box_tab_map_content.' 
+
+	  <i class="fas fa-times nd_travel_dialog_close" style="background-color:'.$nd_travel_meta_box_color.'" id="nd_travel_dialog_map_close_'.$nd_travel_id.'""></i>
+
+	  </div>
+
+
+	  '; 
+	}
+
+} // End edit mode check
 
 
 /*START preview*/

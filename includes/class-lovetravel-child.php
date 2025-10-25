@@ -86,8 +86,9 @@ class LoveTravelChild {
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-favicon.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-admin-notices.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-elementor-template-importer.php';
-		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-elementor-search-widget-extension.php';
-		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-elementor-packages-widget-extension.php';
+		// DEPRECATED: Legacy widget extensions (replaced with standalone widgets in Phase 2)
+		// require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-elementor-search-widget-extension.php';
+		// require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-elementor-packages-widget-extension.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/helpers.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/favicon-helpers.php';
 
@@ -211,6 +212,27 @@ class LoveTravelChild {
 		// Elementor Manager (NEW: centralized widget/metabox management)
 		$elementorManager = new LoveTravelChild_Elementor_Manager( $this->getThemeName(), $this->getVersion() );
 
+		// Register post meta fields with REST API (for Dynamic Tags)
+		$this->loader->addAction(
+			'init',
+			$elementorManager,
+			'register_post_meta'
+		);
+
+		// Register Dynamic Tags group
+		$this->loader->addAction(
+			'elementor/dynamic_tags/register',
+			$elementorManager,
+			'register_dynamic_tags_group'
+		);
+
+		// Register Dynamic Tags
+		$this->loader->addAction(
+			'elementor/dynamic_tags/register',
+			$elementorManager,
+			'register_dynamic_tags'
+		);
+
 		// Register custom widget category
 		$this->loader->addAction(
 			'elementor/elements/categories_registered',
@@ -232,7 +254,26 @@ class LoveTravelChild {
 			'register_metaboxes'
 		);
 
-		// Search Widget Extension (LEGACY: to be replaced with standalone widget in Phase 2)
+		// Enqueue plugin CSS in Elementor editor (fixes preview issues)
+		$this->loader->addAction(
+			'elementor/editor/after_enqueue_styles',
+			$elementorManager,
+			'enqueue_editor_styles'
+		);
+
+		/*
+		 * DEPRECATED: Legacy widget extensions (October 25, 2025)
+		 *
+		 * Replaced with standalone widgets in Phase 2:
+		 * - Search Widget Extension → class-search-widget.php
+		 * - Packages Widget Extension → class-packages-widget.php
+		 *
+		 * Code preserved below for reference but commented out.
+		 * Remove completely after verifying no pages use legacy widgets.
+		 */
+
+		/*
+		// Search Widget Extension (LEGACY: DEPRECATED in v2.2.0)
 		$searchWidgetExtension = new LoveTravelChildElementorSearchWidgetExtension();
 
 		// Inject Month taxonomy controls after Min Ages section
@@ -253,7 +294,7 @@ class LoveTravelChild {
 			2
 		);
 
-		// Packages Widget Extension (LEGACY: to be replaced with standalone widget in Phase 2)
+		// Packages Widget Extension (LEGACY: DEPRECATED in v2.2.0)
 		if ( get_option( 'lovetravel_child_enable_custom_packages_layout', 0 ) ) {
 			$packagesWidgetExtension = new LoveTravelChildElementorPackagesWidgetExtension(
 				$this->getThemeName(),
@@ -286,6 +327,7 @@ class LoveTravelChild {
 				2
 			);
 		}
+		*/
 	}
 
 	/**
