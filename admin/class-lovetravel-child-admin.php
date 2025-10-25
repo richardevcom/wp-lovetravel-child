@@ -119,33 +119,9 @@ class LoveTravelChildAdmin {
 		include_once LOVETRAVEL_CHILD_PATH . '/admin/partials/settings-page.php';
 	}
 
-	/**
-	 * Register settings for widget extensions.
-	 *
-	 * @since 2.0.0
-	 */
-	public function registerSettings() {
-		register_setting(
-			'lovetravel_child_widget_extensions',
-			'lovetravel_child_enable_custom_packages_layout',
-			array(
-				'type'              => 'boolean',
-				'default'           => 0,
-				'sanitize_callback' => array( $this, 'sanitizeCheckbox' ),
-			)
-		);
-	}
 
-	/**
-	 * Sanitize checkbox input.
-	 *
-	 * @since 2.0.0
-	 * @param mixed $input Input value.
-	 * @return int 1 if checked, 0 otherwise.
-	 */
-	public function sanitizeCheckbox( $input ) {
-		return ( isset( $input ) && 1 === (int) $input ) ? 1 : 0;
-	}
+
+
 
 	/**
 	 * Handle AJAX request to import templates manually.

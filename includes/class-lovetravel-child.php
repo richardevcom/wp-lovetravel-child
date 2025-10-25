@@ -150,9 +150,6 @@ class LoveTravelChild {
 		// Register admin menu
 		$this->loader->addAction( 'admin_menu', $themeAdmin, 'addAdminMenu' );
 
-		// Register settings
-		$this->loader->addAction( 'admin_init', $themeAdmin, 'registerSettings' );
-
 		// AJAX handler for manual template import
 		$this->loader->addAction( 'wp_ajax_lovetravel_child_import_templates', $themeAdmin, 'ajaxImportTemplates' );
 	}

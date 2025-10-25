@@ -79,7 +79,7 @@
 			"json": true
 		},
 		"github.copilot.chat.welcomeMessage": "never",
-		"workbench.colorTheme": "Default Dark+",
+		"workbench.colorTheme": "Dracula Theme",
 		"workbench.iconTheme": "vs-seti"
 	},
 	"extensions": {

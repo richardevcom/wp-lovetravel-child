@@ -128,45 +128,7 @@ esc_html__( 'Add template JSON files to %s to get started.', 'lovetravel-child' 
 		<?php endif; ?>
 	</div>
 
-	<!-- Elementor Widget Extensions Section -->
-	<div class="card">
-		<h2><?php esc_html_e( 'Elementor Widget Extensions', 'lovetravel-child' ); ?></h2>
-		<p><?php esc_html_e( 'Enable custom layouts and features for Elementor widgets.', 'lovetravel-child' ); ?></p>
-		
-		<form method="post" action="options.php">
-			<?php
-			settings_fields( 'lovetravel_child_widget_extensions' );
-			do_settings_sections( 'lovetravel_child_widget_extensions' );
-			?>
-			
-			<table class="form-table" role="presentation">
-				<tbody>
-					<tr>
-						<th scope="row"><?php esc_html_e( 'Packages Widget', 'lovetravel-child' ); ?></th>
-						<td>
-							<fieldset>
-								<label for="lovetravel_child_enable_custom_packages_layout">
-									<input 
-										type="checkbox" 
-										name="lovetravel_child_enable_custom_packages_layout" 
-										id="lovetravel_child_enable_custom_packages_layout" 
-										value="1" 
-										<?php checked( get_option( 'lovetravel_child_enable_custom_packages_layout', 0 ), 1 ); ?>
-									/>
-									<?php esc_html_e( 'Use custom packages layout', 'lovetravel-child' ); ?>
-								</label>
-								<p class="description">
-									<?php esc_html_e( 'Replaces the default packages widget layout with the child theme custom layout globally.', 'lovetravel-child' ); ?>
-								</p>
-							</fieldset>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-			
-			<?php submit_button(); ?>
-		</form>
-	</div>
+
 
 	<!-- Theme Information Section -->
 	<div class="card">
