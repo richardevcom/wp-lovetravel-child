@@ -261,6 +261,13 @@ class LoveTravelChild {
 			'enqueue_editor_styles'
 		);
 
+		// Also enqueue in preview mode
+		$this->loader->addAction(
+			'elementor/preview/enqueue_styles',
+			$elementorManager,
+			'enqueue_editor_styles'
+		);
+
 		/*
 		 * DEPRECATED: Legacy widget extensions (October 25, 2025)
 		 *
