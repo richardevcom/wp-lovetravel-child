@@ -73,6 +73,9 @@
 		var originalText = $button.text();
 		$button.text($button.data('loading-text') || 'Loading...');
 
+		// Detect if we're in Elementor editor preview
+		var isElementorPreview = (typeof elementorFrontend !== 'undefined' && elementorFrontend.isEditMode());
+
 		// Prepare AJAX data
 		var ajaxData = {
 			action: 'lovetravel_load_more_packages',
@@ -86,7 +89,8 @@
 			packages_id: packagesId,
 			destination_id: destinationId,
 			typology_slug: typologySlug,
-			image_size: imageSize
+			image_size: imageSize,
+			is_editor: isElementorPreview ? '1' : '0'
 		};
 
 		// Make AJAX request

@@ -436,6 +436,7 @@ class LoveTravelChild_Packages_Widget extends \Elementor\Widget_Base {
 		$destination_id      = isset( $_POST['destination_id'] ) ? sanitize_text_field( wp_unslash( $_POST['destination_id'] ) ) : '';
 		$typology_slug       = isset( $_POST['typology_slug'] ) ? sanitize_text_field( wp_unslash( $_POST['typology_slug'] ) ) : '';
 		$packagesgrid_image_size = isset( $_POST['image_size'] ) ? sanitize_text_field( wp_unslash( $_POST['image_size'] ) ) : 'large';
+		$is_editor           = isset( $_POST['is_editor'] ) && '1' === $_POST['is_editor'];
 
 		// Build query args
 		$args = array(
@@ -525,8 +526,8 @@ class LoveTravelChild_Packages_Widget extends \Elementor\Widget_Base {
 			$nd_travel_meta_box_tab_map_content        = get_post_meta( get_the_ID(), 'nd_travel_meta_box_tab_map_content', true );
 			$nd_travel_meta_box_featured_image_replace = get_post_meta( get_the_ID(), 'nd_travel_meta_box_featured_image_replace', true );
 
-			// Load layout template
-			$is_edit_mode          = false; // Always false for AJAX requests
+			// Load layout template (use $is_editor from AJAX request)
+			$is_edit_mode          = $is_editor; // Use editor context from AJAX
 			$nd_travel_layout_path = get_stylesheet_directory() . '/elementor/templates/packages/' . $packages_layout . '.php';
 			if ( file_exists( $nd_travel_layout_path ) ) {
 				include $nd_travel_layout_path;
