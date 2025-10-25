@@ -119,6 +119,60 @@ class LoveTravelChild_Elementor_Manager {
 	}
 
 	/**
+	 * Register AJAX handlers for Elementor widgets.
+	 *
+	 * Registers AJAX actions for authenticated and non-authenticated users.
+	 *
+	 * @since    2.2.0
+	 */
+	public function register_ajax_handlers() {
+		// Load Packages widget if not already loaded
+		if ( ! class_exists( 'LoveTravelChild_Packages_Widget' ) ) {
+			require_once plugin_dir_path( __FILE__ ) . 'widgets/class-packages-widget.php';
+		}
+
+		// Instantiate widget to access AJAX method
+		$packages_widget = new \LoveTravelChild_Packages_Widget();
+
+		// Register AJAX actions (both authenticated and non-authenticated)
+		add_action( 'wp_ajax_lovetravel_load_more_packages', array( $packages_widget, 'ajax_load_more_packages' ) );
+		add_action( 'wp_ajax_nopriv_lovetravel_load_more_packages', array( $packages_widget, 'ajax_load_more_packages' ) );
+	}
+
+	/**
+	 * Enqueue Load More scripts for Packages widget.
+	 *
+	 * Loads JavaScript and localizes AJAX variables for frontend.
+	 *
+	 * @since    2.2.0
+	 */
+	public function enqueue_packages_scripts() {
+		// Only enqueue on frontend (not in editor)
+		if ( \Elementor\Plugin::$instance->editor->is_edit_mode() ) {
+			return;
+		}
+
+		// Enqueue Load More script
+		wp_enqueue_script(
+			'lovetravel-child-packages-load-more',
+			get_stylesheet_directory_uri() . '/elementor/assets/js/packages-load-more.js',
+			array( 'jquery', 'masonry', 'imagesloaded' ),
+			$this->version,
+			true
+		);
+
+		// Localize script with AJAX URL and nonce
+		wp_localize_script(
+			'lovetravel-child-packages-load-more',
+			'lovetravelLoadMore',
+			array(
+				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'lovetravel_load_more_nonce' ),
+			)
+		);
+	}
+
+	/**
 	 * Register post meta fields with REST API.
 	 *
 	 * Enables WordPress ↔ Elementor sync via Dynamic Tags.

@@ -194,6 +194,46 @@ class LoveTravelChild_Packages_Widget extends \Elementor\Widget_Base {
 			)
 		);
 
+		$this->add_control(
+			'load_more_show',
+			array(
+				'label'        => esc_html__( 'Load More', 'lovetravel-child' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Show', 'lovetravel-child' ),
+				'label_off'    => esc_html__( 'Hide', 'lovetravel-child' ),
+				'return_value' => 'yes',
+				'default'      => '',
+			)
+		);
+
+		$this->add_control(
+			'load_more_text',
+			array(
+				'label'       => esc_html__( 'Button Text', 'lovetravel-child' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'default'     => esc_html__( 'Load More', 'lovetravel-child' ),
+				'placeholder' => esc_html__( 'Load More', 'lovetravel-child' ),
+				'condition'   => array(
+					'load_more_show' => 'yes',
+				),
+			)
+		);
+
+		$this->add_control(
+			'load_more_posts_per_page',
+			array(
+				'label'     => esc_html__( 'Posts Per Load', 'lovetravel-child' ),
+				'type'      => \Elementor\Controls_Manager::NUMBER,
+				'default'   => 4,
+				'min'       => 1,
+				'max'       => 20,
+				'step'      => 1,
+				'condition' => array(
+					'load_more_show' => 'yes',
+				),
+			)
+		);
+
 		$this->end_controls_section();
 	}
 
@@ -337,6 +377,176 @@ class LoveTravelChild_Packages_Widget extends \Elementor\Widget_Base {
 
 		echo '</div>';
 
+		// Render Load More button if enabled
+		if ( 'yes' === $settings['load_more_show'] ) {
+			$load_more_text          = ! empty( $settings['load_more_text'] ) ? $settings['load_more_text'] : esc_html__( 'Load More', 'lovetravel-child' );
+			$load_more_posts_per_page = ! empty( $settings['load_more_posts_per_page'] ) ? $settings['load_more_posts_per_page'] : 4;
+
+			// Check if there are more posts to load
+			$total_posts = $the_query->found_posts;
+			$has_more    = $packages_qnt < $total_posts; // Show button only if more posts available
+
+			if ( $has_more ) {
+				?>
+				<div class="lovetravel-load-more-wrapper" style="text-align: center; margin-top: 30px;">
+					<button 
+						class="lovetravel-load-more-btn" 
+						data-widget-id="<?php echo esc_attr( $this->get_id() ); ?>"
+						data-posts-per-page="<?php echo esc_attr( $load_more_posts_per_page ); ?>"
+						data-order="<?php echo esc_attr( $nd_travel_postgrid_order ); ?>"
+						data-orderby="<?php echo esc_attr( $nd_travel_postgrid_orderby ); ?>"
+						data-width="<?php echo esc_attr( $packages_width ); ?>"
+						data-layout="<?php echo esc_attr( $packages_layout ); ?>"
+						data-packages-id="<?php echo esc_attr( $packages_id ); ?>"
+						data-destination-id="<?php echo esc_attr( $nd_travel_destination_id ); ?>"
+						data-typology-slug="<?php echo esc_attr( $nd_travel_typology_slug ); ?>"
+						data-image-size="<?php echo esc_attr( $packagesgrid_image_size ); ?>"
+						data-loading-text="<?php echo esc_attr__( 'Loading...', 'lovetravel-child' ); ?>"
+						style="padding: 12px 30px; background: #EA5B10; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 500; transition: background 0.3s ease;"
+					>
+						<?php echo esc_html( $load_more_text ); ?>
+					</button>
+				</div>
+				<?php
+			}
+		}
+
 		wp_reset_postdata();
+	}
+
+	/**
+	 * AJAX handler for Load More functionality.
+	 *
+	 * Outputs JSON response with HTML for additional packages.
+	 *
+	 * @since 2.2.0
+	 */
+	public function ajax_load_more_packages() {
+		// Verify nonce
+		check_ajax_referer( 'lovetravel_load_more_nonce', 'nonce' );
+
+		// Get parameters from AJAX request
+		$offset              = isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0;
+		$posts_per_page      = isset( $_POST['posts_per_page'] ) ? absint( $_POST['posts_per_page'] ) : 4;
+		$packages_order      = isset( $_POST['order'] ) ? sanitize_text_field( wp_unslash( $_POST['order'] ) ) : 'DESC';
+		$packages_orderby    = isset( $_POST['orderby'] ) ? sanitize_text_field( wp_unslash( $_POST['orderby'] ) ) : 'date';
+		$packages_width      = isset( $_POST['width'] ) ? sanitize_text_field( wp_unslash( $_POST['width'] ) ) : 'nd_travel_width_25_percentage';
+		$packages_layout     = isset( $_POST['layout'] ) ? sanitize_text_field( wp_unslash( $_POST['layout'] ) ) : 'layout-1';
+		$packages_id         = isset( $_POST['packages_id'] ) ? sanitize_text_field( wp_unslash( $_POST['packages_id'] ) ) : '';
+		$destination_id      = isset( $_POST['destination_id'] ) ? sanitize_text_field( wp_unslash( $_POST['destination_id'] ) ) : '';
+		$typology_slug       = isset( $_POST['typology_slug'] ) ? sanitize_text_field( wp_unslash( $_POST['typology_slug'] ) ) : '';
+		$packagesgrid_image_size = isset( $_POST['image_size'] ) ? sanitize_text_field( wp_unslash( $_POST['image_size'] ) ) : 'large';
+
+		// Build query args
+		$args = array(
+			'post_type'      => 'nd_travel_cpt_1',
+			'posts_per_page' => $posts_per_page,
+			'offset'         => $offset,
+			'order'          => $packages_order,
+			'orderby'        => $packages_orderby,
+		);
+
+		// Add specific package ID if set
+		if ( ! empty( $packages_id ) ) {
+			$args['p'] = $packages_id;
+		}
+
+		// Filter by destination
+		if ( ! empty( $destination_id ) ) {
+			$nd_travel_archive_form_destinations_array = array( $destination_id );
+
+			// Handle current destination (value = 1)
+			if ( 1 === absint( $destination_id ) ) {
+				$destination_id                               = get_the_ID();
+				$nd_travel_archive_form_destinations_array[0] = get_the_ID();
+			}
+
+			// Include child destinations if function exists
+			if ( function_exists( 'nd_travel_get_destinations_with_parent' ) ) {
+				$nd_travel_children_destinations_array = nd_travel_get_destinations_with_parent( $destination_id );
+				if ( ! empty( $nd_travel_children_destinations_array ) ) {
+					$nd_travel_destinations_query_i = 1;
+					foreach ( $nd_travel_children_destinations_array as $nd_travel_children_destination_id ) {
+						$nd_travel_archive_form_destinations_array[ $nd_travel_destinations_query_i ] = $nd_travel_children_destination_id;
+						++$nd_travel_destinations_query_i;
+					}
+				}
+			}
+
+			$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				array(
+					'key'   => 'nd_travel_meta_box_destinations',
+					'type'  => 'numeric',
+					'value' => $nd_travel_archive_form_destinations_array,
+				),
+			);
+		} elseif ( ! empty( $typology_slug ) ) {
+			// Filter by typology
+			$nd_travel_get_current_typology_slug = $typology_slug;
+
+			// Handle current typology (value = 1)
+			if ( 1 === absint( $typology_slug ) ) {
+				$nd_travel_get_current_typology_id   = get_the_ID();
+				$nd_travel_get_current_typology_slug = get_post_field( 'post_name', $nd_travel_get_current_typology_id );
+			}
+
+			$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				array(
+					'key'     => 'nd_travel_meta_box_typologies',
+					'value'   => $nd_travel_get_current_typology_slug,
+					'compare' => 'LIKE',
+				),
+			);
+		}
+
+		// Run query
+		$the_query = new WP_Query( $args );
+
+		// Start output buffering
+		ob_start();
+
+		while ( $the_query->have_posts() ) {
+			$the_query->the_post();
+
+			// Package info
+			$nd_travel_id        = get_the_ID();
+			$nd_travel_title     = get_the_title();
+			$nd_travel_excerpt   = get_the_excerpt();
+			$nd_travel_permalink = get_permalink( $nd_travel_id );
+
+			// Color
+			$nd_travel_meta_box_color = get_post_meta( get_the_ID(), 'nd_travel_meta_box_color', true );
+			if ( '' === $nd_travel_meta_box_color ) {
+				$nd_travel_meta_box_color = '#EA5B10';
+			}
+
+			// Meta fields
+			$nd_travel_meta_box_tab_gallery_content    = get_post_meta( get_the_ID(), 'nd_travel_meta_box_tab_gallery_content', true );
+			$nd_travel_meta_box_tab_map_content        = get_post_meta( get_the_ID(), 'nd_travel_meta_box_tab_map_content', true );
+			$nd_travel_meta_box_featured_image_replace = get_post_meta( get_the_ID(), 'nd_travel_meta_box_featured_image_replace', true );
+
+			// Load layout template
+			$is_edit_mode          = false; // Always false for AJAX requests
+			$nd_travel_layout_path = get_stylesheet_directory() . '/elementor/templates/packages/' . $packages_layout . '.php';
+			if ( file_exists( $nd_travel_layout_path ) ) {
+				include $nd_travel_layout_path;
+			}
+		}
+
+		$html = ob_get_clean();
+
+		wp_reset_postdata();
+
+		// Check if there are more posts
+		$total_posts = $the_query->found_posts;
+		$has_more    = ( $offset + $posts_per_page ) < $total_posts;
+
+		// Send JSON response
+		wp_send_json_success(
+			array(
+				'html'     => $html,
+				'has_more' => $has_more,
+			)
+		);
 	}
 }

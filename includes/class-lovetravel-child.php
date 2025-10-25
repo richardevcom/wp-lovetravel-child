@@ -254,6 +254,20 @@ class LoveTravelChild {
 			'register_metaboxes'
 		);
 
+		// Register AJAX handlers for Elementor widgets
+		$this->loader->addAction(
+			'init',
+			$elementorManager,
+			'register_ajax_handlers'
+		);
+
+		// Enqueue Load More scripts on frontend
+		$this->loader->addAction(
+			'elementor/frontend/after_enqueue_scripts',
+			$elementorManager,
+			'enqueue_packages_scripts'
+		);
+
 		// Enqueue plugin CSS in Elementor editor (fixes preview issues)
 		$this->loader->addAction(
 			'elementor/editor/after_enqueue_styles',
