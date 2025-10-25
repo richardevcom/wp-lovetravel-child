@@ -63,7 +63,6 @@ class LoveTravelChild {
 		$this->loadDependencies();
 		$this->setLocale();
 		$this->defineTaxonomyHooks();
-		$this->defineMetaboxHooks();
 		$this->defineAdminHooks();
 		$this->definePublicHooks();
 		$this->defineElementorHooks();
