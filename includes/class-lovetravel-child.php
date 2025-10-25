@@ -85,6 +85,9 @@ class LoveTravelChild {
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-favicon.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-admin-notices.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-elementor-template-importer.php';
+		// DEPRECATED: Legacy widget extensions (replaced with standalone widgets in Phase 2)
+		// require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-elementor-search-widget-extension.php';
+		// require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-elementor-packages-widget-extension.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/helpers.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/favicon-helpers.php';
 
@@ -179,6 +182,7 @@ class LoveTravelChild {
 	 * Register Elementor integration hooks.
 	 *
 	 * Uses centralized Elementor Manager for widgets, metaboxes, and dynamic tags.
+	 * Also registers legacy widget extensions (Search, Packages) - to be migrated.
 	 *
 	 * @since  2.0.0
 	 * @access private
