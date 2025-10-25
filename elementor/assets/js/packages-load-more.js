@@ -168,13 +168,22 @@
 	function reinitMasonry($container) {
 		// Wait for images to load
 		$container.imagesLoaded(function() {
-			// Trigger masonry re-layout if available
-			if (typeof $.fn.masonry === 'function') {
-				$container.masonry('reloadItems').masonry('layout');
+			// Destroy existing masonry instance
+			if ($container.data('masonry')) {
+				$container.masonry('destroy');
 			}
 
-			// Alternative: Trigger window resize event (nd-travel uses this)
-			$(window).trigger('resize');
+			// Re-initialize masonry from scratch (matches nd-travel pattern)
+			if (typeof $.fn.masonry === 'function') {
+				$container.masonry({
+					itemSelector: '.nd_travel_masonry_item'
+				});
+			}
+
+			// Trigger resize to ensure proper layout (especially for Elementor editor)
+			setTimeout(function() {
+				$(window).trigger('resize');
+			}, 100);
 		});
 	}
 
