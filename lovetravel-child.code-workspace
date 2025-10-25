@@ -1,32 +1,174 @@
 {
 	"folders": [
 		{
+			"name": "🎨 Child Theme (Main)",
 			"path": "."
 		},
 		{
+			"name": "🎨 Parent Theme (LoveTravel)",
 			"path": "../lovetravel"
 		},
 		{
-			"path": "../twentytwentyfive"
-		},
-		{
+			"name": "🔌 Elementor Pro",
 			"path": "../../plugins/elementor-pro"
 		},
 		{
-			"path": "../../plugins/nd-elements"
-		},
-		{
+			"name": "🔌 ND Travel",
 			"path": "../../plugins/nd-travel"
 		},
 		{
+			"name": "🔌 ND Elements",
+			"path": "../../plugins/nd-elements"
+		},
+		{
+			"name": "🔌 ND Shortcodes",
 			"path": "../../plugins/nd-shortcodes"
 		},
 		{
-			"path": "../../../../wordpress"
+			"name": "🔌 Elementor (Free)",
+			"path": "../../plugins/elementor"
 		},
 		{
-			"path": "../../plugins/plugin-boilerplate"
+			"name": "🔌 Contact Form 7",
+			"path": "../../plugins/contact-form-7"
+		},
+		{
+			"name": "🔌 Mailchimp for WP",
+			"path": "../../plugins/mailchimp-for-wp"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"editor.tabSize": 4,
+		"editor.insertSpaces": false,
+		"editor.detectIndentation": true,
+		"files.associations": {
+			"*.php": "php",
+			"*.css": "css",
+			"*.scss": "scss",
+			"*.js": "javascript",
+			"*.json": "json"
+		},
+		"php.validate.enable": true,
+		"php.suggest.basic": true,
+		"emmet.includeLanguages": {
+			"php": "html"
+		},
+		"files.exclude": {
+			"**/node_modules": true,
+			"**/vendor": true,
+			"**/.git": false,
+			"**/dist": true,
+			"**/build": true,
+			"**/*.log": true
+		},
+		"search.exclude": {
+			"**/node_modules": true,
+			"**/vendor": true,
+			"**/dist": true,
+			"**/build": true
+		},
+		"github.copilot.enable": {
+			"*": true,
+			"yaml": true,
+			"plaintext": true,
+			"markdown": true,
+			"php": true,
+			"css": true,
+			"scss": true,
+			"javascript": true,
+			"json": true
+		},
+		"github.copilot.chat.welcomeMessage": "never",
+		"workbench.colorTheme": "Default Dark+",
+		"workbench.iconTheme": "vs-seti"
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.vscode-php-pack",
+			"github.copilot",
+			"github.copilot-chat",
+			"ms-vscode.live-server",
+			"bradlc.vscode-tailwindcss",
+			"formulahendry.auto-rename-tag",
+			"christian-kohler.path-intellisense",
+			"ms-vscode.vscode-json",
+			"redhat.vscode-yaml",
+			"ms-vscode.wordcount"
+		]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Watch: Child Theme Assets",
+				"type": "shell",
+				"command": "npm",
+				"args": ["run", "watch"],
+				"group": "build",
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared"
+				},
+				"isBackground": true,
+				"problemMatcher": []
+			},
+			{
+				"label": "Build: Production Assets",
+				"type": "shell",
+				"command": "npm",
+				"args": ["run", "build"],
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared"
+				}
+			},
+			{
+				"label": "WordPress: Clear Cache",
+				"type": "shell",
+				"command": "docker",
+				"args": [
+					"compose",
+					"exec",
+					"wordpress",
+					"rm",
+					"-rf",
+					"/var/www/html/wp-content/cache/*"
+				],
+				"group": "build",
+				"presentation": {
+					"echo": true,
+					"reveal": "silent",
+					"focus": false,
+					"panel": "shared"
+				},
+				"options": {
+					"cwd": "../../.."
+				}
+			}
+		]
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Listen for Xdebug",
+				"type": "php",
+				"request": "launch",
+				"port": 9003,
+				"pathMappings": {
+					"/var/www/html/wp-content/themes/lovetravel-child": "${workspaceFolder}",
+					"/var/www/html/wp-content/themes/lovetravel": "${workspaceFolder}/../lovetravel",
+					"/var/www/html/wp-content/plugins": "${workspaceFolder}/../../plugins"
+				}
+			}
+		]
+	}
 }

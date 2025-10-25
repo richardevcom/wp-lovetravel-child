@@ -1,30 +1,32 @@
-# GitHub Copilot Agent Instructions — TribeTravel WordPress Child Theme
+# GitHub Copilot Instructions — LoveTravel Child Theme Workspace
 
 **Last Updated**: October 25, 2025  
-**WordPress Version**: 6.8.3  
-**Scope**: `/home/richardevcom/dev/tribetravel.eu/wp-content/themes/lovetravel-child` (child theme ONLY)
+**Theme Version**: 2.2.0 (Production Ready)  
+**Project**: TribeTravel.eu WordPress Child Theme  
+**Repository**: [wp-lovetravel-child](https://github.com/richardevcom/wp-lovetravel-child)  
+**Parent Repository**: [wp-tribetravel](https://github.com/richardevcom/wp-tribetravel)
 
 ---
 
-## MANDATORY CONTEXT
+## 🎯 WORKSPACE CONTEXT
 
-**Workspace root**: `/home/richardevcom/dev/tribetravel.eu`
+This **VS Code Workspace** includes the child theme and all related plugins/themes for comprehensive development:
 
-**EDITABLE (child theme only)**:
-- `/home/richardevcom/dev/tribetravel.eu/wp-content/themes/lovetravel-child`
+### Folders in This Workspace
+- 🎨 **Child Theme** (main) — `/lovetravel-child/`
+- 🎨 **Parent Theme** — `/lovetravel/` (read-only reference)
+- 🔌 **Elementor Pro** — `/plugins/elementor-pro/` (read-only reference)
+- 🔌 **ND Travel** — `/plugins/nd-travel/` (read-only reference)
+- 🔌 **ND Elements** — `/plugins/nd-elements/` (read-only reference)
+- 🔌 **ND Shortcodes** — `/plugins/nd-shortcodes/` (read-only reference)
+- 🔌 **Contact Form 7** — `/plugins/contact-form-7/` (read-only reference)
+- 🔌 **Mailchimp for WP** — `/plugins/mailchimp-for-wp/` (read-only reference)
 
-**BACKUP FOLDER RULE**:
-- Do NOT inspect or modify `/home/richardevcom/dev/tribetravel.eu/wp-content/themes/lovetravel-child-backup` unless the user explicitly asks for audit/restore of that backup. This folder is a read-only historical snapshot and should only be referenced on request.
-
-**READ-ONLY (reference but never edit)**:
-- Parent theme: `/home/richardevcom/dev/tribetravel.eu/wp-content/themes/lovetravel`
-- Core plugins: `/home/richardevcom/dev/tribetravel.eu/wp-content/plugins/nd-travel`, `nd-elements`, `nd-shortcodes`
-- Other plugins: `elementor-pro`, `contact-form-7`, `mailchimp`
-- **WordPress core reference**: `/home/richardevcom/dev/wordpress` (latest WordPress source for reference)
-
-**Debug log**: `/home/richardevcom/dev/tribetravel.eu/wp-content/debug.log`
-
-**Docker environment**: Containers run from workspace root; use WP-CLI inside container for site-level tasks.
+### Docker Integration
+- **Development Environment**: Docker containers expose WordPress files
+- **Site Access**: http://localhost:8080
+- **Database**: MariaDB with persistent volumes
+- **Debug**: `/wp-content/debug.log` for WordPress errors
 
 ---
 
