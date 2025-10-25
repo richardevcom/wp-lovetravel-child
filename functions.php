@@ -13,7 +13,7 @@
 
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {
-        exit;
+	exit;
 }
 
 /**
@@ -34,7 +34,7 @@ require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child.php';
  * @since 2.0.0
  */
 function lovetravelChildRun() {
-        $theme = new LoveTravelChild();
-        $theme->run();
+	$theme = new LoveTravelChild();
+	$theme->run();
 }
 lovetravelChildRun();
