@@ -243,6 +243,14 @@ class LoveTravelChild_Elementor_Manager {
 	display: table;
 	clear: both;
 }
+
+/* Remove gray background from LoveTravel Child widgets in editor */
+.elementor-element.elementor-widget-lovetravel-child-search,
+.elementor-element.elementor-widget-lovetravel-child-packages,
+.elementor-element.elementor-widget-lovetravel-childtypologycardwidget,
+.elementor-element.elementor-widget-lovetravel-childtypologycardswidget {
+	background-color: transparent !important;
+}
 			';
 			wp_add_inline_style( 'nd-travel-editor', $inline_css );
 		}
