@@ -1,85 +1,40 @@
 <?php
-
 /**
- * LoveTravel Child Theme Functions
- * 
- * This file handles the main functionality for the LoveTravel child theme.
- * It includes various components and ensures proper inheritance from the parent theme.
- * 
- * @package LoveTravel_Child
- * @version 1.0.0
- * @author richardevcom
- * @link https://github.com/richardevcom
+ * LoveTravel Child Theme
+ *
+ * Clean OOP bootstrap for child theme functionality.
+ * Architecture based on WordPress Plugin Boilerplate pattern.
+ *
+ * @package LoveTravelChild
+ * @version 2.2.0
+ * @author  richardevcom
+ * @link    https://github.com/richardevcom
  */
 
 // Prevent direct access
-if (! defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+        exit;
 }
 
 /**
- * Child theme version
+ * Theme constants
  */
-define('LOVETRAVEL_CHILD_VERSION', '1.0.0');
+define( 'LOVETRAVEL_CHILD_VERSION', '2.2.0' );
+define( 'LOVETRAVEL_CHILD_PATH', get_stylesheet_directory() );
+define( 'LOVETRAVEL_CHILD_URI', get_stylesheet_directory_uri() );
 
 /**
- * Theme directory path
+ * Load core theme class
  */
-define('LOVETRAVEL_CHILD_DIR', get_stylesheet_directory());
+require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child.php';
 
 /**
- * Theme directory URI
+ * Initialize and run the theme
+ *
+ * @since 2.0.0
  */
-define('LOVETRAVEL_CHILD_URI', get_stylesheet_directory_uri());
-
-/**
- * Include core theme setup and functionality
- */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/includes/theme-setup.php';
-
-/**
- * Include hooks and filters for customizations
- */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/hooks/cpt-overrides.php';
-
-/**
- * Include admin utilities and helper functions
- */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/includes/admin-utilities.php';
-
-/**
- * Include Payload CMS media import functionality
- */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/tools/payload-media-import.php';
-
-/**
- * Include Mailchimp subscriber export functionality
- */
-require_once LOVETRAVEL_CHILD_DIR . '/inc/tools/mailchimp-subscriber-export.php';
-
-/**
- * Include customizer modifications (if file exists)
- */
-$customizer_fonts_file = LOVETRAVEL_CHILD_DIR . '/inc/customizer/fonts.php';
-if (file_exists($customizer_fonts_file)) {
-    require_once $customizer_fonts_file;
+function lovetravelChildRun() {
+        $theme = new LoveTravelChild();
+        $theme->run();
 }
-
-/**
- * Custom functions for the child theme
- * 
- * Add your custom functionality below this line.
- * Keep functions organized and well-documented.
- */
-
-/**
- * Example custom function
- * 
- * @since 1.0.0
- */
-function lovetravel_child_example_function()
-{
-    // Add your custom code here
-}
-
-// Add your custom functions here
+lovetravelChildRun();
