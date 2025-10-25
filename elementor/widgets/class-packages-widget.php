@@ -69,14 +69,16 @@ class LoveTravelChild_Packages_Widget extends \Elementor\Widget_Base {
 	/**
 	 * Register widget controls.
 	 *
+	 * Matches nd-travel Packages widget controls exactly (1:1).
+	 *
 	 * @since  2.2.0
 	 */
 	protected function register_controls() {
-		// Content Section
+		// Main Options Section
 		$this->start_controls_section(
 			'content_section',
 			array(
-				'label' => esc_html__( 'Content', 'lovetravel-child' ),
+				'label' => esc_html__( 'Main Options', 'lovetravel-child' ),
 				'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
 			)
 		);
@@ -94,77 +96,26 @@ class LoveTravelChild_Packages_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
-			'packages_qnt',
-			array(
-				'label'   => esc_html__( 'Number of Packages', 'lovetravel-child' ),
-				'type'    => \Elementor\Controls_Manager::NUMBER,
-				'default' => -1,
-			)
-		);
-
-		$this->add_control(
-			'packages_id',
-			array(
-				'label'       => esc_html__( 'Specific Package ID', 'lovetravel-child' ),
-				'type'        => \Elementor\Controls_Manager::NUMBER,
-				'default'     => '',
-				'description' => esc_html__( 'Leave empty to show all packages', 'lovetravel-child' ),
-			)
-		);
-
-		$this->add_control(
 			'packages_width',
 			array(
-				'label'   => esc_html__( 'Item Width', 'lovetravel-child' ),
+				'label'   => esc_html__( 'Width', 'lovetravel-child' ),
 				'type'    => \Elementor\Controls_Manager::SELECT,
-				'default' => 'nd_travel_width_100_percentage',
+				'default' => 'nd_travel_width_25_percentage',
 				'options' => array(
-					'nd_travel_width_100_percentage' => esc_html__( '100%', 'lovetravel-child' ),
-					'nd_travel_width_50_percentage'  => esc_html__( '50%', 'lovetravel-child' ),
-					'nd_travel_width_33_percentage'  => esc_html__( '33%', 'lovetravel-child' ),
-					'nd_travel_width_25_percentage'  => esc_html__( '25%', 'lovetravel-child' ),
+					'nd_travel_width_100_percentage' => esc_html__( '1 Column', 'lovetravel-child' ),
+					'nd_travel_width_50_percentage'  => esc_html__( '2 Columns', 'lovetravel-child' ),
+					'nd_travel_width_33_percentage'  => esc_html__( '3 Columns', 'lovetravel-child' ),
+					'nd_travel_width_25_percentage'  => esc_html__( '4 Columns', 'lovetravel-child' ),
 				),
 			)
 		);
 
-		$this->add_control(
-			'thumbnail_size',
+		$this->add_group_control(
+			\Elementor\Group_Control_Image_Size::get_type(),
 			array(
-				'label'   => esc_html__( 'Thumbnail Size', 'lovetravel-child' ),
-				'type'    => \Elementor\Controls_Manager::SELECT,
-				'default' => 'large',
-				'options' => array(
-					'thumbnail' => esc_html__( 'Thumbnail', 'lovetravel-child' ),
-					'medium'    => esc_html__( 'Medium', 'lovetravel-child' ),
-					'large'     => esc_html__( 'Large', 'lovetravel-child' ),
-					'full'      => esc_html__( 'Full', 'lovetravel-child' ),
-				),
-			)
-		);
-
-		$this->end_controls_section();
-
-		// Query Section
-		$this->start_controls_section(
-			'query_section',
-			array(
-				'label' => esc_html__( 'Query', 'lovetravel-child' ),
-				'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
-			)
-		);
-
-		$this->add_control(
-			'packages_orderby',
-			array(
-				'label'   => esc_html__( 'Order By', 'lovetravel-child' ),
-				'type'    => \Elementor\Controls_Manager::SELECT,
-				'default' => 'date',
-				'options' => array(
-					'date'       => esc_html__( 'Date', 'lovetravel-child' ),
-					'title'      => esc_html__( 'Title', 'lovetravel-child' ),
-					'menu_order' => esc_html__( 'Menu Order', 'lovetravel-child' ),
-					'rand'       => esc_html__( 'Random', 'lovetravel-child' ),
-				),
+				'name'      => 'thumbnail',
+				'default'   => 'large',
+				'separator' => 'none',
 			)
 		);
 
@@ -175,29 +126,71 @@ class LoveTravelChild_Packages_Widget extends \Elementor\Widget_Base {
 				'type'    => \Elementor\Controls_Manager::SELECT,
 				'default' => 'DESC',
 				'options' => array(
-					'ASC'  => esc_html__( 'Ascending', 'lovetravel-child' ),
-					'DESC' => esc_html__( 'Descending', 'lovetravel-child' ),
+					'DESC' => esc_html__( 'DESC', 'lovetravel-child' ),
+					'ASC'  => esc_html__( 'ASC', 'lovetravel-child' ),
 				),
+			)
+		);
+
+		$this->add_control(
+			'packages_orderby',
+			array(
+				'label'   => esc_html__( 'Order By', 'lovetravel-child' ),
+				'type'    => \Elementor\Controls_Manager::SELECT,
+				'default' => 'date',
+				'options' => array(
+					'ID'            => esc_html__( 'ID', 'lovetravel-child' ),
+					'author'        => esc_html__( 'Author', 'lovetravel-child' ),
+					'title'         => esc_html__( 'Title', 'lovetravel-child' ),
+					'name'          => esc_html__( 'Name', 'lovetravel-child' ),
+					'type'          => esc_html__( 'Type', 'lovetravel-child' ),
+					'date'          => esc_html__( 'Date', 'lovetravel-child' ),
+					'modified'      => esc_html__( 'Modified', 'lovetravel-child' ),
+					'rand'          => esc_html__( 'Random', 'lovetravel-child' ),
+					'comment_count' => esc_html__( 'Comment Count', 'lovetravel-child' ),
+				),
+			)
+		);
+
+		$this->add_control(
+			'packages_qnt',
+			array(
+				'label'   => esc_html__( 'Posts Per Page', 'lovetravel-child' ),
+				'type'    => \Elementor\Controls_Manager::NUMBER,
+				'default' => -1,
+				'min'     => -1,
+				'max'     => 20,
+				'step'    => 1,
+			)
+		);
+
+		$this->add_control(
+			'packages_id',
+			array(
+				'label' => esc_html__( 'ID', 'lovetravel-child' ),
+				'type'  => \Elementor\Controls_Manager::NUMBER,
+				'min'   => 1,
+				'max'   => 9000,
+				'step'  => 1,
 			)
 		);
 
 		$this->add_control(
 			'destination_id',
 			array(
-				'label'       => esc_html__( 'Destination ID', 'lovetravel-child' ),
-				'type'        => \Elementor\Controls_Manager::NUMBER,
-				'default'     => '',
-				'description' => esc_html__( 'Filter by destination (leave empty for all)', 'lovetravel-child' ),
+				'label' => esc_html__( 'Destination ID', 'lovetravel-child' ),
+				'type'  => \Elementor\Controls_Manager::NUMBER,
+				'min'   => 0,
+				'max'   => 9000,
+				'step'  => 1,
 			)
 		);
 
 		$this->add_control(
 			'typology_slug',
 			array(
-				'label'       => esc_html__( 'Typology Slug', 'lovetravel-child' ),
-				'type'        => \Elementor\Controls_Manager::TEXT,
-				'default'     => '',
-				'description' => esc_html__( 'Filter by typology (leave empty for all)', 'lovetravel-child' ),
+				'label' => esc_html__( 'Typology Slug', 'lovetravel-child' ),
+				'type'  => \Elementor\Controls_Manager::TEXT,
 			)
 		);
 
@@ -239,7 +232,7 @@ class LoveTravelChild_Packages_Widget extends \Elementor\Widget_Base {
 		$nd_travel_postgrid_order   = ! empty( $settings['packages_order'] ) ? $settings['packages_order'] : 'DESC';
 		$nd_travel_postgrid_orderby = ! empty( $settings['packages_orderby'] ) ? $settings['packages_orderby'] : 'date';
 		$packages_qnt               = isset( $settings['packages_qnt'] ) ? $settings['packages_qnt'] : -1;
-		$packages_width             = ! empty( $settings['packages_width'] ) ? $settings['packages_width'] : 'nd_travel_width_100_percentage';
+		$packages_width             = ! empty( $settings['packages_width'] ) ? $settings['packages_width'] : 'nd_travel_width_25_percentage';
 		$packages_layout            = ! empty( $settings['packages_layout'] ) ? $settings['packages_layout'] : 'layout-1';
 		$packages_id                = ! empty( $settings['packages_id'] ) ? $settings['packages_id'] : '';
 		$nd_travel_destination_id   = ! empty( $settings['destination_id'] ) ? $settings['destination_id'] : '';

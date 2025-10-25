@@ -199,11 +199,11 @@ class LoveTravelChild_Elementor_Manager {
 		}
 
 		// Enqueue nd-travel CSS (for Packages widget grid layout)
-		$nd_travel_css = WP_PLUGIN_DIR . '/nd-travel/css/nd-travel-style.css';
+		$nd_travel_css = WP_PLUGIN_DIR . '/nd-travel/assets/css/style.css';
 		if ( file_exists( $nd_travel_css ) ) {
 			wp_enqueue_style(
 				'nd-travel-editor',
-				plugins_url( 'nd-travel/css/nd-travel-style.css' ),
+				plugins_url( 'nd-travel/assets/css/style.css' ),
 				array(),
 				filemtime( $nd_travel_css )
 			);
