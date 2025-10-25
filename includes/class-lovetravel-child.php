@@ -86,9 +86,6 @@ class LoveTravelChild {
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-favicon.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-admin-notices.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-elementor-template-importer.php';
-		// DEPRECATED: Legacy widget extensions (replaced with standalone widgets in Phase 2)
-		// require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-elementor-search-widget-extension.php';
-		// require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-elementor-packages-widget-extension.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/helpers.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/favicon-helpers.php';
 
@@ -133,21 +130,6 @@ class LoveTravelChild {
 
 		// Flush rewrite rules on theme activation
 		$this->loader->addAction( 'after_switch_theme', $taxonomyManager, 'flushRewriteRules' );
-	}
-
-	/**
-	 * Register typology metabox hooks.
-	 *
-	 * DEPRECATED: Metabox now managed by Elementor Manager.
-	 * Kept for backwards compatibility during migration.
-	 *
-	 * @since  2.0.0
-	 * @access private
-	 * @deprecated 2.1.0 Use Elementor Manager instead
-	 */
-	private function defineMetaboxHooks() {
-		// Metabox registration moved to Elementor Manager
-		// This method intentionally left empty during migration
 	}
 
 	/**
@@ -198,7 +180,6 @@ class LoveTravelChild {
 	 * Register Elementor integration hooks.
 	 *
 	 * Uses centralized Elementor Manager for widgets, metaboxes, and dynamic tags.
-	 * Also registers legacy widget extensions (Search, Packages) - to be migrated.
 	 *
 	 * @since  2.0.0
 	 * @access private
@@ -281,74 +262,6 @@ class LoveTravelChild {
 			$elementorManager,
 			'enqueue_editor_styles'
 		);
-
-		/*
-		 * DEPRECATED: Legacy widget extensions (October 25, 2025)
-		 *
-		 * Replaced with standalone widgets in Phase 2:
-		 * - Search Widget Extension → class-search-widget.php
-		 * - Packages Widget Extension → class-packages-widget.php
-		 *
-		 * Code preserved below for reference but commented out.
-		 * Remove completely after verifying no pages use legacy widgets.
-		 */
-
-		/*
-		// Search Widget Extension (LEGACY: DEPRECATED in v2.2.0)
-		$searchWidgetExtension = new LoveTravelChildElementorSearchWidgetExtension();
-
-		// Inject Month taxonomy controls after Min Ages section
-		$this->loader->addAction(
-			'elementor/element/Search/content_section_minages/after_section_end',
-			$searchWidgetExtension,
-			'addMonthControls',
-			10,
-			2
-		);
-
-		// Modify Search widget render output to include Month taxonomy
-		$this->loader->addFilter(
-			'elementor/widget/render_content',
-			$searchWidgetExtension,
-			'modifySearchWidgetRender',
-			10,
-			2
-		);
-
-		// Packages Widget Extension (LEGACY: DEPRECATED in v2.2.0)
-		if ( get_option( 'lovetravel_child_enable_custom_packages_layout', 0 ) ) {
-			$packagesWidgetExtension = new LoveTravelChildElementorPackagesWidgetExtension(
-				$this->getThemeName(),
-				$this->getVersion()
-			);
-
-			// Run a one-time migration on admin_init
-			$this->loader->addAction(
-				'admin_init',
-				$packagesWidgetExtension,
-				'migrateSavedLayouts',
-				1
-			);
-
-			// Frontend: Replace default render when custom layout enabled globally
-			$this->loader->addFilter(
-				'elementor/frontend/widget/should_render',
-				$packagesWidgetExtension,
-				'shouldRenderWidget',
-				10,
-				2
-			);
-
-			// Editor: Intercept render content when custom layout enabled globally
-			$this->loader->addFilter(
-				'elementor/widget/render_content',
-				$packagesWidgetExtension,
-				'interceptRender',
-				10,
-				2
-			);
-		}
-		*/
 	}
 
 	/**
