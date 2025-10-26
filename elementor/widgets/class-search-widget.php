@@ -465,7 +465,7 @@ class LoveTravelChild_Search_Widget extends \Elementor\Widget_Base {
 				'label'     => esc_html__( 'Background Color', 'lovetravel-child' ),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => array(
-					'{{WRAPPER}} .nd_travel_elementor_search_component' => 'background-color: {{VALUE}}',
+					'{{WRAPPER}} .nd_travel_search_components_form' => 'background-color: {{VALUE}}',
 				),
 			)
 		);
@@ -477,7 +477,7 @@ class LoveTravelChild_Search_Widget extends \Elementor\Widget_Base {
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => array( 'px', '%', 'em', 'rem', 'custom' ),
 				'selectors'  => array(
-					'{{WRAPPER}} .nd_travel_elementor_search_component' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					'{{WRAPPER}} .nd_travel_search_components_form' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				),
 			)
 		);
@@ -486,7 +486,7 @@ class LoveTravelChild_Search_Widget extends \Elementor\Widget_Base {
 			\Elementor\Group_Control_Border::get_type(),
 			array(
 				'name'     => 'style_content_border',
-				'selector' => '{{WRAPPER}} .nd_travel_elementor_search_component',
+				'selector' => '{{WRAPPER}} .nd_travel_search_components_form',
 			)
 		);
 
@@ -494,7 +494,7 @@ class LoveTravelChild_Search_Widget extends \Elementor\Widget_Base {
 			\Elementor\Group_Control_Box_Shadow::get_type(),
 			array(
 				'name'     => 'style_content_box_shadow',
-				'selector' => '{{WRAPPER}} .nd_travel_elementor_search_component',
+				'selector' => '{{WRAPPER}} .nd_travel_search_components_form',
 			)
 		);
 
@@ -512,7 +512,7 @@ class LoveTravelChild_Search_Widget extends \Elementor\Widget_Base {
 					),
 				),
 				'selectors'  => array(
-					'{{WRAPPER}} .nd_travel_elementor_search_component' => 'border-radius: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .nd_travel_search_components_form' => 'border-radius: {{SIZE}}{{UNIT}};',
 				),
 			)
 		);
