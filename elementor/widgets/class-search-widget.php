@@ -2,7 +2,7 @@
 /**
  * Search Widget (Standalone)
  *
- * Custom Elementor widget for adventure search form with Month taxonomy integration.
+ * Custom Elementor widget for adventure search form with date range integration.
  * Replaces hook-based extension with self-contained widget.
  *
  * @package    LoveTravelChild
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Search Widget Class
  *
- * Standalone Elementor widget with built-in Month taxonomy support.
+ * Standalone Elementor widget with built-in date range support.
  * No dependency on nd-travel Search widget hooks.
  *
  * @since      2.2.0
@@ -93,21 +93,7 @@ class LoveTravelChild_Search_Widget extends \Elementor\Widget_Base {
 			)
 		);
 
-		$this->add_control(
-			'search_columns',
-			array(
-				'label'   => esc_html__( 'Columns', 'lovetravel-child' ),
-				'type'    => \Elementor\Controls_Manager::SELECT,
-				'default' => 'nd_elements_width_25_percentage',
-				'options' => array(
-					'nd_elements_width_100_percentage' => esc_html__( '1 Column', 'lovetravel-child' ),
-					'nd_elements_width_50_percentage'  => esc_html__( '2 Columns', 'lovetravel-child' ),
-					'nd_elements_width_33_percentage'  => esc_html__( '3 Columns', 'lovetravel-child' ),
-					'nd_elements_width_25_percentage'  => esc_html__( '4 Columns', 'lovetravel-child' ),
-					'nd_elements_width_20_percentage'  => esc_html__( '5 Columns', 'lovetravel-child' ),
-				),
-			)
-		);
+
 
 		$this->add_control(
 			'search_submit_text',
@@ -403,47 +389,49 @@ class LoveTravelChild_Search_Widget extends \Elementor\Widget_Base {
 
 		$this->end_controls_section();
 
-		// Months Section (CHILD THEME ADDITION)
+
+
+		// Date Range Section (CHILD THEME ADDITION)
 		$this->start_controls_section(
-			'content_section_months',
+			'content_date_range',
 			array(
-				'label' => esc_html__( 'Months', 'lovetravel-child' ),
+				'label' => esc_html__( 'Date Range', 'lovetravel-child' ),
 				'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
 			)
 		);
 
 		$this->add_control(
-			'search_months_show',
+			'search_date_range_show',
 			array(
-				'label'        => esc_html__( 'Months', 'lovetravel-child' ),
-				'type'         => \Elementor\Controls_Manager::SWITCHER,
-				'label_on'     => esc_html__( 'Show', 'lovetravel-child' ),
-				'label_off'    => esc_html__( 'Hide', 'lovetravel-child' ),
+				'label'       => esc_html__( 'Date Range Search', 'lovetravel-child' ),
+				'type'        => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'    => esc_html__( 'Show', 'lovetravel-child' ),
+				'label_off'   => esc_html__( 'Hide', 'lovetravel-child' ),
 				'return_value' => 'yes',
-				'default'      => 'yes',
+				'default'     => 'yes',
+				'description' => esc_html__( 'Show date range picker for departure and return dates', 'lovetravel-child' ),
 			)
 		);
 
 		$this->add_control(
-			'search_months_title',
+			'search_date_range_title',
 			array(
-				'label'       => esc_html__( 'Label', 'lovetravel-child' ),
-				'type'        => \Elementor\Controls_Manager::TEXT,
-				'default'     => esc_html__( 'Months', 'lovetravel-child' ),
-				'placeholder' => esc_html__( 'Type your title here', 'lovetravel-child' ),
-				'condition'   => array(
-					'search_months_show' => array( 'yes' ),
+				'label'     => esc_html__( 'Title', 'lovetravel-child' ),
+				'type'      => \Elementor\Controls_Manager::TEXT,
+				'default'   => esc_html__( 'Dates', 'lovetravel-child' ),
+				'condition' => array(
+					'search_date_range_show' => array( 'yes' ),
 				),
 			)
 		);
 
 		$this->add_control(
-			'search_months_icon',
+			'search_date_range_icon',
 			array(
 				'label'     => esc_html__( 'Icon', 'lovetravel-child' ),
 				'type'      => \Elementor\Controls_Manager::ICONS,
 				'condition' => array(
-					'search_months_show' => array( 'yes' ),
+					'search_date_range_show' => array( 'yes' ),
 				),
 			)
 		);
@@ -723,6 +711,105 @@ class LoveTravelChild_Search_Widget extends \Elementor\Widget_Base {
 			)
 		);
 
+		$this->add_control(
+			'style_submit_width',
+			array(
+				'label'      => esc_html__( 'Width', 'lovetravel-child' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px', '%', 'vw' ),
+				'range'      => array(
+					'%' => array(
+						'min' => 10,
+						'max' => 100,
+					),
+					'px' => array(
+						'min' => 50,
+						'max' => 500,
+					),
+				),
+				'default'    => array(
+					'unit' => '%',
+					'size' => 100,
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .nd_travel_search_components_submit' => 'width: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		// Hover state heading
+		$this->add_control(
+			'style_submit_hover_heading',
+			array(
+				'label'     => esc_html__( 'Hover', 'lovetravel-child' ),
+				'type'      => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			)
+		);
+
+		$this->add_control(
+			'style_submit_hover_text_color',
+			array(
+				'label'     => esc_html__( 'Hover Text Color', 'lovetravel-child' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .nd_travel_search_components_submit:hover' => 'color: {{VALUE}}',
+				),
+			)
+		);
+
+		$this->add_control(
+			'style_submit_hover_bg_color',
+			array(
+				'label'     => esc_html__( 'Hover Background Color', 'lovetravel-child' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .nd_travel_search_components_submit:hover' => 'background-color: {{VALUE}}',
+				),
+			)
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Border::get_type(),
+			array(
+				'name'     => 'style_submit_hover_border',
+				'label'    => esc_html__( 'Hover Border', 'lovetravel-child' ),
+				'selector' => '{{WRAPPER}} .nd_travel_search_components_submit:hover',
+			)
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Box_Shadow::get_type(),
+			array(
+				'name'     => 'style_submit_hover_box_shadow',
+				'label'    => esc_html__( 'Hover Box Shadow', 'lovetravel-child' ),
+				'selector' => '{{WRAPPER}} .nd_travel_search_components_submit:hover',
+			)
+		);
+
+		$this->add_control(
+			'style_submit_hover_transition',
+			array(
+				'label'      => esc_html__( 'Transition Duration', 'lovetravel-child' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'ms' ),
+				'range'      => array(
+					'ms' => array(
+						'min'  => 0,
+						'max'  => 1000,
+						'step' => 50,
+					),
+				),
+				'default'    => array(
+					'unit' => 'ms',
+					'size' => 300,
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .nd_travel_search_components_submit' => 'transition: all {{SIZE}}{{UNIT}} ease;',
+				),
+			)
+		);
+
 		$this->end_controls_section();
 
 		// STYLE TAB - Columns Section
@@ -813,102 +900,343 @@ class LoveTravelChild_Search_Widget extends \Elementor\Widget_Base {
 	/**
 	 * Render widget output on the frontend.
 	 *
-	 * @since  2.2.0
+	 * @since  2.6.2
 	 */
 	protected function render() {
 		$settings = $this->get_settings_for_display();
 
-		// Extract settings
-		$columns     = ! empty( $settings['search_columns'] ) ? $settings['search_columns'] : 'nd_elements_width_25_percentage';
-		$submit_text = ! empty( $settings['search_submit_text'] ) ? $settings['search_submit_text'] : esc_html__( 'Search', 'lovetravel-child' );
-
 		// Get search page URL from nd-travel plugin settings
 		$archive_url = function_exists( 'nd_travel_search_page' ) ? nd_travel_search_page() : home_url( '/' );
+		$submit_text = ! empty( $settings['search_submit_text'] ) ? $settings['search_submit_text'] : esc_html__( 'Search', 'lovetravel-child' );
 
-		// Start form
 		?>
-		<div class="nd_travel_section nd_travel_search_components_form">
-			<form method="get" action="<?php echo esc_url( $archive_url ); ?>">
+		<div class="lovetravel-search-widget">
+			<form method="get" action="<?php echo esc_url( $archive_url ); ?>" class="lovetravel-search-form">
 				
 				<?php
-				// Keyword (text input)
+				$fields = array();
+				
+				// Keyword field
 				if ( 'yes' === $settings['search_keyword_show'] ) {
-					$this->render_keyword_field(
-						$settings['search_keyword_title'],
-						$settings['search_keyword_icon'],
-						$columns
+					$fields[] = array(
+						'type'  => 'keyword',
+						'title' => $settings['search_keyword_title'],
+						'icon'  => $settings['search_keyword_icon'],
 					);
 				}
 
-				// Destinations (special rendering - CPT not taxonomy)
+				// Destinations field
 				if ( 'yes' === $settings['search_destination_show'] ) {
-					$this->render_destinations_field(
-						$settings['search_destination_title'],
-						$settings['search_destination_icon'],
-						$columns
+					$fields[] = array(
+						'type'  => 'destination',
+						'title' => $settings['search_destination_title'],
+						'icon'  => $settings['search_destination_icon'],
 					);
 				}
 
-				// Typologies (special rendering - CPT not taxonomy)
+				// Typologies field
 				if ( 'yes' === $settings['search_typologies_show'] ) {
-					$this->render_typologies_field(
-						$settings['search_typologies_title'],
-						$settings['search_typologies_icon'],
-						$columns
+					$fields[] = array(
+						'type'  => 'typologies',
+						'title' => $settings['search_typologies_title'],
+						'icon'  => $settings['search_typologies_icon'],
 					);
 				}
 
-				// Durations
+				// Durations field
 				if ( 'yes' === $settings['search_durations_show'] ) {
-					$this->render_taxonomy_field(
-						'durations',
-						'nd_travel_cpt_1_tax_1',
-						$settings['search_durations_title'],
-						$settings['search_durations_icon'],
-						$columns
+					$fields[] = array(
+						'type'     => 'taxonomy',
+						'taxonomy' => 'nd_travel_cpt_1_tax_1',
+						'title'    => $settings['search_durations_title'],
+						'icon'     => $settings['search_durations_icon'],
+						'name'     => 'durations',
 					);
 				}
 
-				// Difficulties
+				// Difficulties field
 				if ( 'yes' === $settings['search_difficulties_show'] ) {
-					$this->render_taxonomy_field(
-						'difficulties',
-						'nd_travel_cpt_1_tax_2',
-						$settings['search_difficulties_title'],
-						$settings['search_difficulties_icon'],
-						$columns
+					$fields[] = array(
+						'type'     => 'taxonomy',
+						'taxonomy' => 'nd_travel_cpt_1_tax_2',
+						'title'    => $settings['search_difficulties_title'],
+						'icon'     => $settings['search_difficulties_icon'],
+						'name'     => 'difficulties',
 					);
 				}
 
-				// Min Ages
+				// Min Ages field
 				if ( 'yes' === $settings['search_minages_show'] ) {
-					$this->render_taxonomy_field(
-						'minages',
-						'nd_travel_cpt_1_tax_3',
-						$settings['search_minages_title'],
-						$settings['search_minages_icon'],
-						$columns
+					$fields[] = array(
+						'type'     => 'taxonomy',
+						'taxonomy' => 'nd_travel_cpt_1_tax_3',
+						'title'    => $settings['search_minages_title'],
+						'icon'     => $settings['search_minages_icon'],
+						'name'     => 'minages',
 					);
 				}
 
-				// Months (CHILD THEME ADDITION)
-				if ( 'yes' === $settings['search_months_show'] ) {
-					$this->render_taxonomy_field(
-						'months',
-						'nd_travel_cpt_1_tax_4',
-						$settings['search_months_title'],
-						$settings['search_months_icon'],
-						$columns
+				// Date Range field
+				if ( 'yes' === $settings['search_date_range_show'] ) {
+					$fields[] = array(
+						'type'  => 'date_range',
+						'title' => $settings['search_date_range_title'],
+						'icon'  => $settings['search_date_range_icon'],
 					);
+				}
+
+				// Render all fields
+				foreach ( $fields as $index => $field ) {
+					$this->render_search_column( $field, $index === count( $fields ) - 1 );
 				}
 				?>
 
-				<!-- Submit Button -->
-				<div id="nd_travel_search_components_submit" class="nd_travel_float_left nd_travel_position_relative nd_travel_width_100_percentage_responsive nd_travel_box_sizing_border_box nd_travel_search_components_column <?php echo esc_attr( $columns ); ?>">
-					<input class="nd_travel_section nd_travel_search_components_submit" type="submit" value="<?php echo esc_attr( $settings['search_submit_text'] ); ?>">
+				<!-- Submit Column -->
+				<div class="lovetravel-search-column lovetravel-search-submit-column">
+					<button type="submit" class="lovetravel-search-submit-btn">
+						<?php echo esc_html( $submit_text ); ?>
+					</button>
 				</div>
 
 			</form>
+		</div>
+		
+		<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const form = document.querySelector('.lovetravel-search-form');
+			if (!form) return;
+			
+			form.addEventListener('submit', function(e) {
+				const dateInput = form.querySelector('input[name="lovetravel_date_display"]');
+				const hiddenInput = form.querySelector('input[name="nd_travel_archive_form_date"]');
+				
+				if (dateInput && hiddenInput && dateInput.value) {
+					// Convert YYYY-MM-DD to YYYYMMDD
+					const dateValue = dateInput.value.replace(/-/g, '');
+					hiddenInput.value = dateValue;
+				}
+			});
+		});
+		</script>
+		<?php
+	}
+
+	/**
+	 * Render individual search column.
+	 *
+	 * @since  2.6.2
+	 * @param  array   $field     Field configuration.
+	 * @param  boolean $is_last   Whether this is the last field.
+	 */
+	private function render_search_column( $field, $is_last = false ) {
+		$column_class = 'lovetravel-search-column';
+		if ( ! $is_last ) {
+			$column_class .= ' lovetravel-search-column-divider';
+		}
+		?>
+		<div class="<?php echo esc_attr( $column_class ); ?>" data-field-type="<?php echo esc_attr( $field['type'] ); ?>">
+			<div class="lovetravel-search-field">
+				
+				<!-- Icon Column -->
+				<div class="lovetravel-search-icon">
+					<?php $this->render_field_icon( $field['icon'] ); ?>
+				</div>
+
+				<!-- Content Column -->
+				<div class="lovetravel-search-content">
+					<label class="lovetravel-search-label"><?php echo esc_html( $field['title'] ); ?></label>
+					<div class="lovetravel-search-input-wrapper">
+						<?php $this->render_field_input( $field ); ?>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render field icon.
+	 *
+	 * @since  2.6.2
+	 * @param  mixed $icon Icon configuration.
+	 */
+	private function render_field_icon( $icon ) {
+		if ( ! empty( $icon['value'] ) ) {
+			if ( 'svg' === $icon['library'] ) {
+				echo $icon['value']['url'] ? '<img src="' . esc_url( $icon['value']['url'] ) . '" alt="" class="lovetravel-search-icon-svg">' : '';
+			} else {
+				echo '<i class="' . esc_attr( $icon['value'] ) . '"></i>';
+			}
+		} else {
+			// Default icons based on field type
+			echo '<i class="fas fa-search"></i>';
+		}
+	}
+
+	/**
+	 * Render field input based on type.
+	 *
+	 * @since  2.6.2
+	 * @param  array $field Field configuration.
+	 */
+	private function render_field_input( $field ) {
+		switch ( $field['type'] ) {
+			case 'keyword':
+				$this->render_keyword_input();
+				break;
+			case 'destination':
+				$this->render_destination_input();
+				break;
+			case 'typologies':
+				$this->render_typologies_input();
+				break;
+			case 'taxonomy':
+				$this->render_taxonomy_input( $field['taxonomy'], $field['name'] );
+				break;
+			case 'date_range':
+				$this->render_date_range_input();
+				break;
+			default:
+				echo '<input type="text" placeholder="' . esc_attr( $field['title'] ) . '">';
+		}
+	}
+
+	/**
+	 * Render keyword text input.
+	 *
+	 * @since  2.6.2
+	 */
+	private function render_keyword_input() {
+		$current_value = isset( $_GET['nd_travel_archive_form_keyword'] ) ? sanitize_text_field( $_GET['nd_travel_archive_form_keyword'] ) : '';
+		?>
+		<input 
+			type="text" 
+			name="nd_travel_archive_form_keyword" 
+			value="<?php echo esc_attr( $current_value ); ?>"
+			placeholder="<?php esc_attr_e( 'Search adventures...', 'lovetravel-child' ); ?>"
+			class="lovetravel-search-input"
+		>
+		<?php
+	}
+
+	/**
+	 * Render destinations select dropdown.
+	 *
+	 * @since  2.6.2
+	 */
+	private function render_destination_input() {
+		$destinations = get_posts( array(
+			'post_type'      => 'nd_travel_cpt_2',
+			'posts_per_page' => -1,
+			'post_status'    => 'publish',
+			'orderby'        => 'title',
+			'order'          => 'ASC',
+		) );
+
+		$current_value = isset( $_GET['nd_travel_archive_form_destination'] ) ? sanitize_text_field( $_GET['nd_travel_archive_form_destination'] ) : '';
+		?>
+		<select name="nd_travel_archive_form_destination" class="lovetravel-search-select">
+			<option value=""><?php esc_html_e( 'Choose destination', 'lovetravel-child' ); ?></option>
+			<?php foreach ( $destinations as $destination ) : ?>
+				<option value="<?php echo esc_attr( $destination->ID ); ?>" <?php selected( $current_value, $destination->ID ); ?>>
+					<?php echo esc_html( $destination->post_title ); ?>
+				</option>
+			<?php endforeach; ?>
+		</select>
+		<?php
+	}
+
+	/**
+	 * Render typologies select dropdown.
+	 *
+	 * @since  2.6.2
+	 */
+	private function render_typologies_input() {
+		$typologies = get_posts( array(
+			'post_type'      => 'nd_travel_cpt_3',
+			'posts_per_page' => -1,
+			'post_status'    => 'publish',
+			'orderby'        => 'title',
+			'order'          => 'ASC',
+		) );
+
+		$current_value = isset( $_GET['nd_travel_archive_form_typology'] ) ? sanitize_text_field( $_GET['nd_travel_archive_form_typology'] ) : '';
+		?>
+		<select name="nd_travel_archive_form_typology" class="lovetravel-search-select">
+			<option value=""><?php esc_html_e( 'Choose typology', 'lovetravel-child' ); ?></option>
+			<?php foreach ( $typologies as $typology ) : ?>
+				<option value="<?php echo esc_attr( $typology->ID ); ?>" <?php selected( $current_value, $typology->ID ); ?>>
+					<?php echo esc_html( $typology->post_title ); ?>
+				</option>
+			<?php endforeach; ?>
+		</select>
+		<?php
+	}
+
+	/**
+	 * Render taxonomy select dropdown.
+	 *
+	 * @since  2.6.2
+	 * @param  string $taxonomy Taxonomy name.
+	 * @param  string $name     Field name.
+	 */
+	private function render_taxonomy_input( $taxonomy, $name ) {
+		$terms = get_terms( array(
+			'taxonomy'   => $taxonomy,
+			'hide_empty' => false,
+		) );
+
+		if ( is_wp_error( $terms ) || empty( $terms ) ) {
+			return;
+		}
+
+		$current_value = isset( $_GET[ 'nd_travel_archive_form_' . $name ] ) ? sanitize_text_field( $_GET[ 'nd_travel_archive_form_' . $name ] ) : '';
+		?>
+		<select name="nd_travel_archive_form_<?php echo esc_attr( $name ); ?>" class="lovetravel-search-select">
+			<option value=""><?php echo esc_html( sprintf( __( 'Choose %s', 'lovetravel-child' ), strtolower( $name ) ) ); ?></option>
+			<?php foreach ( $terms as $term ) : ?>
+				<option value="<?php echo esc_attr( $term->term_id ); ?>" <?php selected( $current_value, $term->term_id ); ?>>
+					<?php echo esc_html( $term->name ); ?>
+				</option>
+			<?php endforeach; ?>
+		</select>
+		<?php
+	}
+
+	/**
+	 * Render date range inputs.
+	 *
+	 * @since  2.6.2
+	 */
+	private function render_date_range_input() {
+		// Get current date parameter (plugin format) and convert for display
+		$current_date = isset( $_GET['nd_travel_archive_form_date'] ) ? sanitize_text_field( $_GET['nd_travel_archive_form_date'] ) : '';
+		$display_date = '';
+		
+		if ( $current_date && preg_match( '/^\d{8}$/', $current_date ) ) {
+			// Convert YYYYMMDD to YYYY-MM-DD for HTML5 date input
+			$display_date = substr( $current_date, 0, 4 ) . '-' . substr( $current_date, 4, 2 ) . '-' . substr( $current_date, 6, 2 );
+		}
+		?>
+		<div class="lovetravel-date-range-inputs">
+			<div class="lovetravel-date-input-group">
+				<span class="lovetravel-date-label"><?php esc_html_e( 'Departure Date', 'lovetravel-child' ); ?></span>
+				<input 
+					type="date" 
+					name="lovetravel_date_display" 
+					value="<?php echo esc_attr( $display_date ); ?>"
+					class="lovetravel-date-input"
+					data-date-format="dd.mm.yyyy"
+				>
+				<!-- Hidden input for plugin compatibility -->
+				<input 
+					type="hidden" 
+					name="nd_travel_archive_form_date" 
+					value="<?php echo esc_attr( $current_date ); ?>"
+					class="lovetravel-date-hidden"
+				>
+			</div>
 		</div>
 		<?php
 	}
@@ -1125,5 +1453,62 @@ class LoveTravelChild_Search_Widget extends \Elementor\Widget_Base {
 			}
 		}
 		return '';
+	}
+
+	/**
+	 * Render date range field for travel date search.
+	 *
+	 * Uses HTML5 date inputs with JavaScript enhancement for better UX.
+	 * Searches packages based on nd_travel_meta_box_availability_from/to fields.
+	 *
+	 * @since  2.3.0
+	 * @param  string $label      Field label.
+	 * @param  mixed  $icon       Icon array or string.
+	 * @param  string $columns    Column width class.
+	 */
+	private function render_date_range_field( $label, $icon, $columns ) {
+		$today = date( 'd.m.Y' );
+		?>
+		<div class="nd_travel_search_column nd_travel_search_date_range <?php echo esc_attr( $columns ); ?>">
+			<div class="nd_travel_search_column_inner">
+				<div class="nd_travel_search_icon_container">
+					<?php
+					if ( ! empty( $icon['value'] ) ) {
+						if ( is_string( $icon['value'] ) ) {
+							echo '<i class="nd_travel_search_icon ' . esc_attr( $icon['value'] ) . '"></i>';
+						} elseif ( is_array( $icon['value'] ) && ! empty( $icon['value']['url'] ) ) {
+							echo '<img class="nd_travel_search_icon" src="' . esc_url( $icon['value']['url'] ) . '" alt="' . esc_attr( $label ) . '">';
+						}
+					}
+					?>
+				</div>
+				<div class="nd_travel_search_content">
+					<label class="nd_travel_search_label"><?php echo esc_html( $label ); ?></label>
+					<div class="nd_travel_search_date_inputs">
+						<input 
+							type="text" 
+							class="nd_travel_search_input nd_travel_date_from" 
+							name="nd_travel_archive_form_date_from"
+							placeholder="<?php echo esc_attr__( 'From', 'lovetravel-child' ); ?>"
+							data-date-format="dd.mm.yyyy"
+							data-min-date="<?php echo esc_attr( $today ); ?>"
+							maxlength="10"
+							autocomplete="off"
+						>
+						<input 
+							type="text" 
+							class="nd_travel_search_input nd_travel_date_to" 
+							name="nd_travel_archive_form_date_to"
+							placeholder="<?php echo esc_attr__( 'To', 'lovetravel-child' ); ?>"
+							data-date-format="dd.mm.yyyy"
+							data-min-date="<?php echo esc_attr( $today ); ?>"
+							maxlength="10"
+							autocomplete="off"
+						>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
 	}
 }

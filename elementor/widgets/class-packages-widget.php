@@ -195,6 +195,43 @@ class LoveTravelChild_Packages_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
+			'enable_search_filters',
+			array(
+				'label'        => esc_html__( 'Enable Search Filters', 'lovetravel-child' ),
+				'description'  => esc_html__( 'Allow filtering via URL parameters (price, dates, taxonomies)', 'lovetravel-child' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'lovetravel-child' ),
+				'label_off'    => esc_html__( 'No', 'lovetravel-child' ),
+				'return_value' => 'yes',
+				'default'      => 'yes',
+			)
+		);
+
+		$this->add_control(
+			'show_no_results',
+			array(
+				'label'        => esc_html__( 'Show No Results Message', 'lovetravel-child' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'lovetravel-child' ),
+				'label_off'    => esc_html__( 'No', 'lovetravel-child' ),
+				'return_value' => 'yes',
+				'default'      => 'yes',
+			)
+		);
+
+		$this->add_control(
+			'no_results_text',
+			array(
+				'label'       => esc_html__( 'No Results Text', 'lovetravel-child' ),
+				'type'        => \Elementor\Controls_Manager::TEXTAREA,
+				'default'     => esc_html__( 'No adventures found matching your criteria. Please try adjusting your filters.', 'lovetravel-child' ),
+				'condition'   => array(
+					'show_no_results' => 'yes',
+				),
+			)
+		);
+
+		$this->add_control(
 			'load_more_show',
 			array(
 				'label'        => esc_html__( 'Load More', 'lovetravel-child' ),
@@ -287,6 +324,11 @@ class LoveTravelChild_Packages_Widget extends \Elementor\Widget_Base {
 			'orderby'        => $nd_travel_postgrid_orderby,
 		);
 
+		// Handle search query
+		if ( is_search() && ! empty( get_search_query() ) ) {
+			$args['s'] = get_search_query();
+		}
+
 		// Add specific package ID if set
 		if ( ! empty( $packages_id ) ) {
 			$args['p'] = $packages_id;
@@ -340,11 +382,181 @@ class LoveTravelChild_Packages_Widget extends \Elementor\Widget_Base {
 			);
 		}
 
+		// Initialize meta_query and tax_query arrays if not set
+		if ( ! isset( $args['meta_query'] ) ) {
+			$args['meta_query'] = array(); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		}
+		if ( ! isset( $args['tax_query'] ) ) {
+			$args['tax_query'] = array(); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+		}
+
+		// SEARCH FILTERS: Process URL parameters from filter widgets (if enabled)
+		$enable_search_filters = isset( $settings['enable_search_filters'] ) && 'yes' === $settings['enable_search_filters'];
+
+		if ( $enable_search_filters ) {
+			// Price Range Filter
+			if ( isset( $_GET['price_min'] ) || isset( $_GET['price_max'] ) ) {
+			$price_min = isset( $_GET['price_min'] ) ? intval( $_GET['price_min'] ) : 0;
+			$price_max = isset( $_GET['price_max'] ) ? intval( $_GET['price_max'] ) : 999999;
+
+			$args['meta_query'][] = array(
+				'key'     => 'nd_travel_meta_box_price',
+				'value'   => array( $price_min, $price_max ),
+				'type'    => 'NUMERIC',
+				'compare' => 'BETWEEN',
+			);
+		}
+
+		// Date Range Filter
+		if ( isset( $_GET['date_from'] ) || isset( $_GET['date_to'] ) ) {
+			$date_from = isset( $_GET['date_from'] ) ? sanitize_text_field( $_GET['date_from'] ) : '';
+			$date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( $_GET['date_to'] ) : '';
+
+			// Convert YYYY-MM-DD to YYYYMMDD for nd-travel format
+			$date_from_formatted = '';
+			$date_to_formatted   = '';
+			if ( ! empty( $date_from ) ) {
+				$date_from_formatted = str_replace( '-', '', $date_from );
+			}
+			if ( ! empty( $date_to ) ) {
+				$date_to_formatted = str_replace( '-', '', $date_to );
+			}
+
+			// Use overlap logic: package_start <= requested_end AND package_end >= requested_start
+			if ( ! empty( $date_from_formatted ) || ! empty( $date_to_formatted ) ) {
+				$sub_queries = array();
+				if ( ! empty( $date_to_formatted ) ) {
+					$sub_queries[] = array(
+						'key'     => 'nd_travel_meta_box_availability_from',
+						'value'   => $date_to_formatted,
+						'type'    => 'NUMERIC',
+						'compare' => '<=',
+					);
+				}
+				if ( ! empty( $date_from_formatted ) ) {
+					$sub_queries[] = array(
+						'key'     => 'nd_travel_meta_box_availability_to',
+						'value'   => $date_from_formatted,
+						'type'    => 'NUMERIC',
+						'compare' => '>=',
+					);
+				}
+
+				if ( ! empty( $sub_queries ) ) {
+					$sub_queries['relation'] = 'AND';
+					$args['meta_query'][] = $sub_queries; // package overlaps requested range
+				}
+			}
+		}
+
+		// Taxonomy / meta-based Filters
+		// Support legacy taxonomy params (term IDs) and modern meta-stored slugs for destinations/typologies.
+		// cpt_1_tax_0 => destinations (can be term IDs or slugs)
+		// cpt_1_tax_1/2/3 => real taxonomies (term IDs)
+		// cpt_2 => typologies (expects array of slugs)
+
+		// Destinations: handle as term IDs OR slugs stored in meta key nd_travel_meta_box_destinations
+		if ( isset( $_GET['cpt_1_tax_0'] ) && ! empty( $_GET['cpt_1_tax_0'] ) ) {
+			$values = (array) $_GET['cpt_1_tax_0'];
+			// Detect numeric IDs
+			$all_numeric = array_reduce( $values, function( $carry, $item ) {
+				return $carry && is_numeric( $item );
+			}, true );
+
+			if ( $all_numeric ) {
+				$term_ids = array_map( 'intval', $values );
+				$args['tax_query'][] = array(
+					'taxonomy' => 'nd_travel_cpt_1_tax_0',
+					'field'    => 'term_id',
+					'terms'    => $term_ids,
+					'operator' => 'IN',
+				);
+			} else {
+				// Treat as slugs stored in meta (comma separated). Build OR meta queries matching each slug.
+				$meta_sub = array();
+				foreach ( $values as $slug ) {
+					$meta_sub[] = array(
+						'key'     => 'nd_travel_meta_box_destinations',
+						'value'   => sanitize_text_field( $slug ),
+						'compare' => 'LIKE',
+					);
+				}
+				if ( ! empty( $meta_sub ) ) {
+					$meta_sub['relation'] = 'OR';
+					$args['meta_query'][] = $meta_sub;
+				}
+			}
+		}
+
+		// Typologies: expect param 'cpt_2' (array of slugs stored in meta nd_travel_meta_box_typologies)
+		if ( isset( $_GET['cpt_2'] ) && ! empty( $_GET['cpt_2'] ) ) {
+			$typology_slugs = (array) $_GET['cpt_2'];
+			$meta_sub        = array();
+			foreach ( $typology_slugs as $slug ) {
+				$meta_sub[] = array(
+					'key'     => 'nd_travel_meta_box_typologies',
+					'value'   => sanitize_text_field( $slug ),
+					'compare' => 'LIKE',
+				);
+			}
+			if ( ! empty( $meta_sub ) ) {
+				$meta_sub['relation'] = 'OR';
+				$args['meta_query'][]   = $meta_sub;
+			}
+		}
+
+		// Other taxonomy params that remain as term IDs
+		$taxonomy_filters = array(
+			'cpt_1_tax_1' => 'nd_travel_cpt_1_tax_1', // Durations
+			'cpt_1_tax_2' => 'nd_travel_cpt_1_tax_2', // Difficulties
+			'cpt_1_tax_3' => 'nd_travel_cpt_1_tax_3', // Min Ages
+		);
+
+		foreach ( $taxonomy_filters as $param => $taxonomy ) {
+			if ( isset( $_GET[ $param ] ) && ! empty( $_GET[ $param ] ) ) {
+				$term_ids = (array) $_GET[ $param ];
+				$term_ids = array_map( 'intval', $term_ids );
+
+				if ( ! empty( $term_ids ) ) {
+					$args['tax_query'][] = array(
+						'taxonomy' => $taxonomy,
+						'field'    => 'term_id',
+						'terms'    => $term_ids,
+						'operator' => 'IN',
+					);
+				}
+			}
+		}
+
+		// Set tax_query relation if multiple taxonomies
+		if ( count( $args['tax_query'] ) > 1 ) {
+			$args['tax_query']['relation'] = 'AND';
+		}
+
+		// Set meta_query relation if multiple meta queries
+		if ( count( $args['meta_query'] ) > 1 ) {
+			$args['meta_query']['relation'] = 'AND';
+		}
+		// End search filters
+		}
+
 		// Run query
 		$the_query = new WP_Query( $args );
 
 		// Start output
 		echo '<div class="nd_travel_section nd_travel_masonry_content">';
+
+		// Check if query has posts
+		if ( ! $the_query->have_posts() ) {
+			// No results - show message if enabled
+			$show_no_results = isset( $settings['show_no_results'] ) && 'yes' === $settings['show_no_results'];
+			if ( $show_no_results ) {
+				$no_results_text = isset( $settings['no_results_text'] ) ? $settings['no_results_text'] : esc_html__( 'No adventures found matching your criteria. Please try adjusting your filters.', 'lovetravel-child' );
+				echo '<div class="lovetravel-no-results" style="padding: 40px 20px; text-align: center; width: 100%;">';
+				echo '<p style="font-size: 16px; color: #666; margin: 0;">' . esc_html( $no_results_text ) . '</p>';
+				echo '</div>';
+			}
+		}
 
 		while ( $the_query->have_posts() ) {
 			$the_query->the_post();
@@ -505,6 +717,13 @@ class LoveTravelChild_Packages_Widget extends \Elementor\Widget_Base {
 
 		// Start output buffering
 		ob_start();
+
+		// Check if query has posts - show message if not
+		if ( ! $the_query->have_posts() ) {
+			echo '<div class="lovetravel-no-results" style="padding: 40px 20px; text-align: center; width: 100%;">';
+			echo '<p style="font-size: 16px; color: #666; margin: 0;">' . esc_html__( 'No adventures found matching your criteria. Please try adjusting your filters.', 'lovetravel-child' ) . '</p>';
+			echo '</div>';
+		}
 
 		while ( $the_query->have_posts() ) {
 			$the_query->the_post();

@@ -90,16 +90,47 @@ class LoveTravelChildPublic {
 	 * Enqueue public scripts.
 	 *
 	 * Priority 20 ensures child theme scripts override parent theme and plugins.
+	 * Uses WordPress 6.5+ Script Modules API for modern ES6 modules.
 	 *
 	 * @since 2.0.0
 	 */
 	public function enqueueScripts() {
+		// For now, use a combined approach that works with current setup
+		// Load the main module as a regular script with module type
 		wp_enqueue_script(
-			$this->themeName . '-public',
-			get_stylesheet_directory_uri() . '/public/assets/js/public.js',
-			array( 'jquery' ),
+			$this->themeName . '-main',
+			get_stylesheet_directory_uri() . '/assets/js/modules/main.js',
+			array(), // No jQuery dependency for ES6 modules
 			$this->version,
 			true
 		);
+		
+		// Add module type attribute
+		add_filter( 'script_loader_tag', array( $this, 'add_module_to_script' ), 10, 3 );
+		
+		// Add basic localized data for WordPress integration
+		wp_localize_script( $this->themeName . '-main', 'lovetravelTheme', array(
+			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+			'nonce'   => wp_create_nonce( 'lovetravel_nonce' ),
+			'isAdmin' => is_admin(),
+		) );
+
+		// Localize Load More specific data (used by packages load-more component).
+		wp_localize_script( $this->themeName . '-main', 'lovetravelLoadMore', array(
+			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+			'nonce'   => wp_create_nonce( 'lovetravel_load_more_nonce' ),
+		) );
+	}
+	
+	/**
+	 * Add module type to main script
+	 *
+	 * @since 2.3.0
+	 */
+	public function add_module_to_script( $tag, $handle, $src ) {
+		if ( $this->themeName . '-main' === $handle ) {
+			$tag = '<script type="module" src="' . esc_url( $src ) . '" id="' . esc_attr( $handle ) . '-js"></script>';
+		}
+		return $tag;
 	}
 }

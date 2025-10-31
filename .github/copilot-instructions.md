@@ -90,6 +90,12 @@ This **VS Code Workspace** includes the child theme and all related plugins/them
 - Enqueue parent assets first, child assets after with proper dependencies
 - Use `add_action`/`add_filter` instead of editing parent/plugin files
 
+**Brand Color Palette (mandatory)**:
+- `#ffffff` - Background (primary white)
+- `#000000` - Text, primary foreground
+- `#EA5B10` - Accent color (orange - buttons, links, icons, highlights)
+- `#363635` - Borders, secondary text, subtle elements
+
 **PHPDoc blocks**:
 ```php
 /**
@@ -102,10 +108,25 @@ This **VS Code Workspace** includes the child theme and all related plugins/them
 
 **Avoid commenting self-explanatory code** — add comments only where necessary, keep short and clean.
 
-**JavaScript**:
-- Use ES modules where possible
-- Avoid global pollution
-- Modular structure in `assets/js/`
+**JavaScript (ES6 Modules - MANDATORY)**:
+- **NO jQuery** - Use vanilla JavaScript with modern ES6+ features
+- **Module System**: WordPress 6.5+ Script Modules API (`wp_enqueue_script_module`)
+- **Import/Export**: Use ES6 import/export syntax exclusively
+- **Classes**: Use ES6 classes for components, utilities as functions/objects
+- **Async/Await**: Use modern async patterns, avoid callbacks
+- **DOM Manipulation**: Custom DOMCollection class (jQuery replacement)
+- **AJAX**: Modern fetch API with WordPress integration
+- **Structure**: Modular organization in `assets/js/modules/`
+  ```
+  modules/
+  ├── core/           # Core utilities (dom-utils, ajax-utils, wp-utils)
+  ├── components/     # Reusable UI components (classes)
+  └── main.js         # Theme orchestrator/entry point
+  ```
+- **WordPress Integration**: Use `wp.hooks`, `wp.element`, localized data
+- **Performance**: Event delegation, lazy loading, minimal DOM queries
+- **Accessibility**: ARIA labels, keyboard support, screen reader text
+- **Error Handling**: Try/catch blocks, graceful degradation
 
 ---
 
@@ -279,10 +300,8 @@ lovetravel-child/
 ├── public/                                 # PUBLIC-ONLY functionality
 │   ├── class-lovetravel-child-public.php  # Frontend hooks, enqueue
 │   ├── assets/
-│   │   ├── css/
-│   │   │   └── public.css                 # Frontend-specific styles
-│   │   └── js/
-│   │       └── public.js                  # Frontend-specific scripts
+│   │   └── css/
+│   │       └── public.css                 # Frontend-specific styles
 │   └── partials/                          # Frontend view templates
 │
 ├── includes/                               # SHARED utilities & core (NOT Elementor-specific)
@@ -546,7 +565,7 @@ elementor/
 ## CURRENT PROJECT STATE
 
 WordPress child theme extending LoveTravel parent theme with:
-- **Version**: 2.2.0 (PRODUCTION READY - October 25, 2025)
+- **Version**: 2.6.1 (PRODUCTION READY - January 28, 2025)
 - **Base Architecture**: OOP structure (plugin-boilerplate pattern)
 - **Folder Structure**: NEW - All Elementor code in dedicated `elementor/` folder
 - **Admin Settings**: Settings page under Appearance menu with template management
@@ -558,7 +577,10 @@ WordPress child theme extending LoveTravel parent theme with:
 - ✅ Admin/Public separation
 - ✅ Favicon system with Customizer integration
 - ✅ Taxonomy Manager class (modular, reusable)
-- ✅ Month taxonomy registered with all 12 months
+- ✅ **MONTHS TAXONOMY COMPLETELY ELIMINATED** ✅
+  - ✅ Months taxonomy (nd_travel_cpt_1_tax_4) removed from system
+  - ✅ Replaced with HTML5 date range inputs (dd.mm.yyyy format)
+  - ✅ All Elementor editor controls cleaned up
 - ✅ **PHASE 1 COMPLETE: Folder structure migration** ✅
   - ✅ New `elementor/` folder with 6 subdirectories
   - ✅ Elementor Manager class (centralized orchestrator)
@@ -582,6 +604,13 @@ WordPress child theme extending LoveTravel parent theme with:
   - ✅ AJAX pagination for Packages widget
   - ✅ Masonry re-initialization
   - ✅ Editor context detection
+- ✅ **JAVASCRIPT MODERNIZATION COMPLETE** ✅
+  - ✅ jQuery elimination - 100% vanilla JavaScript
+  - ✅ ES6 module architecture with WordPress 6.5+ Script Modules API
+  - ✅ Core utilities: DOMCollection (jQuery replacement), AJAX (fetch-based), WordPress integration
+  - ✅ Component classes: TeamMemberCard, PackagesLoadMore, AdminNotices
+  - ✅ Main orchestrator with global event handling and component management
+  - ✅ Modern patterns: async/await, event delegation, accessibility, error handling
 - ✅ **DOCUMENTATION RESTRUCTURE** ✅
   - ✅ README.md updated to reflect v2.2.0 state
   - ✅ TODO.md restructured for future development
@@ -594,7 +623,7 @@ WordPress child theme extending LoveTravel parent theme with:
 - `nd_travel_cpt_1_tax_1` - Durations taxonomy (child theme overrides labels)
 - `nd_travel_cpt_1_tax_2` - Difficulty taxonomy (child theme overrides labels)
 - `nd_travel_cpt_1_tax_3` - Min Age taxonomy (child theme overrides labels)
-- `nd_travel_cpt_1_tax_4` - **Month taxonomy (registered by child theme)** ✅
+- **Date Search**: HTML5 date range inputs using nd_travel_meta_box_availability_from/to fields ✅
 - `nd_travel_cpt_2` - Typologies CPT (has custom Card Settings metabox)
 
 **Elementor Integration**:

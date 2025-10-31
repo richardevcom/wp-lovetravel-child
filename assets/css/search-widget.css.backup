@@ -1,0 +1,226 @@
+/**
+ * Adventure Search Widget Styles
+ *
+ * Custom styling for the search widget functionality including date range picker.
+ *
+ * @package LoveTravelChild
+ * @since   2.3.0
+ */
+
+/* Column cursor pointer - no hover effects */
+.nd_travel_search_components_column {
+	cursor: pointer;
+}
+
+/* Ensure labels also show pointer cursor */
+.nd_travel_search_components_column .nd_travel_search_components_label {
+	cursor: pointer;
+}
+
+.nd_travel_search_components_form {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+/* Remove borders from first and last columns */
+.nd_travel_search_components_form > form > .nd_travel_search_components_column:first-child {
+	border-left: none !important;
+}
+
+.nd_travel_search_components_form > form > .nd_travel_search_components_column:last-child {
+	border-right: none !important;
+}
+
+/* Submit button full width - more specific selectors */
+.nd_travel_search_components_form .nd_travel_search_components_submit,
+.nd_travel_search_components_form input.nd_travel_search_components_submit {
+	width: 100% !important;
+	box-sizing: border-box !important;
+	min-width: 100% !important;
+}
+
+/* Submit button container should also be full width */
+.nd_travel_search_components_form #nd_travel_search_components_submit {
+	display: block !important;
+	padding: 0 !important;
+}
+
+/* Form field interactions */
+.nd_travel_search_components_field {
+	cursor: pointer;
+	position: relative;
+	z-index: 1;
+}
+
+/* Ensure text inputs don't interfere with column clicks */
+.nd_travel_search_components_column input[type="text"] {
+	cursor: text;
+	z-index: 2;
+	position: relative;
+}
+
+/* Submit button should maintain normal cursor */
+.nd_travel_search_components_submit {
+	cursor: pointer;
+	z-index: 2;
+	position: relative;
+}
+
+/* Remove default focus outline and style select dropdown */
+.nd_travel_search_components_field:focus {
+	outline: none !important;
+	border-color: unset !important;
+	box-shadow: none !important;
+}
+
+/* Enhanced select dropdown styling - modern and clean */
+.nd_travel_search_components_field[size]:not([size="1"]) {
+	position: absolute;
+	z-index: 1000;
+	min-width: 220px;
+	max-height: 250px;
+	overflow-y: auto;
+	background: #ffffff;
+	border: 1px solid #EA5B10 !important;
+	border-radius: 8px;
+	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+	padding: 8px 0;
+	margin-top: 4px;
+	font-family: inherit;
+	font-size: 14px;
+	line-height: 1.4;
+}
+
+/* Style individual options in dropdown */
+.nd_travel_search_components_field[size]:not([size="1"]) option {
+	padding: 12px 16px;
+	margin: 0;
+	border: none;
+	background: transparent;
+	color: #363635;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+/* Option hover and selected states */
+.nd_travel_search_components_field[size]:not([size="1"]) option:hover {
+	background-color: #f8f9fa;
+	color: #EA5B10;
+}
+
+.nd_travel_search_components_field[size]:not([size="1"]) option:checked,
+.nd_travel_search_components_field[size]:not([size="1"]) option:selected {
+	background-color: #EA5B10;
+	color: #ffffff;
+}
+
+/* Scrollbar styling for dropdown */
+.nd_travel_search_components_field[size]:not([size="1"])::-webkit-scrollbar {
+	width: 6px;
+}
+
+.nd_travel_search_components_field[size]:not([size="1"])::-webkit-scrollbar-track {
+	background: #f1f1f1;
+	border-radius: 3px;
+}
+
+.nd_travel_search_components_field[size]:not([size="1"])::-webkit-scrollbar-thumb {
+	background: #EA5B10;
+	border-radius: 3px;
+}
+
+.nd_travel_search_components_field[size]:not([size="1"])::-webkit-scrollbar-thumb:hover {
+	background: #d54d0a;
+}
+
+/* Date Range Field Styling */
+#nd_travel_search_components_date_range {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+}
+
+#nd_travel_search_components_date_range .nd_travel_search_components_label {
+	margin-bottom: 8px;
+}
+
+/* Date inputs row container */
+.nd_travel_date_inputs_row {
+	display: flex;
+	gap: 8px;
+	width: 100%;
+}
+
+/* Date inputs styling */
+.nd_travel_date_from,
+.nd_travel_date_to {
+	flex: 1;
+	padding: 12px 16px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font-size: 16px;
+	box-sizing: border-box;
+	transition: border-color 0.3s ease;
+	text-align: center;
+	background: #fff;
+	cursor: pointer;
+}
+
+.nd_travel_date_from:focus,
+.nd_travel_date_to:focus {
+	border-color: #EA5B10;
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(234, 91, 16, 0.2);
+}
+
+/* Hide any calendar picker indicators */
+.nd_travel_date_from::-webkit-calendar-picker-indicator,
+.nd_travel_date_to::-webkit-calendar-picker-indicator {
+	display: none;
+}
+
+.nd_travel_date_from::-webkit-inner-spin-button,
+.nd_travel_date_to::-webkit-inner-spin-button {
+	display: none;
+}
+
+.nd_travel_date_from::-webkit-clear-button,
+.nd_travel_date_to::-webkit-clear-button {
+	display: none;
+}
+
+/* Invalid date state */
+.nd_travel_date_from:invalid,
+.nd_travel_date_to:invalid {
+	border-color: #dc3545;
+}
+
+/* Hover effect */
+.nd_travel_date_from:hover,
+.nd_travel_date_to:hover {
+	border-color: #EA5B10;
+}
+
+/* Placeholder styling */
+.nd_travel_date_from::placeholder,
+.nd_travel_date_to::placeholder {
+	color: #999;
+	font-style: italic;
+}
+
+/* Responsive date fields */
+@media (max-width: 768px) {
+	.nd_travel_date_inputs_row {
+		flex-direction: column;
+		gap: 6px;
+	}
+	
+	.nd_travel_date_from,
+	.nd_travel_date_to {
+		font-size: 16px; /* Prevent iOS zoom */
+		padding: 10px 14px;
+		flex: none;
+		width: 100%;
+	}
+}

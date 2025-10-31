@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Theme constants
  */
-define( 'LOVETRAVEL_CHILD_VERSION', '2.2.0' );
+define( 'LOVETRAVEL_CHILD_VERSION', '2.8.0' );
 define( 'LOVETRAVEL_CHILD_PATH', get_stylesheet_directory() );
 define( 'LOVETRAVEL_CHILD_URI', get_stylesheet_directory_uri() );
 

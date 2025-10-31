@@ -63,6 +63,7 @@ class LoveTravelChild {
 		$this->loadDependencies();
 		$this->setLocale();
 		$this->defineTaxonomyHooks();
+		$this->defineMemberCPTHooks();
 		$this->defineAdminHooks();
 		$this->definePublicHooks();
 		$this->defineElementorHooks();
@@ -82,6 +83,7 @@ class LoveTravelChild {
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-loader.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-i18n.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-taxonomy-manager.php';
+		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-member-cpt.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-favicon.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-admin-notices.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-elementor-template-importer.php';
@@ -89,6 +91,7 @@ class LoveTravelChild {
 		// require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-elementor-search-widget-extension.php';
 		// require_once LOVETRAVEL_CHILD_PATH . '/includes/class-lovetravel-child-elementor-packages-widget-extension.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/helpers.php';
+		require_once LOVETRAVEL_CHILD_PATH . '/includes/member-helpers.php';
 		require_once LOVETRAVEL_CHILD_PATH . '/includes/favicon-helpers.php';
 
 		// Elementor manager (loads widgets, metaboxes, dynamic tags)
@@ -105,14 +108,15 @@ class LoveTravelChild {
 	}
 
 	/**
-	 * Define the locale for internationalization.
+	 * Define locale and text domain.
 	 *
 	 * @since  2.0.0
 	 * @access private
 	 */
 	private function setLocale() {
 		$themeI18n = new LoveTravelChildI18n();
-		$this->loader->addAction( 'after_setup_theme', $themeI18n, 'loadThemeTextdomain' );
+		// Load textdomain on init to comply with WordPress 6.7+ requirements
+		$this->loader->addAction( 'init', $themeI18n, 'loadThemeTextdomain' );
 	}
 
 	/**
@@ -132,6 +136,36 @@ class LoveTravelChild {
 
 		// Flush rewrite rules on theme activation
 		$this->loader->addAction( 'after_switch_theme', $taxonomyManager, 'flushRewriteRules' );
+	}
+
+	/**
+	 * Register Member custom post type hooks.
+	 *
+	 * @since  2.2.0
+	 * @access private
+	 */
+	private function defineMemberCPTHooks() {
+		// Initialize Member CPT manager
+		$memberCPT = new LoveTravelChild_Member_CPT( $this->getThemeName(), $this->getVersion() );
+
+		// Register custom post type
+		$this->loader->addAction( 'init', $memberCPT, 'register_post_type' );
+
+		// Register meta boxes
+		$this->loader->addAction( 'add_meta_boxes', $memberCPT, 'register_meta_boxes' );
+
+		// Save meta fields
+		$this->loader->addAction( 'save_post', $memberCPT, 'save_member_meta' );
+
+		// Admin columns
+		$this->loader->addFilter( 'manage_lovetravel_member_posts_columns', $memberCPT, 'customize_admin_columns' );
+		$this->loader->addAction( 'manage_lovetravel_member_posts_custom_column', $memberCPT, 'display_admin_column_content', 10, 2 );
+
+		// Register meta fields for REST API
+		$this->loader->addAction( 'init', $memberCPT, 'register_meta_fields' );
+
+		// Disable Gutenberg editor (force classic editor)
+		$this->loader->addFilter( 'use_block_editor_for_post_type', $memberCPT, 'disable_gutenberg_editor', 10, 2 );
 	}
 
 	/**
@@ -242,11 +276,26 @@ class LoveTravelChild {
 			'register_ajax_handlers'
 		);
 
+		// Enqueue widget styles on frontend
+		$this->loader->addAction(
+			'wp_enqueue_scripts',
+			$elementorManager,
+			'enqueue_styles',
+			25
+		);
+
 		// Enqueue Load More scripts on frontend
 		$this->loader->addAction(
 			'elementor/frontend/after_enqueue_scripts',
 			$elementorManager,
 			'enqueue_packages_scripts'
+		);
+
+		// Enqueue widget styles in Elementor editor
+		$this->loader->addAction(
+			'elementor/editor/after_enqueue_styles',
+			$elementorManager,
+			'enqueue_styles'
 		);
 
 		// Enqueue plugin CSS in Elementor editor (fixes preview issues)
@@ -256,7 +305,14 @@ class LoveTravelChild {
 			'enqueue_editor_styles'
 		);
 
-		// Also enqueue in preview mode
+		// Enqueue widget styles in preview mode
+		$this->loader->addAction(
+			'elementor/preview/enqueue_styles',
+			$elementorManager,
+			'enqueue_styles'
+		);
+
+		// Also enqueue plugin styles in preview mode
 		$this->loader->addAction(
 			'elementor/preview/enqueue_styles',
 			$elementorManager,

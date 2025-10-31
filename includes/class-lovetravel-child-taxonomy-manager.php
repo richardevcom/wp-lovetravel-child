@@ -50,49 +50,9 @@ class LoveTravelChildTaxonomyManager {
 	 * @access private
 	 */
 	private function setupTaxonomies() {
-		// Month taxonomy (new)
-		$this->taxonomies['nd_travel_cpt_1_tax_4'] = array(
-			'post_type' => 'nd_travel_cpt_1',
-			'labels'    => array(
-				'name'              => __( 'Months', 'lovetravel-child' ),
-				'singular_name'     => __( 'Month', 'lovetravel-child' ),
-				'menu_name'         => __( 'Months', 'lovetravel-child' ),
-				'all_items'         => __( 'All Months', 'lovetravel-child' ),
-				'edit_item'         => __( 'Edit Month', 'lovetravel-child' ),
-				'view_item'         => __( 'View Month', 'lovetravel-child' ),
-				'update_item'       => __( 'Update Month', 'lovetravel-child' ),
-				'add_new_item'      => __( 'Add New Month', 'lovetravel-child' ),
-				'new_item_name'     => __( 'New Month Name', 'lovetravel-child' ),
-				'search_items'      => __( 'Search Months', 'lovetravel-child' ),
-				'popular_items'     => __( 'Popular Months', 'lovetravel-child' ),
-				'not_found'         => __( 'No months found', 'lovetravel-child' ),
-				'back_to_items'     => __( '← Back to Months', 'lovetravel-child' ),
-			),
-			'args'      => array(
-				'hierarchical'      => true,
-				'public'            => true,
-				'show_ui'           => true,
-				'show_admin_column' => true,
-				'show_in_nav_menus' => true,
-				'show_in_rest'      => true,
-				'query_var'         => true,
-				'rewrite'           => array( 'slug' => 'month-packages' ),
-			),
-			'terms'     => array(
-				'January'   => 'january',
-				'February'  => 'february',
-				'March'     => 'march',
-				'April'     => 'april',
-				'May'       => 'may',
-				'June'      => 'june',
-				'July'      => 'july',
-				'August'    => 'august',
-				'September' => 'september',
-				'October'   => 'october',
-				'November'  => 'november',
-				'December'  => 'december',
-			),
-		);
+		// Note: Month taxonomy removed in favor of date range search functionality
+		// Date-based filtering now uses nd_travel_meta_box_availability_from/to fields
+		// instead of taxonomy terms for better precision and flexibility
 	}
 
 	/**

@@ -91,15 +91,29 @@ class LoveTravelChild_Elementor_Manager {
 	public function register_widgets( $widgets_manager ) {
 		// Load widget files
 		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-typology-card-widget.php';
-		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-typology-cards-widget.php';
 		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-search-widget.php';
 		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-packages-widget.php';
+		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-team-member-card-widget.php';
+		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-team-member-grid-widget.php';
+		
+		// Filter widgets (for search/archive pages)
+		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-price-range-filter-widget.php';
+		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-date-range-filter-widget.php';
+		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-taxonomy-filter-widget.php';
+		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-selected-filters-widget.php';
 
 		// Register widgets
-		$widgets_manager->register( new \LoveTravelChildTypologyCardWidget() );
-		$widgets_manager->register( new \LoveTravelChildTypologyCardsWidget() );
+		$widgets_manager->register( new \LoveTravelChild_Typology_Card_Widget() );
 		$widgets_manager->register( new \LoveTravelChild_Search_Widget() );
 		$widgets_manager->register( new \LoveTravelChild_Packages_Widget() );
+		$widgets_manager->register( new \LoveTravelChild_Team_Member_Card_Widget() );
+		$widgets_manager->register( new \LoveTravelChild_Team_Member_Grid_Widget() );
+		
+		// Register filter widgets
+		$widgets_manager->register( new \LoveTravelChild_Price_Range_Filter_Widget() );
+		$widgets_manager->register( new \LoveTravelChild_Date_Range_Filter_Widget() );
+		$widgets_manager->register( new \LoveTravelChild_Taxonomy_Filter_Widget() );
+		$widgets_manager->register( new \LoveTravelChild_Selected_Filters_Widget() );
 	}
 
 	/**
@@ -115,7 +129,7 @@ class LoveTravelChild_Elementor_Manager {
 		require_once plugin_dir_path( __FILE__ ) . 'metaboxes/class-typology-card-metabox.php';
 
 		// Metaboxes auto-register via hooks in their constructors
-		new LoveTravelChild_Typology_Card_Metabox( $this->theme_name, $this->version );
+		new LoveTravelChildTypologyCardMetabox( $this->theme_name, $this->version );
 	}
 
 	/**
@@ -142,34 +156,13 @@ class LoveTravelChild_Elementor_Manager {
 	/**
 	 * Enqueue Load More scripts for Packages widget.
 	 *
-	 * Loads JavaScript and localizes AJAX variables for frontend.
+	 * Uses ES6 modules for modern functionality.
 	 *
 	 * @since    2.2.0
 	 */
 	public function enqueue_packages_scripts() {
-		// Only enqueue on frontend (not in editor)
-		if ( \Elementor\Plugin::$instance->editor->is_edit_mode() ) {
-			return;
-		}
-
-		// Enqueue Load More script
-		wp_enqueue_script(
-			'lovetravel-child-packages-load-more',
-			get_stylesheet_directory_uri() . '/elementor/assets/js/packages-load-more.js',
-			array( 'jquery', 'masonry', 'imagesloaded' ),
-			$this->version,
-			true
-		);
-
-		// Localize script with AJAX URL and nonce
-		wp_localize_script(
-			'lovetravel-child-packages-load-more',
-			'lovetravelLoadMore',
-			array(
-				'ajaxurl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'lovetravel_load_more_nonce' ),
-			)
-		);
+		// ES6 modules handle packages functionality
+		// No separate script needed - handled by main.js module
 	}
 
 	/**
@@ -228,8 +221,32 @@ class LoveTravelChild_Elementor_Manager {
 	 * @since    2.0.0
 	 */
 	public function enqueue_styles() {
-		// Future: Elementor-specific styles
-		// wp_enqueue_style( $this->theme_name . '-elementor', ... );
+		// Enqueue Typology Card widget styles
+		wp_enqueue_style(
+			$this->theme_name . '-typology-card-widget',
+			get_stylesheet_directory_uri() . '/assets/css/typology-card-widget.css',
+			array(),
+			$this->version,
+			'all'
+		);
+
+		// Enqueue Team Member Card widget styles
+		wp_enqueue_style(
+			$this->theme_name . '-team-member-card-widget',
+			get_stylesheet_directory_uri() . '/assets/css/team-member-card-widget.css',
+			array(),
+			$this->version,
+			'all'
+		);
+
+		// Enqueue Search widget styles
+		wp_enqueue_style(
+			$this->theme_name . '-search-widget',
+			get_stylesheet_directory_uri() . '/assets/css/search-widget.css',
+			array(),
+			$this->version,
+			'all'
+		);
 	}
 
 	/**
@@ -301,8 +318,7 @@ class LoveTravelChild_Elementor_Manager {
 /* Remove gray background from LoveTravel Child widgets in editor */
 .elementor-element.elementor-widget-lovetravel-child-search,
 .elementor-element.elementor-widget-lovetravel-child-packages,
-.elementor-element.elementor-widget-lovetravel-childtypologycardwidget,
-.elementor-element.elementor-widget-lovetravel-childtypologycardswidget {
+.elementor-element.elementor-widget-lovetravel-child-typology-card {
 	background-color: transparent !important;
 }
 			';
@@ -313,11 +329,13 @@ class LoveTravelChild_Elementor_Manager {
 	/**
 	 * Enqueue Elementor-specific scripts.
 	 *
+	 * Uses ES6 modules for modern functionality.
+	 *
 	 * @since    2.0.0
 	 */
 	public function enqueue_scripts() {
-		// Future: Elementor-specific scripts
-		// wp_enqueue_script( $this->theme_name . '-elementor', ... );
+		// ES6 modules handle all widget functionality
+		// No separate scripts needed - handled by main.js module
 	}
 
 }

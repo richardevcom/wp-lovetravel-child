@@ -1,0 +1,217 @@
+/**
+ * Typology Card Widget Styles - Brand New
+ *
+ * Clean, horizontal layout with icon on left, content on right.
+ * 15px rounded corners, white background, 50px icon size.
+ *
+ * @package LoveTravelChild
+ * @since   2.2.0
+ */
+
+/* Container */
+.typology-card-container {
+	width: 100%;
+	max-width: 100%;
+	display: flex;
+}
+
+/* Main Card */
+.typology-card {
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: start;
+	align-items: center;
+	gap: 16px;
+	background-color: #ffffff;
+	border: 1px solid #e0e0e0;
+	border-radius: 15px;
+	padding: 20px;
+	text-decoration: none;
+	color: inherit;
+	position: relative;
+	overflow: hidden;
+	transition: all 0.3s ease;
+	box-sizing: border-box;
+	box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Background Image Overlay - Removed by default */
+/* .typology-card.has-background-image::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(255, 255, 255, 0.9);
+	z-index: 1;
+}
+
+.typology-card.has-background-image > * {
+	position: relative;
+	z-index: 2;
+} */
+
+/* Icon */
+.typology-card-icon {
+	width: 50px;
+	height: 50px;
+	flex-shrink: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+.typology-card-icon i,
+.typology-card-icon svg {
+	font-size: 50px;
+	color: #333333;
+	display: block;
+	line-height: 1;
+	vertical-align: middle;
+	flex-shrink: 0;
+}
+
+.typology-card-icon img {
+	width: 50px;
+	height: 50px;
+	object-fit: contain;
+	display: block;
+	margin: 0 auto;
+	flex-shrink: 0;
+}
+
+/* Content */
+.typology-card-content {
+	flex: 1;
+	min-width: 0; /* Prevent text overflow */
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: start;
+}
+
+.typology-card-title {
+	margin: 0;
+	padding: 0;
+	font-family: 'Inter', sans-serif;
+	font-size: 24px;
+	font-weight: 700;
+	line-height: 1.3;
+	color: #000000;
+	word-wrap: break-word;
+	display: block;
+}
+
+.typology-card-subtitle {
+	margin: 0;
+	padding: 0;
+	font-family: 'Inter', sans-serif;
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1.4;
+	color: #6e6e6e;
+	word-wrap: break-word;
+	display: block;
+}
+
+/* Hover Effects */
+.typology-card[href] {
+	cursor: pointer;
+}
+
+/* Default hover transition for all cards with links */
+.typology-card[href]:hover {
+	transform: translateY(-2px);
+	box-shadow: 0px 4px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Elementor hover animations will override this */
+
+/* Placeholder (when no typology selected) */
+.typology-card-placeholder {
+	padding: 40px 20px;
+	text-align: center;
+	background-color: #f9f9f9;
+	border: 2px dashed #ddd;
+	border-radius: 15px;
+	color: #666;
+	font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	.typology-card {
+		padding: 15px;
+		gap: 12px;
+	}
+	
+	.typology-card-icon {
+		width: 40px;
+		height: 40px;
+	}
+	
+	.typology-card-icon i,
+	.typology-card-icon svg {
+		font-size: 20px;
+	}
+	
+	.typology-card-icon img {
+		width: 20px;
+		height: 20px;
+	}
+	
+	.typology-card-title {
+		font-size: 16px;
+	}
+	
+	.typology-card-subtitle {
+		font-size: 13px;
+	}
+}
+
+@media (max-width: 480px) {
+	.typology-card {
+		padding: 12px;
+		gap: 10px;
+	}
+	
+	.typology-card-icon {
+		width: 36px;
+		height: 36px;
+	}
+	
+	.typology-card-icon i,
+	.typology-card-icon svg {
+		font-size: 18px;
+	}
+	
+	.typology-card-icon img {
+		width: 18px;
+		height: 18px;
+	}
+	
+	.typology-card-title {
+		font-size: 15px;
+	}
+	
+	.typology-card-subtitle {
+		font-size: 12px;
+	}
+}
+
+/* RTL Support */
+[dir="rtl"] .typology-card {
+	flex-direction: row-reverse;
+}
+
+/* High DPI / Retina Support */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+	.typology-card-icon img {
+		image-rendering: -webkit-optimize-contrast;
+		image-rendering: crisp-edges;
+	}
+}
